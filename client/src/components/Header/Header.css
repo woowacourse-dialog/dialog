@@ -1,5 +1,5 @@
 .header {
-  background-color: #fff;
+  background-color: #FFF;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -93,8 +93,6 @@
 }
 
 .login-button {
-  display: flex;
-  align-items: center;
   background-color: #24292e;
   color: white;
 }
@@ -136,7 +134,7 @@
     top: 50%;
     transform: translate(-50%, -50%);
   }
-  
+
   .header-nav ul {
     gap: 1rem;
   }
@@ -153,4 +151,4 @@
   .header-logo span {
     font-size: 1.2rem;
   }
-} 
+}

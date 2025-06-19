@@ -1,28 +1,30 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.DiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
-import com.dialog.server.dto.response.*;
+import com.dialog.server.dto.response.DiscussionCreateResponse;
+import com.dialog.server.dto.response.DiscussionCursorPageResponse;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -35,6 +37,8 @@ public class DiscussionService {
     private static final int MAX_PAGE_SIZE = 50;
 
     private final DiscussionRepository discussionRepository;
+    private final DiscussionParticipantRepository discussionParticipantRepository;
+    private final LikeRepository likeRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -68,9 +72,13 @@ public class DiscussionService {
 
     @Transactional(readOnly = true)
     public DiscussionDetailResponse getDiscussionById(Long discussionId) {
-        Discussion savedDiscussion = discussionRepository.findById(discussionId)
+        Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-        return DiscussionDetailResponse.from(savedDiscussion);
+        List<DiscussionParticipant> discussionParticipants = discussionParticipantRepository.findByDiscussion(
+                discussion
+        );
+        long likeCount = likeRepository.countByDiscussion(discussion);
+        return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants);
     }
 
     @Transactional
@@ -84,7 +92,8 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(DiscussionCursorPageRequest request) {
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
+            DiscussionCursorPageRequest request) {
         int pageSize = request.size();
         String cursor = request.cursor();
 
@@ -97,7 +106,11 @@ public class DiscussionService {
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findDiscussionsBeforeDateCursor(cursorTime, cursorId, PageRequest.of(0, pageSize + 1));
+            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
+                    cursorTime,
+                    cursorId,
+                    PageRequest.of(0, pageSize + 1)
+            );
         }
 
         return buildDateCursorResponse(discussions, pageSize);
@@ -105,9 +118,9 @@ public class DiscussionService {
 
     @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussion(SearchType searchType,
-                                                                                 String query,
-                                                                                 String cursor,
-                                                                                 int size) {
+                                                                                    String query,
+                                                                                    String cursor,
+                                                                                    int size) {
         validatePageSize(size);
         List<Discussion> discussions;
         switch (searchType) {
@@ -129,13 +142,19 @@ public class DiscussionService {
                                                               int size) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findByTitleOrContentContainingPageable(query, PageRequest.of(0, size + 1));
+            discussions = discussionRepository.findByTitleOrContentContainingPageable(query,
+                    PageRequest.of(0, size + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findByTitleOrContentContainingBeforeDateCursor(query, cursorTime, cursorId, size + 1);
+            discussions = discussionRepository.findByTitleOrContentContainingBeforeDateCursor(
+                    query,
+                    cursorTime,
+                    cursorId,
+                    size + 1
+            );
         }
         return discussions;
     }
@@ -143,18 +162,27 @@ public class DiscussionService {
     private List<Discussion> searchDiscussionByAuthorNickname(String query, String cursor, int size) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findByAuthorNicknameContainingPageable(query, PageRequest.of(0, size + 1));
+            discussions = discussionRepository.findByAuthorNicknameContainingPageable(
+                    query,
+                    PageRequest.of(0, size + 1)
+            );
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findByAuthorNicknameContainingBeforeDateCursor(query, cursorTime, cursorId, size + 1);
+            discussions = discussionRepository.findByAuthorNicknameContainingBeforeDateCursor(
+                    query,
+                    cursorTime,
+                    cursorId,
+                    size + 1
+            );
         }
         return discussions;
     }
 
-    private DiscussionCursorPageResponse<DiscussionPreviewResponse> buildDateCursorResponse(List<Discussion> discussions, int pageSize) {
+    private DiscussionCursorPageResponse<DiscussionPreviewResponse> buildDateCursorResponse(
+            List<Discussion> discussions, int pageSize) {
         boolean hasNext = discussions.size() > pageSize;
 
         String nextCursor = null;
@@ -167,7 +195,9 @@ public class DiscussionService {
             nextCursor = cursorDiscussion.getCreatedAt().toString() + CURSOR_PART_DELIMITER + cursorDiscussion.getId();
         }
 
-        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream().map(DiscussionPreviewResponse::from).toList();
+        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
+                .map(DiscussionPreviewResponse::from)
+                .toList();
         return new DiscussionCursorPageResponse<>(responses, nextCursor, hasNext, pageSize);
     }
 }

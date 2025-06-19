@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/discussions/{discussionId}/participants")
+@RequestMapping("/api/discussions/{discussionId}/participants")
 @RequiredArgsConstructor
 public class DiscussionParticipantController {
 

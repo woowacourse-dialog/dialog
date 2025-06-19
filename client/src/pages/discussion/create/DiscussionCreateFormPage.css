@@ -1,0 +1,306 @@
+.discussion-create-page {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  padding-top: 64px; /* Header 높이만큼 여백 */
+}
+
+.discussion-create-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.discussion-create-form {
+  background-color: #4bd1cc;
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.discussion-create-form:hover {
+  box-shadow: 
+    0 6px 8px -1px rgba(0, 0, 0, 0.15),
+    0 3px 6px -1px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.discussion-create-form h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background-color: white;
+  transition: all var(--transition-speed);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4bd1cc !important;
+  box-shadow: 0 0 0 2px rgba(75, 209, 204, 0.1);
+}
+
+.participant-count {
+  width: 200px;
+  margin-bottom: 0;
+}
+
+/* 숫자 입력 화살표 스타일링 */
+.participant-count input[type="number"]::-webkit-outer-spin-button,
+.participant-count input[type="number"]::-webkit-inner-spin-button {
+  opacity: 1;
+  margin-left: 5px;
+}
+
+.datetime-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+
+.date-field {
+  flex: 0 0 200px;
+}
+
+.time-inputs {
+  flex: 1;
+  display: flex;
+  gap: 1rem;
+}
+
+.time-field {
+  flex: 1;
+}
+
+.date-field input,
+.time-field input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  color: var(--text-color);
+  background-color: white;
+  transition: all var(--transition-speed);
+}
+
+.date-field input:focus,
+.time-field input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.date-field label,
+.time-field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.date-field input::-webkit-calendar-picker-indicator,
+.time-field input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all var(--transition-speed);
+}
+
+.date-field input::-webkit-calendar-picker-indicator:hover,
+.time-field input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.discussion-form-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.discussion-form-actions .discussion-button {
+  width: 100%;
+  height: 45px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.discussion-form-actions .discussion-button-cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.discussion-form-actions .discussion-button-cancel:hover {
+  background-color: #d0d0d0;
+}
+
+.discussion-form-actions .discussion-button-submit {
+  background-color: #4bd1cc;
+  color: white;
+}
+
+.discussion-form-actions .discussion-button-submit:hover {
+  background-color: #3fb5b1;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .discussion-create-form {
+    background-color: var(--background-color-elevated);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.2),
+      0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .discussion-create-form:hover {
+    box-shadow: 
+      0 6px 8px -1px rgba(0, 0, 0, 0.25),
+      0 3px 6px -1px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .date-field input,
+  .time-field input,
+  .form-input {
+    background-color: white;
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+  }
+  
+  .date-field input:focus,
+  .time-field input:focus,
+  .form-input:focus {
+    border-color: var(--primary-color);
+  }
+
+  .discussion-form-actions .discussion-button-cancel {
+    background-color: #2d2d2d;
+    color: #999;
+  }
+
+  .discussion-form-actions .discussion-button-cancel:hover {
+    background-color: #333;
+  }
+}
+
+.track-options {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.track-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.track-option input[type="radio"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  outline: none;
+  margin: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.track-option input[type="radio"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.track-option input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  width: 0.4rem;
+  height: 0.4rem;
+  background-color: white;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.track-option:hover input[type="radio"] {
+  border-color: var(--primary-color-dark);
+}
+
+.track-option .radio-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  user-select: none;
+}
+
+/* 드롭다운 스타일링 */
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+select.form-input:focus {
+  outline: none;
+  border-color: #4bd1cc !important;
+  box-shadow: 0 0 0 2px rgba(75, 209, 204, 0.1);
+}
+
+/* 다크 모드에서도 드롭다운 화살표가 보이도록 설정 */
+@media (prefers-color-scheme: dark) {
+  select.form-input {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  }
+}

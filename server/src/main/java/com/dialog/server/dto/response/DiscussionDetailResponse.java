@@ -2,28 +2,46 @@ package com.dialog.server.dto.response;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
-import com.fasterxml.jackson.annotation.JsonFormat;
-
+import com.dialog.server.domain.DiscussionParticipant;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record DiscussionDetailResponse(
         Long id,
         String title,
         String content,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime startAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime endAt,
         String place,
-        Category category,
+        Category track,
         int participantCount,
         int maxParticipantCount,
         String summary,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
-        int viewCount
+        int viewCount,
+        long likeCount,
+        boolean isBookmarked,
+        AuthorResponse author,
+        List<ParticipantResponse> participants
 ) {
-    public static DiscussionDetailResponse from(Discussion discussion) {
+    public record AuthorResponse(
+            Long id,
+            String name,
+            String profileImage
+    ) {
+    }
+
+    public record ParticipantResponse(
+            Long id,
+            String name
+    ) {
+    }
+
+
+    public static DiscussionDetailResponse of(Discussion discussion,
+                                              long likeCount,
+                                              List<DiscussionParticipant> participants) {
         return new DiscussionDetailResponse(
                 discussion.getId(),
                 discussion.getTitle(),
@@ -37,7 +55,26 @@ public record DiscussionDetailResponse(
                 discussion.getSummary(),
                 discussion.getCreatedAt(),
                 discussion.getModifiedAt(),
-                discussion.getViewCount()
+                discussion.getViewCount(),
+                likeCount,
+                false,
+                toAuthorResponse(discussion),
+                toParticipantResponse(participants)
         );
+    }
+
+    private static AuthorResponse toAuthorResponse(Discussion discussion) {
+        return new AuthorResponse(
+                discussion.getAuthor().getId(),
+                discussion.getAuthor().getNickname(),
+                ""
+        );
+    }
+
+    private static List<ParticipantResponse> toParticipantResponse(List<DiscussionParticipant> participants) {
+        return participants.stream().map(participant -> new ParticipantResponse(
+                participant.getParticipant().getId(),
+                participant.getParticipant().getNickname()
+        )).toList();
     }
 }

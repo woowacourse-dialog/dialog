@@ -41,6 +41,7 @@ public class DiscussionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiSuccessResponse<DiscussionDetailResponse>> getDiscussion(@PathVariable Long id) {
+        // todo 토론 상세 페이지에서 작성자가 누구인지 알려주는 응답 생성
         DiscussionDetailResponse response = discussionService.getDiscussionById(id);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(response));
     }

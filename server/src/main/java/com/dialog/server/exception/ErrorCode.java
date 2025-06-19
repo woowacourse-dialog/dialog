@@ -21,7 +21,6 @@ public enum ErrorCode {
     ALREADY_LIKED("5010", "이미 좋아요를 눌렀습니다.", HttpStatus.BAD_REQUEST),
     NOT_LIKED_YET("5011", "좋아요를 누르지 않았습니다.", HttpStatus.BAD_REQUEST),
 
-    NOT_FOUND_USER("5021", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     NOT_FOUND_DISCUSSION("5022", "토론을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     ALREADY_PARTICIPATION_DISCUSSION("5023", "이미 참여 중인 토론입니다.", HttpStatus.BAD_REQUEST),
     PARTICIPATION_LIMIT_EXCEEDED("5024", "최대 참여자 수를 초과했습니다.", HttpStatus.BAD_REQUEST),

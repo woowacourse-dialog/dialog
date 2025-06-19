@@ -1,7 +1,7 @@
 .mypage-container {
   padding-top: 80px;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #fff;
 }
 
 .mypage-content {
@@ -13,4 +13,208 @@
 .mypage-content h1 {
   color: #333;
   margin-bottom: 2rem;
+}
+
+.mypage-info-box {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(60,64,67,0.08);
+  padding: 2rem 2.5rem;
+  max-width: 400px;
+  margin: 2rem auto 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.mypage-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  gap: 1rem;
+}
+
+.mypage-label {
+  color: #888;
+  font-weight: 500;
+  min-width: 90px;
+}
+
+.mypage-success-msg {
+  color: #4bd1cc;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+.mypage-success-msg.show {
+  opacity: 1;
+}
+
+/* 스위치 토글 스타일 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: .2s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+input:checked + .slider {
+  background-color: #4bd1cc;
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+.slider.round {
+  border-radius: 24px;
+}
+
+.mypage-profile-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(60,64,67,0.10);
+  max-width: 400px;
+  margin: 2.5rem auto 0 auto;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.mypage-profile-cover {
+  height: 80px;
+  background: linear-gradient(90deg, #4bd1cc 0%, #42a5f5 100%);
+}
+
+.mypage-profile-avatar-row {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  top: -42px;
+  margin-bottom: -32px;
+}
+
+.mypage-profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 2px 8px rgba(60,64,67,0.10);
+  background: #f5f5f5;
+}
+
+.mypage-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.mypage-profile-nickname {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.mypage-profile-email {
+  font-size: 0.98rem;
+  color: #888;
+  margin-bottom: 1.2rem;
+}
+
+.mypage-profile-divider {
+  width: 100%;
+  height: 1px;
+  background: #eee;
+  margin: 1.2rem 0 1.2rem 0;
+}
+
+.mypage-profile-settings {
+  max-width: 400px;
+  margin: 2rem auto 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(60,64,67,0.08);
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mypage-profile-card-horizontal {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(60,64,67,0.10);
+  max-width: 400px;
+  margin: 2.5rem auto 0 auto;
+  padding: 1.5rem 2rem;
+  gap: 2rem;
+}
+
+.mypage-profile-avatar-horizontal {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #e0e0e0;
+  background: #f5f5f5;
+}
+
+.mypage-profile-info-horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mypage-profile-nickname-horizontal {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.mypage-profile-email-horizontal {
+  font-size: 0.98rem;
+  color: #888;
+}
+
+@media (max-width: 600px) {
+  .mypage-profile-card-horizontal {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 1rem;
+  }
+  .mypage-profile-info-horizontal {
+    align-items: center;
+  }
 }

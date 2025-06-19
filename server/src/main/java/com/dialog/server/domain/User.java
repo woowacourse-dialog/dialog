@@ -77,6 +77,10 @@ public class User extends BaseEntity {
         return !role.equals(Role.TEMP_USER);
     }
 
+    public void updateNotificationSetting(boolean settingValue) {
+        emailNotification = settingValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

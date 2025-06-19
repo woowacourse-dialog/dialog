@@ -32,6 +32,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create
     properties:
@@ -39,6 +40,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data.sql
+
   security:
     oauth2:
       client:
@@ -69,6 +76,11 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
         show_sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations:
 
   security:
     oauth2:

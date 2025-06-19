@@ -22,6 +22,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Import(JpaConfig.class)
 @ActiveProfiles("test")
 @DataJpaTest
@@ -114,13 +117,14 @@ class ScrapServiceTest {
                 .author(user)
                 .category(Category.ANDROID)
                 .content("content")
-                .startAt(LocalDateTime.of(2025, 5, 15, 10, 1))
-                .endAt(LocalDateTime.of(2025, 5, 15, 11, 1))
+                .startAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(15))
+                .endAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(30))
                 .title("title")
                 .maxParticipantCount(3)
                 .participantCount(3)
                 .place("place")
                 .viewCount(3)
+                .summary("summary")
                 .build();
         return discussionRepository.save(discussion);
     }

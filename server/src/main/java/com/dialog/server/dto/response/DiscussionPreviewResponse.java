@@ -3,11 +3,13 @@ package com.dialog.server.dto.response;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
-public record DiscussionSlotResponse(
+public record DiscussionPreviewResponse(
         Long id,
         String title,
+        String author,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
         LocalDateTime startAt,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -21,10 +23,11 @@ public record DiscussionSlotResponse(
         int viewCount
 ) {
 
-    public static DiscussionSlotResponse from(Discussion discussion) {
-        return new DiscussionSlotResponse(
+    public static DiscussionPreviewResponse from(Discussion discussion) {
+        return new DiscussionPreviewResponse(
                 discussion.getId(),
                 discussion.getTitle(),
+                discussion.getAuthor().getNickname(),
                 discussion.getStartAt(),
                 discussion.getEndAt(),
                 discussion.getPlace(),

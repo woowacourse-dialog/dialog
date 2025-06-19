@@ -7,4 +7,4 @@ export const userApi = {
   },
 };
 
-export default userApi; 
+export default userApi;

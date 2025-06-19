@@ -11,24 +11,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/reservations/{reservationId}/scraps")
+@RequestMapping("/api/discussions/{discussionId}/scraps")
 @RequiredArgsConstructor
-public class ReservationScrapController {
+public class DiscussionScrapController {
 
     private static final Long FAKE_USER_ID = 1L;
 
     private final ScrapService scrapService;
 
     @PostMapping
-    public ResponseEntity<Void> scrap(@PathVariable Long reservationId) {
-        scrapService.create(FAKE_USER_ID, reservationId);
+    public ResponseEntity<Void> scrap(@PathVariable Long discussionId) {
+        scrapService.create(FAKE_USER_ID, discussionId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteScrap(@PathVariable Long reservationId) {
-        scrapService.delete(FAKE_USER_ID, reservationId);
+    public ResponseEntity<Void> deleteScrap(@PathVariable Long discussionId) {
+        scrapService.delete(FAKE_USER_ID, discussionId);
         return ResponseEntity.noContent()
                 .build();
     }

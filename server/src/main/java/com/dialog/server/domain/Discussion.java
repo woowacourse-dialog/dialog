@@ -124,8 +124,8 @@ public class Discussion extends BaseEntity {
         }
     }
 
-    private void validateSummaryLength(String content) {
-        if(content.isBlank() || content.length() > MAX_SUMMARY_LENGTH) {
+    private void validateSummaryLength(String summary) {
+        if(summary.isBlank() || summary.length() > MAX_SUMMARY_LENGTH) {
             throw new IllegalArgumentException();
         }
     }

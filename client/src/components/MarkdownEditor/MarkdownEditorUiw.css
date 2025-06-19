@@ -1,0 +1,55 @@
+.markdown-editor-uiw {
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* UIW 마크다운 에디터 커스텀 스타일 */
+.markdown-editor-uiw .w-md-editor {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.markdown-editor-uiw .w-md-editor-toolbar {
+  border-bottom: 1px solid #ddd !important;
+  background-color: #f8f9fa !important;
+  padding: 8px !important;
+}
+
+.markdown-editor-uiw .w-md-editor-toolbar li > button {
+  color: #666 !important;
+  transition: all var(--transition-speed);
+}
+
+.markdown-editor-uiw .w-md-editor-toolbar li > button:hover {
+  color: var(--primary-color) !important;
+  background-color: #eee !important;
+}
+
+.markdown-editor-uiw .w-md-editor-text {
+  padding: 16px !important;
+}
+
+.markdown-editor-uiw .w-md-editor-preview {
+  padding: 16px !important;
+  box-shadow: inset 1px 0 0 0 #ddd !important;
+}
+
+/* 다크 모드 지원 */
+[data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-toolbar {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+[data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-toolbar li > button {
+  color: #999 !important;
+}
+
+[data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-toolbar li > button:hover {
+  color: var(--primary-color) !important;
+  background-color: #2d2d2d !important;
+}
+
+[data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-preview {
+  box-shadow: inset 1px 0 0 0 #333 !important;
+} 

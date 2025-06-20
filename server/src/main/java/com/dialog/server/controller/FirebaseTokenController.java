@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/tokens")
+@RequestMapping("/api/fcm-tokens")
 @RestController
-public class NotificationController {
+public class FirebaseTokenController {
 
     private final NotificationService notificationService;
 

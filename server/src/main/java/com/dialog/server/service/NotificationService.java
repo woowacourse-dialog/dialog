@@ -16,15 +16,18 @@ public class NotificationService {
 
     private final MessagingTokenRepository messagingTokenRepository;
     private final UserRepository userRepository;
+    private final FcmService fcmService;
 
-    public NotificationService(MessagingTokenRepository messagingTokenRepository, UserRepository userRepository) {
+    public NotificationService(MessagingTokenRepository messagingTokenRepository, UserRepository userRepository,
+                               FcmService fcmService) {
         this.messagingTokenRepository = messagingTokenRepository;
         this.userRepository = userRepository;
+        this.fcmService = fcmService;
     }
 
     public TokenCreationResponse addMessagingToken(String oauthId, String token) {
         final User user = userRepository.findUserByOauthId(oauthId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         final MessagingToken messagingToken = MessagingToken.builder()
                 .user(user)
                 .fcmToken(token)
@@ -38,7 +41,7 @@ public class NotificationService {
 
     public List<MyTokenResponse> getMessagingTokensByUserId(String oauthId) {
         final User user = userRepository.findUserByOauthId(oauthId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         return messagingTokenRepository.findMessagingTokensByUser(user).stream()
                 .map(MyTokenResponse::from)
                 .toList();
@@ -46,12 +49,27 @@ public class NotificationService {
 
     public void updateToken(String oauthId, Long tokenId, String newToken) {
         final User user = userRepository.findUserByOauthId(oauthId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_USER));
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         final MessagingToken messagingToken = messagingTokenRepository.findById(tokenId)
                 .orElseThrow(() -> new DialogException(ErrorCode.BAD_REQUEST));// TODO: 예외 고치기
         if (!messagingToken.getUser().getId().equals(user.getId())) {
             throw new DialogException(ErrorCode.BAD_REQUEST); // TODO: 예외 고치기
         }
         messagingToken.updateToken(newToken);
+    }
+
+    public void sendDiscussionCreatedNotification(String authorOAuthId, String path) {
+        final User author = userRepository.findUserByOauthId(authorOAuthId).orElseThrow();
+        final List<Long> notificationTargetIds = userRepository.findByEmailNotificationAndIdNot(
+                true, author.getId()
+        ).stream()
+                .map(User::getId)
+                .toList();
+        final List<String> toSend = messagingTokenRepository.findByUserIdIn(notificationTargetIds).stream()
+                .map(MessagingToken::getFcmToken)
+                .toList();
+        for (String token : toSend) {
+            fcmService.sendNotification(token, "Dialog", "새 토론 게시글이 등록되었습니다.", path);
+        }
     }
 }

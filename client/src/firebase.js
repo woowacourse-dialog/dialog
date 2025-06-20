@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
+import axios from 'axios';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -14,6 +15,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
+// FCM 토큰을 서버에 저장
+const saveTokenToServer = async (token) => {
+  try {
+    await axios.post('http://localhost:8080/api/fcm-tokens', { token }, { withCredentials: true });
+    // 토큰 저장 성공 시 로컬 스토리지에 저장
+    localStorage.setItem('fcmToken', token);
+    return token;
+  } catch (error) {
+    console.error('Failed to save FCM token to server:', error);
+    throw error;
+  }
+};
+
 // FCM 토큰 발급 및 저장
 const getTokenAndSave = async () => {
   try {
@@ -25,7 +39,13 @@ const getTokenAndSave = async () => {
       throw new Error('No registration token available');
     }
 
-    // TODO: 서버에 토큰 저장 로직 추가
+    // 이전에 저장된 토큰과 비교
+    const savedToken = localStorage.getItem('fcmToken');
+    if (savedToken !== currentToken) {
+      // 토큰이 변경된 경우에만 서버에 저장
+      return await saveTokenToServer(currentToken);
+    }
+    
     return currentToken;
   } catch (error) {
     console.error('FCM token error:', error);

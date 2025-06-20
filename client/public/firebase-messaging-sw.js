@@ -33,6 +33,7 @@ self.addEventListener('push', event => {
       )
     );
   } catch (error) {
+    // 에러는 콘솔에만 남김
     console.error('Push notification error:', error);
   }
 });
@@ -47,18 +48,13 @@ self.addEventListener('pushsubscriptionchange', event => {
 // 알림 클릭 이벤트 핸들러
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  
+  let targetPath = event.notification.data?.path || '/';
+  if (targetPath.startsWith('/api/discussions/')) {
+    targetPath = targetPath.replace('/api/discussions/', '/discussion/');
+  }
+  const targetUrl = self.location.origin + targetPath;
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(clientList => {
-        // 이미 열린 창이 있는 경우
-        const client = clientList.find(c => c.focused) || clientList[0];
-        if (client) {
-          return client.focus();
-        }
-        // 열린 창이 없는 경우 새 창 열기
-        return clients.openWindow('/');
-      })
+    clients.openWindow(targetUrl)
   );
 });
 

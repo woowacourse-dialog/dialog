@@ -183,7 +183,7 @@ class NotificationServiceTest {
         assertThatThrownBy(() -> notificationService.updateToken(
                 anotherUser.getId(), savedToken.getId(), "new-token"))
                 .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BAD_REQUEST);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED_TOKEN_ACCESS);
     }
 
     @Test
@@ -196,7 +196,7 @@ class NotificationServiceTest {
         assertThatThrownBy(() -> notificationService.updateToken(
                 testUser.getId(), nonExistentTokenId, "new-token"))
                 .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BAD_REQUEST);
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.MESSAGING_TOKEN_NOT_FOUND);
     }
 
     @Test

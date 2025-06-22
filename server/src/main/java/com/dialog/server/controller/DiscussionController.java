@@ -35,7 +35,8 @@ public class DiscussionController {
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(
+            @RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
         DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
         notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
@@ -56,7 +57,8 @@ public class DiscussionController {
             @RequestParam int size
     ) {
         DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
-        DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(request);
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
+                request);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(pageDiscussions));
     }
 
@@ -74,7 +76,8 @@ public class DiscussionController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id, DiscussionUpdateRequest request) {
+    public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id,
+                                                                     DiscussionUpdateRequest request) {
         discussionService.updateDiscussion(id, request);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
@@ -83,5 +86,18 @@ public class DiscussionController {
     public ResponseEntity<ApiSuccessResponse<Void>> deleteDiscussion(@PathVariable Long id) {
         discussionService.deleteDiscussion(id);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsByLoginUser(
+            @RequestParam(required = false) String cursor,
+            @RequestParam int size,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> discussionCursorPageResponse = discussionService.getDiscussionByAuthorId(
+                request, userId
+        );
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(discussionCursorPageResponse));
     }
 }

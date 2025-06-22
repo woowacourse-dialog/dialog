@@ -175,4 +175,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+### Firebase ###
+/src/main/resources/firebase-service-account.json
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,macos,java,gradle

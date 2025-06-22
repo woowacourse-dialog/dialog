@@ -42,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private void handleRegisteredUser(HttpServletRequest request, HttpServletResponse response,
                                       OAuth2UserPrincipal principal) throws IOException {
-        final Authentication authentication = authService.authenticate(principal.user().getOauthId());
+        final Authentication authentication = authService.authenticate(principal.user().getId());
 
         setAuthenticationInSession(request, authentication);
 

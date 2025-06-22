@@ -11,10 +11,15 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.DiscussionUpdateRequest;
-import com.dialog.server.dto.response.*;
+import com.dialog.server.dto.response.DiscussionCreateResponse;
+import com.dialog.server.dto.response.DiscussionCursorPageResponse;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.UserRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -22,9 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Transactional
 @ActiveProfiles("test")
@@ -109,7 +111,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, user.getOauthId());
+            discussionService.createDiscussion(request, user.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -330,7 +332,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, i % 2 == 0 ? user1.getOauthId() : user2.getOauthId());
+            discussionService.createDiscussion(request, i % 2 == 0 ? user1.getId() : user2.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -418,6 +420,6 @@ class DiscussionServiceTest {
                 6,
                 Category.BACKEND,
                 "test summary");
-        return discussionService.createDiscussion(request.getFirst(), savedUser.getOauthId());
+        return discussionService.createDiscussion(request.getFirst(), savedUser.getId());
     }
 }

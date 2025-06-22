@@ -1,5 +1,6 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
-
 @RequestMapping("/api/user")
 @RestController
 @RequiredArgsConstructor
@@ -24,16 +23,14 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/mine")
-    public ResponseEntity<ApiSuccessResponse<UserInfoResponse>> getUserInfo(Principal principal) {
-        String oauthId = principal.getName();
-        UserInfoResponse response = userService.getUserInfo(oauthId);
+    public ResponseEntity<ApiSuccessResponse<UserInfoResponse>> getUserInfo(@AuthenticatedUserId Long userId) {
+        UserInfoResponse response = userService.getUserInfo(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
     @PatchMapping("/mine/notifications")
-    public ResponseEntity<ApiSuccessResponse<NotificationSettingResponse>> patchNotification(@RequestBody @Valid NotificationSettingRequest request, Principal principal) {
-        String oauthId = principal.getName();
-        NotificationSettingResponse response = userService.updateNotification(request, oauthId);
+    public ResponseEntity<ApiSuccessResponse<NotificationSettingResponse>> patchNotification(@RequestBody @Valid NotificationSettingRequest request, @AuthenticatedUserId Long userId) {
+        NotificationSettingResponse response = userService.updateNotification(request, userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 }

@@ -47,15 +47,15 @@ public class AuthService {
         return user.getEmail();
     }
 
-    public Authentication authenticate(String oauthId) {
-        User user = userRepository.findUserByOauthId(oauthId)
+    public Authentication authenticate(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         if (user.getRole() == null || !user.isRegistered()) {
             throw new DialogException(ErrorCode.NOT_REGISTERED_USER);
         }
 
         return new UsernamePasswordAuthenticationToken(
-                oauthId,
+                userId,
                 null, // OAuth 로그인만 허용하므로 비밀번호 없음
                 user.getRole().toAuthorities()
         );

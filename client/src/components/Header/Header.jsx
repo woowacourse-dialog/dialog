@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 import dialogIcon from '../../assets/favicon_navy.ico'
 import './Header.css';
 
@@ -14,22 +15,8 @@ const api = axios.create({
 });
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
-
-  const checkLoginStatus = async () => {
-    try {
-      const response = await api.get('/api/login/check');
-      setIsLoggedIn(response.data.data.isLoggedIn);
-    } catch (error) {
-      console.error('Failed to check login status:', error);
-      setIsLoggedIn(false);
-    }
-  };
 
   const handleGithubLogin = () => {
     window.location.href = GITHUB_AUTH_URL;

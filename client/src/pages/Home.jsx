@@ -2,8 +2,13 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Header from '../components/Header/Header';
 import DiscussionCard from '../components/DiscussionCard';
 import { fetchDiscussions } from '../api/discussion';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../hooks/useNotification';
+import NotificationGuideModal from '../components/NotificationGuideModal/NotificationGuideModal';
 
 const Home = () => {
+  const { isLoggedIn } = useAuth();
+  const { showGuideModal, setShowGuideModal } = useNotification(isLoggedIn);
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -96,9 +101,14 @@ const Home = () => {
         {!hasMore && !loading && discussions.length > 0 && (
           <div style={{ textAlign: 'center', color: '#888', margin: 24 }}>모든 게시물을 불러왔습니다.</div>
         )}
+        {showGuideModal && (
+            <NotificationGuideModal
+                onClose={() => setShowGuideModal(false)}
+            />
+        )}
       </div>
     </>
   );
 };
 
-export default Home; 
+export default Home;

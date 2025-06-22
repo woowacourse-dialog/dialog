@@ -1,16 +1,19 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.DiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
-import com.dialog.server.dto.response.*;
+import com.dialog.server.dto.response.DiscussionCreateResponse;
+import com.dialog.server.dto.response.DiscussionCursorPageResponse;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.DiscussionService;
+import com.dialog.server.service.NotificationService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.security.Principal;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,13 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class DiscussionController {
 
     private final DiscussionService discussionService;
+    private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, Principal principal) {
-        // todo 인증 구현 끝나면 인증 정보에서 유저 정보 추출해서 사용
-        String oauthId = principal.getName();
-        DiscussionCreateResponse response = discussionService.createDiscussion(request, oauthId);
-        return ResponseEntity.created(URI.create("/api/discussions/" + response.discussionId()))
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
+        DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
+        final URI uri = URI.create("/api/discussions/" + response.discussionId());
+        notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
+        return ResponseEntity.created(uri)
                 .body(new ApiSuccessResponse<>(response));
     }
 

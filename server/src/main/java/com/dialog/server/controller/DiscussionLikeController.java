@@ -1,5 +1,6 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DiscussionLikeController {
 
-    private static final Long FAKE_USER_ID = 1L;
-
     private final LikeService likeService;
 
     @PostMapping
-    public ResponseEntity<Void> likeDiscussion(@PathVariable("discussionsId") Long discussionsId) {
-        likeService.create(FAKE_USER_ID, discussionsId);
+    public ResponseEntity<Void> likeDiscussion(@PathVariable("discussionsId") Long discussionsId, @AuthenticatedUserId Long userId) {
+        likeService.create(userId, discussionsId);
         return ResponseEntity.ok()
                 .build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteLikeDiscussion(@PathVariable("discussionsId") Long discussionsId) {
-        likeService.delete(FAKE_USER_ID, discussionsId);
+    public ResponseEntity<Void> deleteLikeDiscussion(@PathVariable("discussionsId") Long discussionsId, @AuthenticatedUserId Long userId) {
+        likeService.delete(userId, discussionsId);
         return ResponseEntity.noContent()
                 .build();
     }

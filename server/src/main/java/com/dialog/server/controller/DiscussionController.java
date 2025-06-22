@@ -1,5 +1,6 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.DiscussionUpdateRequest;
@@ -13,7 +14,6 @@ import com.dialog.server.service.DiscussionService;
 import com.dialog.server.service.NotificationService;
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,8 +35,7 @@ public class DiscussionController {
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, Principal principal) {
-        Long userId = Long.valueOf(principal.getName());
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
         DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
         notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());

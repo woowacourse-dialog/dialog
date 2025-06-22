@@ -1,7 +1,7 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.service.LikeService;
-import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,16 +18,14 @@ public class DiscussionLikeController {
     private final LikeService likeService;
 
     @PostMapping
-    public ResponseEntity<Void> likeDiscussion(@PathVariable("discussionsId") Long discussionsId, Principal principal) {
-        Long userId = Long.valueOf(principal.getName());
+    public ResponseEntity<Void> likeDiscussion(@PathVariable("discussionsId") Long discussionsId, @AuthenticatedUserId Long userId) {
         likeService.create(userId, discussionsId);
         return ResponseEntity.ok()
                 .build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteLikeDiscussion(@PathVariable("discussionsId") Long discussionsId, Principal principal) {
-        Long userId = Long.valueOf(principal.getName());
+    public ResponseEntity<Void> deleteLikeDiscussion(@PathVariable("discussionsId") Long discussionsId, @AuthenticatedUserId Long userId) {
         likeService.delete(userId, discussionsId);
         return ResponseEntity.noContent()
                 .build();

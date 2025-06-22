@@ -6,9 +6,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.dialog.server.config.JpaConfig;
+import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +38,9 @@ class CustomOAuth2UserServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProfileImageRepository profileImageRepository;
+
     @MockitoBean(name = "defaultOAuth2UserService")
     private OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService;
 
@@ -45,6 +50,7 @@ class CustomOAuth2UserServiceTest {
     private OAuth2User unRegistered;
     private String registeredOAuthId = "1234";
     private String registeredMail = "test@example.com";
+    private String profileImageUrl = "https://github.com/avatar/test.png";
 
     @BeforeEach
     void setUp() {
@@ -53,12 +59,14 @@ class CustomOAuth2UserServiceTest {
         registered = new DefaultOAuth2User(
                 List.of(),
                 Map.of("id", registeredOAuthId,
-                        "email", registeredMail),
+                        "email", registeredMail,
+                        "avatar_url", profileImageUrl),
                 "id");
         unRegistered = new DefaultOAuth2User(
                 List.of(),
                 Map.of("id", "0000",
-                        "email", "test2@example.com"),
+                        "email", "test2@example.com",
+                        "avatar_url", profileImageUrl),
                 "id");
 
         userRepository.save(
@@ -100,10 +108,13 @@ class CustomOAuth2UserServiceTest {
         final OAuth2UserPrincipal principal = (OAuth2UserPrincipal) customOAuth2UserService.loadUser(userRequest);
 
         // then
+        final ProfileImage profileImage = profileImageRepository.findByUser(principal.user()).orElse(null);
+        assertThat(profileImage).isNotNull();
         assertAll(
                 () -> assertThat(principal.user().getOauthId()).isEqualTo("0000"),
                 () -> assertThat(principal.user().isRegistered()).isFalse(),
-                () -> assertThat(principal.attributes().get("id")).isEqualTo("0000")
+                () -> assertThat(principal.attributes().get("id")).isEqualTo("0000"),
+                () -> assertThat(profileImage.getAccessUrl()).isEqualTo(profileImageUrl)
         );
     }
 }

@@ -1,9 +1,11 @@
 package com.dialog.server.service;
 
+import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,11 +21,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final UserRepository userRepository;
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService;
+    private final ProfileImageRepository profileImageRepository;
 
     public CustomOAuth2UserService(UserRepository userRepository,
-                                   @Qualifier("defaultOAuth2UserService") OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService) {
+                                   @Qualifier("defaultOAuth2UserService") OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService,
+                                   ProfileImageRepository profileImageRepository) {
         this.userRepository = userRepository;
         this.defaultOAuth2UserService = defaultOAuth2UserService;
+        this.profileImageRepository = profileImageRepository;
     }
 
     @Override
@@ -41,11 +46,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Transactional
     protected User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
-        User tempUser = User.builder()
+        final User tempUser = User.builder()
                 .oauthId(oAuth2UserInfo.getOAuthUserId())
                 .email(oAuth2UserInfo.getEmail())
                 .role(Role.TEMP_USER)
                 .build();
-        return userRepository.save(tempUser);
+        final ProfileImage profileImage = ProfileImage.builder()
+                .user(tempUser)
+                .accessUrl(oAuth2UserInfo.getProfileImageUrl())
+                .build();
+        final User saved = userRepository.save(tempUser);
+        profileImageRepository.save(profileImage);
+        return saved;
     }
 }

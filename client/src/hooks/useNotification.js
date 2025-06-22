@@ -41,4 +41,4 @@ export const useNotification = (isLoggedIn) => {
     setShowGuideModal,
     initializeNotifications
   };
-}; 
+};

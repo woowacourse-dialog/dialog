@@ -98,4 +98,3 @@ export const onMessageListener = () =>
 
 // Service Worker 초기화 실행
 initializeServiceWorker(); 
-  

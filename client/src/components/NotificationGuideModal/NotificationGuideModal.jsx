@@ -21,4 +21,4 @@ const NotificationGuideModal = ({ onClose }) => {
   );
 };
 
-export default NotificationGuideModal; 
+export default NotificationGuideModal;

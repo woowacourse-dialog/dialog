@@ -27,13 +27,15 @@ public class FirebaseTokenController {
 
     @GetMapping
     public ResponseEntity<ApiSuccessResponse<List<MyTokenResponse>>> getMyTokens(Principal principal) {
-        final List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(principal.getName());
+        Long userId = Long.valueOf(principal.getName());
+        final List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(tokens));
     }
 
     @PostMapping
     public ResponseEntity<ApiSuccessResponse<TokenCreationResponse>> addToken(@RequestBody TokenRequest tokenRequest, Principal principal) {
-        final TokenCreationResponse response = notificationService.addMessagingToken(principal.getName(), tokenRequest.token());
+        Long userId = Long.valueOf(principal.getName());
+        final TokenCreationResponse response = notificationService.addMessagingToken(userId, tokenRequest.token());
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
@@ -45,7 +47,8 @@ public class FirebaseTokenController {
 
     @PatchMapping("/{tokenId}")
     public ResponseEntity<Void> updateToken(@PathVariable Long tokenId, TokenRequest tokenRequest, Principal principal) {
-        notificationService.updateToken(principal.getName(), tokenId, tokenRequest.token());
+        Long userId = Long.valueOf(principal.getName());
+        notificationService.updateToken(userId, tokenId, tokenRequest.token());
         return ResponseEntity.ok().build();
     }
 }

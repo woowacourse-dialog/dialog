@@ -31,16 +31,18 @@ public class UserServiceTest {
 
     private UserService userService;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
         userService = new UserService(userRepository, profileImageRepository);
-        userRepository.save(createUser());
+        user = userRepository.save(createUser());
     }
 
     @Test
     void 유저_정보를_생성한다() {
         //given&when
-        UserInfoResponse userInfo = userService.getUserInfo("oauthId1");
+        UserInfoResponse userInfo = userService.getUserInfo(user.getId());
         //then
         assertAll(
                 () -> assertThat(userInfo.nickname()).isEqualTo("minggom"),
@@ -54,8 +56,8 @@ public class UserServiceTest {
         //given
         NotificationSettingRequest request = new NotificationSettingRequest(false);
         //when
-        userService.updateNotification(request, "oauthId1");
-        UserInfoResponse userInfo = userService.getUserInfo("oauthId1");
+        userService.updateNotification(request, user.getId());
+        UserInfoResponse userInfo = userService.getUserInfo(user.getId());
         //then
         Assertions.assertThat(userInfo.isNotificationEnabled()).isFalse();
     }

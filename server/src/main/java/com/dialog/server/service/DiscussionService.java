@@ -42,8 +42,8 @@ public class DiscussionService {
     private final UserRepository userRepository;
 
     @Transactional
-    public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, String authorId) {
-        User author = userRepository.findUserByOauthId(authorId)
+    public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
+        User author = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         Discussion discussion = request.toDiscussion(author);
         try {

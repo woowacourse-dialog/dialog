@@ -25,8 +25,8 @@ public class NotificationService {
         this.fcmService = fcmService;
     }
 
-    public TokenCreationResponse addMessagingToken(String oauthId, String token) {
-        final User user = userRepository.findUserByOauthId(oauthId)
+    public TokenCreationResponse addMessagingToken(Long userId, String token) {
+        final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         final MessagingToken messagingToken = MessagingToken.builder()
                 .user(user)
@@ -39,16 +39,16 @@ public class NotificationService {
         messagingTokenRepository.deleteById(id);
     }
 
-    public List<MyTokenResponse> getMessagingTokensByUserId(String oauthId) {
-        final User user = userRepository.findUserByOauthId(oauthId)
+    public List<MyTokenResponse> getMessagingTokensByUserId(Long userId) {
+        final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         return messagingTokenRepository.findMessagingTokensByUser(user).stream()
                 .map(MyTokenResponse::from)
                 .toList();
     }
 
-    public void updateToken(String oauthId, Long tokenId, String newToken) {
-        final User user = userRepository.findUserByOauthId(oauthId)
+    public void updateToken(Long userId, Long tokenId, String newToken) {
+        final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         final MessagingToken messagingToken = messagingTokenRepository.findById(tokenId)
                 .orElseThrow(() -> new DialogException(ErrorCode.BAD_REQUEST));// TODO: 예외 고치기
@@ -58,8 +58,9 @@ public class NotificationService {
         messagingToken.updateToken(newToken);
     }
 
-    public void sendDiscussionCreatedNotification(String authorOAuthId, String path) {
-        final User author = userRepository.findUserByOauthId(authorOAuthId).orElseThrow();
+    public void sendDiscussionCreatedNotification(Long authorId, String path) {
+        final User author = userRepository.findById(authorId)
+                .orElseThrow(); // TODO
         final List<Long> notificationTargetIds = userRepository.findByEmailNotificationAndIdNot(
                 true, author.getId()
         ).stream()

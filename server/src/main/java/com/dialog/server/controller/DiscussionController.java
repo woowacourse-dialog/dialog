@@ -36,10 +36,10 @@ public class DiscussionController {
 
     @PostMapping
     public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(@RequestBody @Valid DiscussionCreateRequest request, Principal principal) {
-        String oauthId = principal.getName();
-        DiscussionCreateResponse response = discussionService.createDiscussion(request, oauthId);
+        Long userId = Long.valueOf(principal.getName());
+        DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
-        notificationService.sendDiscussionCreatedNotification(oauthId, uri.getRawPath());
+        notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
         return ResponseEntity.created(uri)
                 .body(new ApiSuccessResponse<>(response));
     }

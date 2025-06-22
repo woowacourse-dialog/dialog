@@ -23,8 +23,8 @@ public class UserService {
     private final ProfileImageRepository profileImageRepository;
 
     @Transactional(readOnly = true)
-    public UserInfoResponse getUserInfo(String oauthId) {
-        User findUser = userRepository.findUserByOauthId(oauthId)
+    public UserInfoResponse getUserInfo(Long userId) {
+        User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         return UserInfoResponse.from(findUser);
     }
@@ -50,9 +50,9 @@ public class UserService {
         return saved;
     }
 
-    public NotificationSettingResponse updateNotification(NotificationSettingRequest request, String oauthId) {
+    public NotificationSettingResponse updateNotification(NotificationSettingRequest request, Long userId) {
         boolean notificationEnable = request.isNotificationEnable();
-        User user = userRepository.findUserByOauthId(oauthId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         user.updateNotificationSetting(notificationEnable);
         User updatedUser = userRepository.save(user);

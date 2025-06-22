@@ -72,7 +72,7 @@ class NotificationServiceTest {
 
         // when
         TokenCreationResponse response = notificationService.addMessagingToken(
-                testUser.getOauthId(), fcmToken
+                testUser.getId(), fcmToken
         );
 
         // then
@@ -88,11 +88,11 @@ class NotificationServiceTest {
     @DisplayName("메시징 토큰 추가 - 존재하지 않는 사용자")
     void addMessagingToken_UserNotFound() {
         // given
-        String nonExistentOauthId = "non-existent-oauth-id";
+        Long nonExistId = 999L;
         String fcmToken = "test-fcm-token-123";
 
         // when & then
-        assertThatThrownBy(() -> notificationService.addMessagingToken(nonExistentOauthId, fcmToken))
+        assertThatThrownBy(() -> notificationService.addMessagingToken(nonExistId, fcmToken))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
     }
@@ -129,7 +129,7 @@ class NotificationServiceTest {
         messagingTokenRepository.saveAll(List.of(token1, token2));
 
         // when
-        List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(testUser.getOauthId());
+        List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(testUser.getId());
 
         // then
         assertThat(tokens).hasSize(2);
@@ -141,10 +141,10 @@ class NotificationServiceTest {
     @DisplayName("사용자별 메시징 토큰 조회 - 존재하지 않는 사용자")
     void getMessagingTokensByUserId_UserNotFound() {
         // given
-        String nonExistentOauthId = "non-existent-oauth-id";
+        Long nonExistId = 999L;
 
         // when & then
-        assertThatThrownBy(() -> notificationService.getMessagingTokensByUserId(nonExistentOauthId))
+        assertThatThrownBy(() -> notificationService.getMessagingTokensByUserId(nonExistId))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
     }
@@ -161,7 +161,7 @@ class NotificationServiceTest {
         String newToken = "new-token";
 
         // when
-        notificationService.updateToken(testUser.getOauthId(), savedToken.getId(), newToken);
+        notificationService.updateToken(testUser.getId(), savedToken.getId(), newToken);
 
         // then
         MessagingToken updatedToken = messagingTokenRepository.findById(savedToken.getId()).orElse(null);
@@ -181,7 +181,7 @@ class NotificationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> notificationService.updateToken(
-                anotherUser.getOauthId(), savedToken.getId(), "new-token"))
+                anotherUser.getId(), savedToken.getId(), "new-token"))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BAD_REQUEST);
     }
@@ -194,7 +194,7 @@ class NotificationServiceTest {
 
         // when & then
         assertThatThrownBy(() -> notificationService.updateToken(
-                testUser.getOauthId(), nonExistentTokenId, "new-token"))
+                testUser.getId(), nonExistentTokenId, "new-token"))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BAD_REQUEST);
     }
@@ -248,7 +248,7 @@ class NotificationServiceTest {
         String path = "/discussion/123";
 
         // when
-        notificationService.sendDiscussionCreatedNotification(author.getOauthId(), path);
+        notificationService.sendDiscussionCreatedNotification(author.getId(), path);
 
         // then
         final String title = "Dialog";
@@ -281,7 +281,7 @@ class NotificationServiceTest {
         userRepository.save(receiver);
 
         // when
-        notificationService.sendDiscussionCreatedNotification(author.getOauthId(), path);
+        notificationService.sendDiscussionCreatedNotification(author.getId(), path);
 
         // then
         verify(fcmService, times(0)).sendNotification(any(), any(), any(), any());

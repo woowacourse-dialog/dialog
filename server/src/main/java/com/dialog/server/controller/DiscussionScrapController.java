@@ -1,5 +1,6 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.service.ScrapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,20 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class DiscussionScrapController {
 
-    private static final Long FAKE_USER_ID = 1L;
-
     private final ScrapService scrapService;
 
     @PostMapping
-    public ResponseEntity<Void> scrap(@PathVariable Long discussionId) {
-        scrapService.create(FAKE_USER_ID, discussionId);
+    public ResponseEntity<Void> scrap(@PathVariable Long discussionId, @AuthenticatedUserId Long userId) {
+        scrapService.create(userId, discussionId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteScrap(@PathVariable Long discussionId) {
-        scrapService.delete(FAKE_USER_ID, discussionId);
+    public ResponseEntity<Void> deleteScrap(@PathVariable Long discussionId, @AuthenticatedUserId Long userId) {
+        scrapService.delete(userId, discussionId);
         return ResponseEntity.noContent()
                 .build();
     }

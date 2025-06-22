@@ -1,10 +1,14 @@
 package com.dialog.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +18,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 @Import(JpaConfig.class)
 @ActiveProfiles("test")
 @DataJpaTest
@@ -25,18 +26,23 @@ public class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ProfileImageRepository profileImageRepository;
+
     private UserService userService;
+
+    private User user;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(userRepository);
-        userRepository.save(createUser());
+        userService = new UserService(userRepository, profileImageRepository);
+        user = userRepository.save(createUser());
     }
 
     @Test
     void 유저_정보를_생성한다() {
         //given&when
-        UserInfoResponse userInfo = userService.getUserInfo("oauthId1");
+        UserInfoResponse userInfo = userService.getUserInfo(user.getId());
         //then
         assertAll(
                 () -> assertThat(userInfo.nickname()).isEqualTo("minggom"),
@@ -50,8 +56,8 @@ public class UserServiceTest {
         //given
         NotificationSettingRequest request = new NotificationSettingRequest(false);
         //when
-        userService.updateNotification(request, "oauthId1");
-        UserInfoResponse userInfo = userService.getUserInfo("oauthId1");
+        userService.updateNotification(request, user.getId());
+        UserInfoResponse userInfo = userService.getUserInfo(user.getId());
         //then
         Assertions.assertThat(userInfo.isNotificationEnabled()).isFalse();
     }

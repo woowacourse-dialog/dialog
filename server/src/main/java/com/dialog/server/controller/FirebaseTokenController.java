@@ -1,11 +1,11 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.notification.request.TokenRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.NotificationService;
-import java.security.Principal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +26,14 @@ public class FirebaseTokenController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<ApiSuccessResponse<List<MyTokenResponse>>> getMyTokens(Principal principal) {
-        final List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(principal.getName());
+    public ResponseEntity<ApiSuccessResponse<List<MyTokenResponse>>> getMyTokens(@AuthenticatedUserId Long userId) {
+        final List<MyTokenResponse> tokens = notificationService.getMessagingTokensByUserId(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(tokens));
     }
 
     @PostMapping
-    public ResponseEntity<ApiSuccessResponse<TokenCreationResponse>> addToken(@RequestBody TokenRequest tokenRequest, Principal principal) {
-        final TokenCreationResponse response = notificationService.addMessagingToken(principal.getName(), tokenRequest.token());
+    public ResponseEntity<ApiSuccessResponse<TokenCreationResponse>> addToken(@RequestBody TokenRequest tokenRequest, @AuthenticatedUserId Long userId) {
+        final TokenCreationResponse response = notificationService.addMessagingToken(userId, tokenRequest.token());
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
@@ -44,8 +44,8 @@ public class FirebaseTokenController {
     }
 
     @PatchMapping("/{tokenId}")
-    public ResponseEntity<Void> updateToken(@PathVariable Long tokenId, TokenRequest tokenRequest, Principal principal) {
-        notificationService.updateToken(principal.getName(), tokenId, tokenRequest.token());
+    public ResponseEntity<Void> updateToken(@PathVariable Long tokenId, TokenRequest tokenRequest, @AuthenticatedUserId Long userId) {
+        notificationService.updateToken(userId, tokenId, tokenRequest.token());
         return ResponseEntity.ok().build();
     }
 }

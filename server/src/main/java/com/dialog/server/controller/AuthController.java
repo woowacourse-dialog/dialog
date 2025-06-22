@@ -45,7 +45,7 @@ public class AuthController {
         final String oauthId = extractOAuthIdFromSession(request);
         Long userId = authService.registerUser(signupRequest, oauthId);
 
-        final Authentication authentication = authService.authenticate(oauthId);
+        final Authentication authentication = authService.authenticate(userId);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         HttpSession session = request.getSession(true);
@@ -55,7 +55,7 @@ public class AuthController {
     }
 
     @GetMapping("/login/check")
-    public ResponseEntity<ApiSuccessResponse<LoginCheckResponse>> checkLogin(HttpServletRequest request) {
+    public ResponseEntity<ApiSuccessResponse<LoginCheckResponse>> checkLogin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         boolean isLoggedIn = false;

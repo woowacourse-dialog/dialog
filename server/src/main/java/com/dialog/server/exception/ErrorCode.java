@@ -9,6 +9,8 @@ public enum ErrorCode {
      */
     GITHUB_USER_ID_MISSING("1001", "GitHub에서 사용자 ID를 가져올 수 없습니다.", HttpStatus.BAD_GATEWAY),
     INVALID_SIGNUP("1002", "유효하지 않은 회원가입입니다.", HttpStatus.UNAUTHORIZED),
+    AUTHENTICATION_NOT_FOUND("1003", "인증 정보를 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_USER_ID_FORMAT("1004", "유효하지 않은 인증 정보입니다.", HttpStatus.BAD_REQUEST),
 
     /**
      * 5XXX - 비즈니스 로직 관련
@@ -34,6 +36,9 @@ public enum ErrorCode {
     EXIST_USER_EMAIL("5032", "이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
     REGISTERED_USER("5033", "이미 회원가입한 회원입니다.", HttpStatus.BAD_REQUEST),
     NOT_REGISTERED_USER("5034", "회원가입하지 않은 회원입니다.", HttpStatus.BAD_REQUEST),
+
+    MESSAGING_TOKEN_NOT_FOUND("5041", "메시징 토큰을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_TOKEN_ACCESS("5042", "토큰에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
     ;
 
     public final String code;

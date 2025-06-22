@@ -3,6 +3,7 @@ package com.dialog.server.service;
 import static com.dialog.server.dto.request.SearchType.AUTHOR_NICKNAME;
 import static com.dialog.server.dto.request.SearchType.TITLE_OR_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.domain.Category;
@@ -22,7 +23,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -334,7 +334,7 @@ class DiscussionServiceTest {
                 new DiscussionCursorPageRequest(result1.nextCursor(), 2), user1.getId());
 
         //then
-        SoftAssertions.assertSoftly(softly -> {
+        assertSoftly(softly -> {
             softly.assertThat(result1.content()).hasSize(2);
             softly.assertThat(result1.hasNext()).isTrue();
             softly.assertThat(result1.content()).extracting("id")

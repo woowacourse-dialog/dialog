@@ -98,6 +98,6 @@ public class DiscussionController {
         DiscussionCursorPageResponse<DiscussionPreviewResponse> discussionCursorPageResponse = discussionService.getDiscussionByAuthorId(
                 request, userId
         );
-        return ResponseEntity.ok().body(new ApiSuccessResponse<>(discussionCursorPageResponse));
+        return ResponseEntity.ok(new ApiSuccessResponse<>(discussionCursorPageResponse));
     }
 }

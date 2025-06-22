@@ -3,14 +3,20 @@ package com.dialog.server.service;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.request.ScrapCursorPageRequest;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
+import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.ScrapRepository;
 import com.dialog.server.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +50,22 @@ public class ScrapService {
         scrapRepository.deleteByUserAndDiscussion(user, discussion);
     }
 
+    @Transactional(readOnly = true)
+    public ScrapCursorPageResponse<DiscussionPreviewResponse> getScrapedDiscussions(
+            ScrapCursorPageRequest scrapCursorPageRequest, Long userId) {
+        User user = getUserById(userId);
+        List<Discussion> discussions = findScrapDiscussionsByCursor(scrapCursorPageRequest, user);
+        return createCursorResponse(discussions, scrapCursorPageRequest.pageSize());
+    }
+
+    private List<Discussion> findScrapDiscussionsByCursor(ScrapCursorPageRequest scrapCursorPageRequest, User user) {
+        PageRequest pageRequest = PageRequest.of(0, scrapCursorPageRequest.pageSize() + 1);
+        if (scrapCursorPageRequest.lastCursorId() == null) {
+            return scrapRepository.findFirstPageScrapDiscussionByUser(pageRequest, user);
+        }
+        return scrapRepository.findScrapDiscussionByUser(pageRequest, user, scrapCursorPageRequest.lastCursorId());
+    }
+
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(userId + "에 해당하는 user를 찾을 수 없습니다."));
@@ -56,5 +78,24 @@ public class ScrapService {
 
     private boolean isScraped(User user, Discussion discussion) {
         return scrapRepository.existsByUserAndDiscussion(user, discussion);
+    }
+
+    private ScrapCursorPageResponse<DiscussionPreviewResponse> createCursorResponse(
+            List<Discussion> discussions, int requestPageSize) {
+        boolean hasNext = discussions.size() > requestPageSize;
+
+        Long nextCursorId = null;
+
+        List<Discussion> pagingDiscussions = new ArrayList<>(discussions);
+        if (!pagingDiscussions.isEmpty() && hasNext) {
+            Discussion cursorDiscussion = pagingDiscussions.getLast();
+            pagingDiscussions = pagingDiscussions.subList(0, requestPageSize);
+            nextCursorId = cursorDiscussion.getId();
+        }
+
+        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
+                .map(DiscussionPreviewResponse::from)
+                .toList();
+        return new ScrapCursorPageResponse<>(responses, nextCursorId, hasNext, requestPageSize);
     }
 }

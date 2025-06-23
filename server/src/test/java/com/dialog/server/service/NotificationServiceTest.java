@@ -1,5 +1,6 @@
 package com.dialog.server.service;
 
+import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
@@ -42,6 +43,12 @@ class NotificationServiceTest {
 
     @MockitoBean
     private FcmService fcmService;
+
+    @MockitoBean
+    private S3Uploader s3Uploader;
+
+    @MockitoBean
+    private S3Config s3Config;
 
     private User testUser;
     private User anotherUser;

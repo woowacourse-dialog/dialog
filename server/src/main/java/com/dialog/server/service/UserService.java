@@ -15,15 +15,11 @@ import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -32,9 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
@@ -87,8 +81,7 @@ public class UserService {
     public ProfileImageUpdateResponse updateProfileImage(MultipartFile imageFile, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         ProfileImage savedProfileImage = profileImageRepository.findByUser(user).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
-        ProfileImage updateProfile = updateProfileFile(imageFile, savedProfileImage);
-        saveImageFileToLocalStorage(imageFile, updateProfile);
+        ProfileImage updateProfile = uploadAndSaveProfileImage(imageFile, savedProfileImage);
         return ProfileImageUpdateResponse.from(updateProfile);
     }
 
@@ -122,24 +115,20 @@ public class UserService {
         }
     }
 
-    private ProfileImage updateProfileFile(MultipartFile imageFile, ProfileImage profileImage) {
+    private ProfileImage uploadAndSaveProfileImage(MultipartFile imageFile, ProfileImage profileImage) {
         validEmptyFile(imageFile);
         String originFilename = getOriginFileName(imageFile);
         String fileExtension = getFileExtension(originFilename);
         String storedFileName = getStoredFileName(fileExtension);
-        String customImageUri = getCustomImageUri("/profile-images/", storedFileName);
-        String filePath = getFileExtension(storedFileName);
-        profileImage.updateProfileImage(filePath, originFilename, storedFileName, customImageUri);
-        return profileImage;
-    }
-
-    private void saveImageFileToLocalStorage(MultipartFile imageFile, ProfileImage profileImage) {
+        String updatedImageUri;
         try {
-            Path filePath = getFilePath(profileImage.getStoredFileName());
-            imageFile.transferTo(filePath.toFile());
+            updatedImageUri = s3Uploader.upload(imageFile, "profile-images", storedFileName);
         } catch (IOException e) {
             throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
         }
+        profileImage.updateProfileImage(originFilename, storedFileName, updatedImageUri);
+        profileImageRepository.save(profileImage);
+        return profileImage;
     }
 
     private void validEmptyFile(MultipartFile imageFile) {
@@ -165,22 +154,6 @@ public class UserService {
 
     private String getStoredFileName(String fileExtension) {
         return UUID.randomUUID() + "." + fileExtension;
-    }
-
-    private String getCustomImageUri(String prefix, String storedFileName) {
-        return prefix + storedFileName;
-    }
-
-    private Path getFilePath(String storedFileName) {
-        try {
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            return uploadPath.resolve(storedFileName);
-        } catch (IOException exception) {
-            throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
-        }
     }
 
     private void validateImageExtension(String extension) {

@@ -27,7 +27,6 @@ public class ProfileImage extends BaseEntity {
     private Long id;
     private String originalFileName;
     private String storedFileName;
-    private String filePath;
     private String customImageUri;
     @Column(nullable = false)
     private String basicImageUri;
@@ -38,14 +37,12 @@ public class ProfileImage extends BaseEntity {
 
     @Builder
     private ProfileImage(
-            String filePath,
             String originalFileName,
             String storedFileName,
             String customImageUri,
             String basicImageUri,
             User user
     ) {
-        this.filePath = filePath;
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
         this.customImageUri = customImageUri;
@@ -54,15 +51,13 @@ public class ProfileImage extends BaseEntity {
     }
 
     public void updateProfileImage(
-            String filePath,
             String originalFileName,
             String storedFileName,
-            String customImageUri
+            String updatedImageUri
     ) {
-        this.filePath = filePath;
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
-        this.customImageUri = customImageUri;
+        this.customImageUri = updatedImageUri;
     }
 
     @Override

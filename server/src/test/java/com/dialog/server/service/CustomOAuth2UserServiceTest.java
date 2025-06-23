@@ -1,12 +1,14 @@
 package com.dialog.server.service;
 
 import com.dialog.server.config.JpaConfig;
+import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,10 @@ class CustomOAuth2UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private ProfileImageRepository profileImageRepository;
+    @MockitoBean
+    private S3Uploader s3Uploader;
+    @MockitoBean
+    private S3Config s3Config;
     @MockitoBean(name = "defaultOAuth2UserService")
     private OAuth2UserService<OAuth2UserRequest, OAuth2User> defaultOAuth2UserService;
     private OAuth2UserRequest userRequest;
@@ -75,6 +81,12 @@ class CustomOAuth2UserServiceTest {
                         .role(Role.USER)
                         .build()
         );
+    }
+
+    @AfterEach
+    void clear() {
+        profileImageRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test

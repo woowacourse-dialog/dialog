@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -44,11 +45,17 @@ public class UserServiceTest {
     @Autowired
     private UserService userService;
 
+    @MockitoBean
+    private S3Uploader s3Uploader;
+
     private User user;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         user = userRepository.save(createUser());
+
+        Mockito.when(s3Uploader.upload(any(MultipartFile.class), any(String.class), any(String.class)))
+                .thenReturn("https://awss3.com/profile-images/mocked-image.png");
     }
 
     @Test
@@ -138,11 +145,6 @@ public class UserServiceTest {
 
     @Test
     void 프로필_이미지_수정_확인() throws IOException {
-        MultipartFile imageFile = Mockito.mock(MultipartFile.class);
-        Mockito.when(imageFile.getOriginalFilename()).thenReturn("profile_test.png");
-        Mockito.when(imageFile.isEmpty()).thenReturn(false);
-        doNothing().when(imageFile).transferTo(any(File.class));
-
         BasicProfileImageResponse savedResponse = userService.registerBasicProfileImage("https://test.com/basicUri1", user.getId());
 
         MultipartFile updateProfileFile = Mockito.mock(MultipartFile.class);

@@ -419,7 +419,6 @@ class DiscussionServiceTest {
         return ProfileImage.builder()
                 .basicImageUri("/test")
                 .customImageUri("/test")
-                .filePath("")
                 .storedFileName("")
                 .originalFileName("")
                 .user(user)

@@ -11,11 +11,11 @@ const api = axios.create({
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 const getProfileImageSrc = (profileImage) => {
-  if (!profileImage) return '/default-profile.png';
+  if (!profileImage) return '';
   if (profileImage.customImageUri) {
-    return `${API_BASE_URL}${profileImage.customImageUri}`;
+    return profileImage.customImageUri;
   }
-  return profileImage.basicImageUri || '/default-profile.png';
+  return profileImage.basicImageUri;
 };
 
 const MyPage = () => {

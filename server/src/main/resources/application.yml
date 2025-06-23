@@ -17,6 +17,19 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+aws:
+  s3:
+    bucket: ${AWS_S3_BUKET_NAME}
+  region: ${AWS_REGION}
+  credentials:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+
 ---
 
 spring:
@@ -63,9 +76,13 @@ app:
   frontend:
     url: http://localhost:5173
 
-file:
-  upload-dir: /Users/kwonkeonhyeong/Desktop/dialog/server/uploads/images
-
+aws:
+  s3:
+    bucket: ${AWS_S3_BUKET_NAME}
+  region: ${AWS_REGION}
+  credentials:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
 
 ---
 spring:
@@ -106,5 +123,10 @@ app:
   frontend:
     url: http://localhost:5173
 
-file:
-  upload-dir: /Users/kwonkeonhyeong/Desktop/dialog/server/uploads/images
+aws:
+  s3:
+    bucket: test_aws_s3_buket_name
+  region: test_aws_region
+  credentials:
+    access-key: test_aws_access_key
+    secret-key: test_aws_secret_key

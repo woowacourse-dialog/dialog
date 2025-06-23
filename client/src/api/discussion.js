@@ -61,3 +61,8 @@ export async function updateDiscussion(id, { title, content, startDateTime, endD
   });
   return res.data;
 }
+
+export async function deleteDiscussion(id) {
+  const res = await api.delete(`/discussions/${id}`);
+  return res.data;
+}

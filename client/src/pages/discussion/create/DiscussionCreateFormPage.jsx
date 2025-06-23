@@ -40,7 +40,7 @@ const DiscussionCreateFormPage = () => {
     
     try {
       const res = await createDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track, summary: ""});
-      const discussionId = res.data.disccusionId;
+      const discussionId = res.data.discussionId;
       navigate(`/discussion/${discussionId}`);
     } catch (error) {
       alert(error.response.data.message);

@@ -25,14 +25,12 @@ const DiscussionEditFormPage = () => {
   const [location, setLocation] = useState('');
   const [track, setTrack] = useState('FRONTEND');
   const [isLoading, setIsLoading] = useState(true);
-  console.log(title);
+  
   useEffect(() => {
     const fetchDiscussion = async () => {
       try {
         const response = await findDiscussionById(id);
         const discussion = response.data;
-        console.log(discussion.title);
-        // Parse dates
         const startDate = new Date(discussion.startAt);
         const endDate = new Date(discussion.endAt);
         

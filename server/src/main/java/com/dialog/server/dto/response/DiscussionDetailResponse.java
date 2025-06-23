@@ -25,8 +25,7 @@ public record DiscussionDetailResponse(
         long likeCount,
         boolean isBookmarked,
         AuthorResponse author,
-        List<ParticipantResponse> participants,
-        ProfileImageResponse profileImageResponse
+        List<ParticipantResponse> participants
 ) {
     public static DiscussionDetailResponse of(Discussion discussion,
                                               long likeCount,
@@ -48,17 +47,16 @@ public record DiscussionDetailResponse(
                 discussion.getViewCount(),
                 likeCount,
                 false,
-                toAuthorResponse(discussion),
-                toParticipantResponse(participants),
-                toProfileImageResponse(profileImage)
+                toAuthorResponse(discussion, profileImage),
+                toParticipantResponse(participants)
         );
     }
 
-    private static AuthorResponse toAuthorResponse(Discussion discussion) {
+    private static AuthorResponse toAuthorResponse(Discussion discussion, ProfileImage profileImage) {
         return new AuthorResponse(
                 discussion.getAuthor().getId(),
                 discussion.getAuthor().getNickname(),
-                ""
+                ProfileImageResponse.from(profileImage)
         );
     }
 
@@ -69,16 +67,10 @@ public record DiscussionDetailResponse(
         )).toList();
     }
 
-    private static ProfileImageResponse toProfileImageResponse(ProfileImage profileImage) {
-        return new ProfileImageResponse(
-                profileImage.getCustomImageUri()
-        );
-    }
-
     public record AuthorResponse(
             Long id,
             String name,
-            String profileImage
+            ProfileImageResponse profileImage
     ) {
     }
 
@@ -89,7 +81,14 @@ public record DiscussionDetailResponse(
     }
 
     public record ProfileImageResponse(
-            String profileImageUri
+            String basicImageUri,
+            String customImageUri
     ) {
+        private static ProfileImageResponse from(ProfileImage profileImage) {
+            return new ProfileImageResponse(
+                    profileImage.getBasicImageUri(),
+                    profileImage.getCustomImageUri()
+            );
+        }
     }
 }

@@ -103,7 +103,7 @@ public class Discussion extends BaseEntity {
     ) {
         validateTitleLength(title);
         validateContentLength(content);
-        validateSummaryLength(summary);
+//        validateSummaryLength(summary);
         validateTime(startAt, endAt);
         validateMaxParticipantCount(maxParticipantCount);
     }

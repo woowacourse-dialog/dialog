@@ -33,6 +33,14 @@ const getDiscussionStatus = (startAt, endAt) => {
   }
 };
 
+const getAuthorProfileImageSrc = (author) => {
+  if (!author || !author.profileImage) return '';
+  if (author.profileImage.customImageUri) {
+    return author.profileImage.customImageUri;
+  }
+  return author.profileImage.basicImageUri;
+};
+
 const DiscussionDetailPage = () => {
   const hasFetched = useRef(false);
   const { id } = useParams();
@@ -158,7 +166,7 @@ const DiscussionDetailPage = () => {
               </div>
             </div>
             <div className="discussion-creator">
-              <img src={discussion.profileImageResponse.profileImageUri} alt={discussion.author.name} className="creator-image" />
+              <img src={getAuthorProfileImageSrc(discussion.author)} alt={discussion.author.name} className="creator-image" />
               <span className="creator-name">{discussion.author.name}</span>
               <span className="creator-created-at">님이 개설한 토론</span>
             </div>

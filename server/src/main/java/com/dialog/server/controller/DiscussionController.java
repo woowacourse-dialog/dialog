@@ -77,7 +77,7 @@ public class DiscussionController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id,
-                                                                     DiscussionUpdateRequest request) {
+                                                                     @Valid @RequestBody DiscussionUpdateRequest request) {
         discussionService.updateDiscussion(id, request);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }

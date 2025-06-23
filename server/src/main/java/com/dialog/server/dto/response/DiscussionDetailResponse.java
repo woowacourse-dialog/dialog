@@ -3,6 +3,8 @@ package com.dialog.server.dto.response;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.ProfileImage;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,25 +25,13 @@ public record DiscussionDetailResponse(
         long likeCount,
         boolean isBookmarked,
         AuthorResponse author,
-        List<ParticipantResponse> participants
+        List<ParticipantResponse> participants,
+        ProfileImageResponse profileImageResponse
 ) {
-    public record AuthorResponse(
-            Long id,
-            String name,
-            String profileImage
-    ) {
-    }
-
-    public record ParticipantResponse(
-            Long id,
-            String name
-    ) {
-    }
-
-
     public static DiscussionDetailResponse of(Discussion discussion,
                                               long likeCount,
-                                              List<DiscussionParticipant> participants) {
+                                              List<DiscussionParticipant> participants,
+                                              ProfileImage profileImage) {
         return new DiscussionDetailResponse(
                 discussion.getId(),
                 discussion.getTitle(),
@@ -59,7 +49,8 @@ public record DiscussionDetailResponse(
                 likeCount,
                 false,
                 toAuthorResponse(discussion),
-                toParticipantResponse(participants)
+                toParticipantResponse(participants),
+                toProfileImageResponse(profileImage)
         );
     }
 
@@ -76,5 +67,29 @@ public record DiscussionDetailResponse(
                 participant.getParticipant().getId(),
                 participant.getParticipant().getNickname()
         )).toList();
+    }
+
+    private static ProfileImageResponse toProfileImageResponse(ProfileImage profileImage) {
+        return new ProfileImageResponse(
+                profileImage.getCustomImageUri()
+        );
+    }
+
+    public record AuthorResponse(
+            Long id,
+            String name,
+            String profileImage
+    ) {
+    }
+
+    public record ParticipantResponse(
+            Long id,
+            String name
+    ) {
+    }
+
+    public record ProfileImageResponse(
+            String profileImageUri
+    ) {
     }
 }

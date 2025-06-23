@@ -158,7 +158,7 @@ const DiscussionDetailPage = () => {
               </div>
             </div>
             <div className="discussion-creator">
-              <img src={discussion.author.profileImage} alt={discussion.author.name} className="creator-image" />
+              <img src={discussion.profileImageResponse.profileImageUri} alt={discussion.author.name} className="creator-image" />
               <span className="creator-name">{discussion.author.name}</span>
               <span className="creator-created-at">님이 개설한 토론</span>
             </div>

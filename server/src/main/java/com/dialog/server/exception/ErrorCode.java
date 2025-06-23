@@ -39,6 +39,11 @@ public enum ErrorCode {
 
     MESSAGING_TOKEN_NOT_FOUND("5041", "메시징 토큰을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     UNAUTHORIZED_TOKEN_ACCESS("5042", "토큰에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+
+    INVALID_IMAGE_FORMAT("5050", "지원하지 않는 이미지 형식입니다.", HttpStatus.BAD_REQUEST),
+    PROFILE_IMAGE_NOT_FOUND("5051", "프로필 이미지를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    CONFLICT_PROFILE_IMAGE("5052", "프로필 이미지가 이미 존재합니다.", HttpStatus.CONFLICT),
+    FAILED_SAVE_IMAGE("5053", "이미지 저장에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     public final String code;

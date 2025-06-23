@@ -6,6 +6,7 @@ import com.dialog.server.domain.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
 public record DiscussionCreateRequest(
@@ -23,6 +24,7 @@ public record DiscussionCreateRequest(
         Integer maxParticipantCount,
         @NotNull
         Category category,
+        // todo: summary 제거
         String summary
 ) {
     public Discussion toDiscussion(User author) {

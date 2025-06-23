@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function DiscussionCard({
+  id,
   nickname,
   participants,
   maxParticipants,
@@ -12,6 +14,7 @@ export default function DiscussionCard({
   title,
   summary
 }) {
+  const navigate = useNavigate();
   // 토론 상태 계산
   const now = new Date();
   const start = new Date(startAt);
@@ -33,22 +36,26 @@ export default function DiscussionCard({
   };
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 12,
-      boxShadow: '0 2px 8px rgba(60,64,67,0.08)',
-      padding: 24,
-      marginBottom: 24,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      border: '1px solid #e0e0e0',
-      width: '100%',
-      maxWidth: 600,
-      boxSizing: 'border-box',
-      wordBreak: 'break-all',
-      position: 'relative'
-    }}>
+    <div
+      style={{
+        background: '#fff',
+        borderRadius: 12,
+        boxShadow: '0 2px 8px rgba(60,64,67,0.08)',
+        padding: 24,
+        marginBottom: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        border: '1px solid #e0e0e0',
+        width: '100%',
+        maxWidth: 600,
+        boxSizing: 'border-box',
+        wordBreak: 'break-all',
+        position: 'relative',
+        cursor: 'pointer'
+      }}
+      onClick={() => navigate(`/discussion/${id}`)}
+    >
       {/* 우측 상단 카테고리/상태 박스 */}
       <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', gap: 8 }}>
         <span style={{

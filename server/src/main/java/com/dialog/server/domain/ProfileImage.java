@@ -8,11 +8,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,8 +28,9 @@ public class ProfileImage extends BaseEntity {
     private String originalFileName;
     private String storedFileName;
     private String filePath;
+    private String customImageUri;
     @Column(nullable = false)
-    private String accessUrl;
+    private String basicImageUri;
 
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -39,13 +41,15 @@ public class ProfileImage extends BaseEntity {
             String filePath,
             String originalFileName,
             String storedFileName,
-            String accessUrl,
+            String customImageUri,
+            String basicImageUri,
             User user
     ) {
         this.filePath = filePath;
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
-        this.accessUrl = accessUrl;
+        this.customImageUri = customImageUri;
+        this.basicImageUri = basicImageUri;
         this.user = user;
     }
 
@@ -53,12 +57,12 @@ public class ProfileImage extends BaseEntity {
             String filePath,
             String originalFileName,
             String storedFileName,
-            String accessUrl
+            String customImageUri
     ) {
         this.filePath = filePath;
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
-        this.accessUrl = accessUrl;
+        this.customImageUri = customImageUri;
     }
 
     @Override

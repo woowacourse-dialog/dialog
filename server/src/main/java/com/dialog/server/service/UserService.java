@@ -6,6 +6,9 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.dto.response.BasicProfileImageResponse;
+import com.dialog.server.dto.response.ProfileImageGetResponse;
+import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -14,6 +17,10 @@ import com.dialog.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
@@ -43,13 +51,14 @@ public class UserService {
                 .build();
         final ProfileImage profileImage = ProfileImage.builder()
                 .user(tempUser)
-                .accessUrl(oAuth2UserInfo.getProfileImageUrl())
+                .basicImageUri(oAuth2UserInfo.getProfileImageUrl())
                 .build();
         final User saved = userRepository.save(tempUser);
         profileImageRepository.save(profileImage);
         return saved;
     }
 
+    @Transactional
     public NotificationSettingResponse updateNotification(NotificationSettingRequest request, Long userId) {
         boolean notificationEnable = request.isNotificationEnable();
         User user = userRepository.findById(userId)
@@ -57,5 +66,99 @@ public class UserService {
         user.updateNotificationSetting(notificationEnable);
         User updatedUser = userRepository.save(user);
         return NotificationSettingResponse.from(updatedUser);
+    }
+
+    @Transactional
+    public BasicProfileImageResponse registerBasicProfileImage(String basicProfileUri, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        validateConflictProfileImage(user);
+        ProfileImage profileImage = createBasicProfileFile(basicProfileUri, user);
+        profileImageRepository.save(profileImage);
+        return BasicProfileImageResponse.from(profileImage);
+    }
+
+    @Transactional
+    public ProfileImageUpdateResponse updateProfileImage(MultipartFile imageFile, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        ProfileImage savedProfileImage = profileImageRepository.findByUser(user).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
+        ProfileImage updateProfile = uploadAndSaveProfileImage(imageFile, savedProfileImage);
+        return ProfileImageUpdateResponse.from(updateProfile);
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileImageGetResponse getProfileImage(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        ProfileImage profileImage = profileImageRepository.findByUser(user).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
+        String customImageUri = profileImage.getCustomImageUri();
+        String basicImageUri = profileImage.getBasicImageUri();
+        return new ProfileImageGetResponse(customImageUri, basicImageUri);
+    }
+
+    private void validateConflictProfileImage(User user) {
+        boolean exists = profileImageRepository.existsByUser(user);
+        if (exists) {
+            throw new DialogException(ErrorCode.CONFLICT_PROFILE_IMAGE);
+        }
+    }
+
+    private ProfileImage createBasicProfileFile(String basicProfileUri, User user) {
+        validBasicProfileUri(basicProfileUri);
+        return ProfileImage.builder()
+                .basicImageUri(basicProfileUri)
+                .user(user)
+                .build();
+    }
+
+    private void validBasicProfileUri(String basicProfileUri) {
+        if (basicProfileUri == null || basicProfileUri.isBlank()) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
+    }
+
+    private ProfileImage uploadAndSaveProfileImage(MultipartFile imageFile, ProfileImage profileImage) {
+        validEmptyFile(imageFile);
+        String originFilename = getOriginFileName(imageFile);
+        String fileExtension = getFileExtension(originFilename);
+        String storedFileName = getStoredFileName(fileExtension);
+        String updatedImageUri;
+        try {
+            updatedImageUri = s3Uploader.upload(imageFile, "profile-images", storedFileName);
+        } catch (IOException e) {
+            throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
+        }
+        profileImage.updateProfileImage(originFilename, storedFileName, updatedImageUri);
+        profileImageRepository.save(profileImage);
+        return profileImage;
+    }
+
+    private void validEmptyFile(MultipartFile imageFile) {
+        if (imageFile.isEmpty()) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
+    }
+
+    private String getOriginFileName(MultipartFile imageFile) {
+        String originFilename = imageFile.getOriginalFilename();
+        if (originFilename == null || originFilename.contains("..")) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
+        return originFilename;
+    }
+
+    private String getFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String fileExtension = (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
+        validateImageExtension(fileExtension);
+        return fileExtension;
+    }
+
+    private String getStoredFileName(String fileExtension) {
+        return UUID.randomUUID() + "." + fileExtension;
+    }
+
+    private void validateImageExtension(String extension) {
+        if (!("jpg".equals(extension) || "jpeg".equals(extension) || "png".equals(extension) || "gif".equals(extension))) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
     }
 }

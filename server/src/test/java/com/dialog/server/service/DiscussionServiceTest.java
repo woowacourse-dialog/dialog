@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
@@ -17,17 +18,24 @@ import com.dialog.server.dto.response.DiscussionCursorPageResponse;
 import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.dialog.server.dto.request.SearchType.AUTHOR_NICKNAME;
+import static com.dialog.server.dto.request.SearchType.TITLE_OR_CONTENT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @Transactional
 @ActiveProfiles("test")
@@ -39,6 +47,8 @@ class DiscussionServiceTest {
     private DiscussionRepository discussionRepository;
     @Autowired
     private DiscussionService discussionService;
+    @Autowired
+    private ProfileImageRepository profileImageRepository;
 
     @Test
     void 토론_게시글을_저장할_수_있다() {
@@ -74,6 +84,7 @@ class DiscussionServiceTest {
     void 토론_게시글을_수정할_수_있다() {
         // given
         User savedUser = userRepository.save(createUser());
+        profileImageRepository.save(createProfileImage(savedUser));
         DiscussionCreateResponse response = saveDiscussion(savedUser);
         DiscussionUpdateRequest request = new DiscussionUpdateRequest(
                 "modified title",
@@ -437,6 +448,16 @@ class DiscussionServiceTest {
                 .phoneNumber("010-3275-1107")
                 .emailNotification(true)
                 .phoneNotification(false)
+                .build();
+    }
+
+    private ProfileImage createProfileImage(User user) {
+        return ProfileImage.builder()
+                .basicImageUri("/test")
+                .customImageUri("/test")
+                .storedFileName("")
+                .originalFileName("")
+                .user(user)
                 .build();
     }
 

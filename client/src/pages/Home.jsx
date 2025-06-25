@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header/Header';
 import DiscussionCard from '../components/DiscussionCard';
 import { fetchDiscussions } from '../api/discussion';
@@ -9,6 +10,7 @@ import NotificationGuideModal from '../components/NotificationGuideModal/Notific
 const Home = () => {
   const { isLoggedIn } = useAuth();
   const { showGuideModal, setShowGuideModal } = useNotification(isLoggedIn);
+  const navigate = useNavigate();
   const [discussions, setDiscussions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,6 +82,7 @@ const Home = () => {
         {discussions.map((item) => (
           <DiscussionCard
             key={item.id}
+            id={item.id}
             nickname={item.author}
             participants={item.participantCount}
             maxParticipants={item.maxParticipantCount}
@@ -106,6 +109,38 @@ const Home = () => {
                 onClose={() => setShowGuideModal(false)}
             />
         )}
+      </div>
+      {/* 플로팅 액션 버튼 */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          backgroundColor: '#4bd1cc',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          transition: 'all 0.3s ease',
+          zIndex: 1000
+        }}
+        onClick={() => navigate('/discussion/new')}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'scale(1.1)';
+          e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'scale(1)';
+          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+      >
+        +
       </div>
     </>
   );

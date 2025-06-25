@@ -1,12 +1,6 @@
 package com.dialog.server.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
+import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
@@ -15,7 +9,6 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.MessagingTokenRepository;
 import com.dialog.server.repository.UserRepository;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +17,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,6 +43,12 @@ class NotificationServiceTest {
 
     @MockitoBean
     private FcmService fcmService;
+
+    @MockitoBean
+    private S3Uploader s3Uploader;
+
+    @MockitoBean
+    private S3Config s3Config;
 
     private User testUser;
     private User anotherUser;

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './DiscussionCreateFormPage.css';
+import { useNavigate, useParams } from 'react-router-dom';
+import '../create/DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditorUiw from '../../../components/MarkdownEditor/MarkdownEditorUiw';
 import Header from '../../../components/Header/Header';
-import { createDiscussion } from '../../../api/discussion';
+import { findDiscussionById, updateDiscussion } from '../../../api/discussion';
 
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
@@ -13,8 +13,9 @@ const TRACKS = [
   { id: 'COMMON', name: '공통' }
 ];
 
-const DiscussionCreateFormPage = () => {
+const DiscussionEditFormPage = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [date, setDate] = useState('');
@@ -23,25 +24,50 @@ const DiscussionCreateFormPage = () => {
   const [participantCount, setParticipantCount] = useState(2);
   const [location, setLocation] = useState('');
   const [track, setTrack] = useState('FRONTEND');
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchDiscussion = async () => {
+      try {
+        const response = await findDiscussionById(id);
+        const discussion = response.data;
+        const startDate = new Date(discussion.startAt);
+        const endDate = new Date(discussion.endAt);
+        
+        setTitle(discussion.title);
+        setContent(discussion.content);
+        setDate(startDate.toISOString().split('T')[0]);
+        setStartTime(startDate.toTimeString().slice(0, 5));
+        setEndTime(endDate.toTimeString().slice(0, 5));
+        setParticipantCount(discussion.maxParticipantCount);
+        setLocation(discussion.place);
+        setTrack(discussion.track);
+        setIsLoading(false);
+      } catch (error) {
+        alert('토론을 불러오는데 실패했습니다.');
+        navigate('/');
+      }
+    };
+
+    fetchDiscussion();
+  }, [id, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const startDateTime = formatDateTime(date, startTime);
     const endDateTime = formatDateTime(date, endTime);
-    console.log({ 
-      title, 
-      content, 
-      startDateTime, 
-      endDateTime,
-      participantCount,
-      location,
-      track
-    });
-    
     try {
-      const res = await createDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track, summary: ""});
-      const discussionId = res.data.discussionId;
-      navigate(`/discussion/${discussionId}`);
+      await updateDiscussion(id, { 
+        title, 
+        content, 
+        startDateTime, 
+        endDateTime,
+        participantCount,
+        location,
+        track,
+        summary: ""
+      });
+      navigate(`/discussion/${id}`);
     } catch (error) {
       alert(error.response.data.message);
     }
@@ -57,35 +83,19 @@ const DiscussionCreateFormPage = () => {
     setParticipantCount(Math.max(2, value));
   };
 
-  const getDefaultDate = () => {
-    const date = new Date();
-    return date.toISOString().split('T')[0];
-  };
-
-  const getDefaultTime = (hoursToAdd = 0) => {
-    const date = new Date();
-    date.setHours(date.getHours() + hoursToAdd);
-    // 현재 시간을 30분 단위로 반올림
-    date.setMinutes(Math.ceil(date.getMinutes() / 30) * 30);
-    return date.toTimeString().slice(0, 5); // HH:mm 형식
-  };
-
-  // 컴포넌트 마운트 시 기본값 설정
-  useEffect(() => {
-    setDate(getDefaultDate());
-    setStartTime(getDefaultTime(1)); // 1시간 후
-    setEndTime(getDefaultTime(2));   // 2시간 후
-  }, []);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="discussion-create-page">
       <Header />
       <div className="discussion-create-container">
         <div className="discussion-create-form">
-          <h1>새로운 토론 주제 작성</h1>
+          <h1>토론 주제 수정</h1>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <TitleInput value={title} setTitle={setTitle} />
+              <TitleInput defaultValue={title} value={title} setTitle={setTitle} />
             </div>
 
             <div className="form-row">
@@ -137,7 +147,6 @@ const DiscussionCreateFormPage = () => {
                   id="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  min={getDefaultDate()}
                 />
               </div>
               <div className="time-inputs">
@@ -169,8 +178,16 @@ const DiscussionCreateFormPage = () => {
             </div>
 
             <div className="discussion-form-actions">
-              <button type="button" className="discussion-button discussion-button-cancel">취소</button>
-              <button type="submit" className="discussion-button discussion-button-submit">등록</button>
+              <button 
+                type="button" 
+                className="discussion-button discussion-button-cancel"
+                onClick={() => navigate(`/discussion/${id}`)}
+              >
+                취소
+              </button>
+              <button type="submit" className="discussion-button discussion-button-submit">
+                수정
+              </button>
             </div>
           </form>
         </div>
@@ -179,4 +196,4 @@ const DiscussionCreateFormPage = () => {
   );
 };
 
-export default DiscussionCreateFormPage;
+export default DiscussionEditFormPage; 

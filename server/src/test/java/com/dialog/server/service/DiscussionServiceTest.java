@@ -1,5 +1,11 @@
 package com.dialog.server.service;
 
+import static com.dialog.server.dto.request.SearchType.AUTHOR_NICKNAME;
+import static com.dialog.server.dto.request.SearchType.TITLE_OR_CONTENT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.ProfileImage;
@@ -321,6 +327,36 @@ class DiscussionServiceTest {
         );
     }
 
+    @Test
+    void 토론_작성자를_통해서_커서_기반으로_토론을_조회할_수_있다() {
+        //given
+        User user1 = userRepository.save(createUser());
+        User user2 = userRepository.save(createUser());
+        Discussion discussion1 = discussionRepository.save(createDiscussion(user1));
+        Discussion discussion2 = discussionRepository.save(createDiscussion(user1));
+        discussionRepository.save(createDiscussion(user2));
+        Discussion discussion4 = discussionRepository.save(createDiscussion(user1));
+        Discussion discussion5 = discussionRepository.save(createDiscussion(user1));
+
+        //when
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result1 = discussionService.getDiscussionByAuthorId(
+                new DiscussionCursorPageRequest(null, 2), user1.getId());
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result2 = discussionService.getDiscussionByAuthorId(
+                new DiscussionCursorPageRequest(result1.nextCursor(), 2), user1.getId());
+
+        //then
+        assertSoftly(softly -> {
+            softly.assertThat(result1.content()).hasSize(2);
+            softly.assertThat(result1.hasNext()).isTrue();
+            softly.assertThat(result1.content()).extracting("id")
+                    .containsExactly(discussion5.getId(), discussion4.getId());
+            softly.assertThat(result2.content()).hasSize(2);
+            softly.assertThat(result2.hasNext()).isFalse();
+            softly.assertThat(result2.content()).extracting("id")
+                    .containsExactly(discussion2.getId(), discussion1.getId());
+        });
+    }
+
     private void createDummyDiscussions(int totalCount) {
         User user1 = userRepository.save(createUser());
         User user2 = userRepository.save(createUser2());
@@ -437,5 +473,21 @@ class DiscussionServiceTest {
                 Category.BACKEND,
                 "test summary");
         return discussionService.createDiscussion(request.getFirst(), savedUser.getId());
+    }
+
+    private Discussion createDiscussion(User author) {
+        return Discussion.builder()
+                .title("title")
+                .content("content")
+                .author(author)
+                .startAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15))
+                .endAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(30))
+                .category(Category.BACKEND)
+                .summary("summary")
+                .maxParticipantCount(4)
+                .participantCount(1)
+                .place("place")
+                .viewCount(2)
+                .build();
     }
 }

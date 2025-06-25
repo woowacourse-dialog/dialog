@@ -53,8 +53,7 @@ public class DiscussionService {
 
     @Transactional
     public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
-        User author = userRepository.findById(userId)
-                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User author = getUser(userId);
         Discussion discussion = request.toDiscussion(author);
         try {
             Discussion savedDiscussion = discussionRepository.save(discussion);
@@ -141,6 +140,55 @@ public class DiscussionService {
             default -> throw new DialogException(ErrorCode.INVALID_SEARCH_TYPE);
         }
         return buildDateCursorResponse(discussions, size);
+    }
+
+    @Transactional(readOnly = true)
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionByAuthorId(
+            DiscussionCursorPageRequest request,
+            Long authorId) {
+        int pageSize = request.size();
+        String cursor = request.cursor();
+
+        validatePageSize(pageSize);
+
+        User author = getUser(authorId);
+
+        return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
+    }
+
+    private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(
+            String cursor, int pageSize, User author) {
+        List<Discussion> discussions;
+        if (cursor == null || cursor.isEmpty()) {
+            discussions = discussionRepository.findFirstPageDiscussionsByAuthorOrderByDate(
+                    PageRequest.of(0, pageSize + 1),
+                    author
+            );
+        } else {
+            String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
+            LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
+            Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
+
+            discussions = discussionRepository.findDiscussionsByAuthorBeforeDateCursor(
+                    cursorTime,
+                    cursorId,
+                    author,
+                    PageRequest.of(0, pageSize + 1)
+            );
+        }
+
+        return buildDateCursorResponse(discussions, pageSize);
+    }
+
+    private User getUser(Long authorId) {
+        return userRepository.findById(authorId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private void validatePageSize(int size) {
+        if (size > MAX_PAGE_SIZE) {
+            throw new DialogException(ErrorCode.PAGE_SIZE_TOO_LARGE);
+        }
     }
 
     private List<Discussion> searchDiscussionByTitleOrContent(String query,

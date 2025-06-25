@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 
 public record DiscussionUpdateRequest(
@@ -27,21 +26,20 @@ public record DiscussionUpdateRequest(
         Integer maxParticipantCount,
         @NotNull
         Category category,
-        @NotBlank
         String summary
 ) {
-        public Discussion toUpdateDiscussion() {
-                return Discussion.builder()
-                        .title(title)
-                        .content(content)
-                        .startAt(startAt)
-                        .endAt(endAt)
-                        .place(place)
-                        .category(category)
-                        .viewCount(0)
-                        .participantCount(1)
-                        .maxParticipantCount(maxParticipantCount)
-                        .summary(summary)
-                        .build();
-        }
+    public Discussion toUpdateDiscussion() {
+        return Discussion.builder()
+                .title(title)
+                .content(content)
+                .startAt(startAt)
+                .endAt(endAt)
+                .place(place)
+                .category(category)
+                .viewCount(0)
+                .participantCount(1)
+                .maxParticipantCount(maxParticipantCount)
+                .summary(summary)
+                .build();
+    }
 }

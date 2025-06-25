@@ -47,3 +47,22 @@ export async function participateDiscussion(id) {
   const res = await api.post(`/discussions/${id}/participants`);
   return res.data;
 }
+
+export async function updateDiscussion(id, { title, content, startDateTime, endDateTime, participantCount, location, track, summary}) {
+  const res = await api.patch(`/discussions/${id}`, {
+    title,
+    content,
+    startAt: startDateTime,
+    endAt: endDateTime,
+    place: location,
+    maxParticipantCount: participantCount,
+    category: track,
+    summary
+  });
+  return res.data;
+}
+
+export async function deleteDiscussion(id) {
+  const res = await api.delete(`/discussions/${id}`);
+  return res.data;
+}

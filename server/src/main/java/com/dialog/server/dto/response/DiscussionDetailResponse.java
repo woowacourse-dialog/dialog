@@ -3,6 +3,8 @@ package com.dialog.server.dto.response;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.ProfileImage;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,23 +27,10 @@ public record DiscussionDetailResponse(
         AuthorResponse author,
         List<ParticipantResponse> participants
 ) {
-    public record AuthorResponse(
-            Long id,
-            String name,
-            String profileImage
-    ) {
-    }
-
-    public record ParticipantResponse(
-            Long id,
-            String name
-    ) {
-    }
-
-
     public static DiscussionDetailResponse of(Discussion discussion,
                                               long likeCount,
-                                              List<DiscussionParticipant> participants) {
+                                              List<DiscussionParticipant> participants,
+                                              ProfileImage profileImage) {
         return new DiscussionDetailResponse(
                 discussion.getId(),
                 discussion.getTitle(),
@@ -58,16 +47,16 @@ public record DiscussionDetailResponse(
                 discussion.getViewCount(),
                 likeCount,
                 false,
-                toAuthorResponse(discussion),
+                toAuthorResponse(discussion, profileImage),
                 toParticipantResponse(participants)
         );
     }
 
-    private static AuthorResponse toAuthorResponse(Discussion discussion) {
+    private static AuthorResponse toAuthorResponse(Discussion discussion, ProfileImage profileImage) {
         return new AuthorResponse(
                 discussion.getAuthor().getId(),
                 discussion.getAuthor().getNickname(),
-                ""
+                ProfileImageResponse.from(profileImage)
         );
     }
 
@@ -76,5 +65,30 @@ public record DiscussionDetailResponse(
                 participant.getParticipant().getId(),
                 participant.getParticipant().getNickname()
         )).toList();
+    }
+
+    public record AuthorResponse(
+            Long id,
+            String name,
+            ProfileImageResponse profileImage
+    ) {
+    }
+
+    public record ParticipantResponse(
+            Long id,
+            String name
+    ) {
+    }
+
+    public record ProfileImageResponse(
+            String basicImageUri,
+            String customImageUri
+    ) {
+        private static ProfileImageResponse from(ProfileImage profileImage) {
+            return new ProfileImageResponse(
+                    profileImage.getBasicImageUri(),
+                    profileImage.getCustomImageUri()
+            );
+        }
     }
 }

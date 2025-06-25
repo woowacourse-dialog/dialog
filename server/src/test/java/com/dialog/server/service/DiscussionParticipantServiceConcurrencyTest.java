@@ -62,7 +62,7 @@ class DiscussionParticipantServiceConcurrencyTest {
         Discussion discussion = createDiscussion(createUser("admin@admin.com"),
                 6,
                 0,
-                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(15)
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15)
         );
 
         int threadCount = users.size();
@@ -101,7 +101,7 @@ class DiscussionParticipantServiceConcurrencyTest {
         Discussion discussion = createDiscussion(createUser("admin@admin.com"),
                 5,
                 0,
-                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(15)
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15)
         );
 
         int threadCount = users.size();
@@ -162,7 +162,7 @@ class DiscussionParticipantServiceConcurrencyTest {
                 .category(Category.ANDROID)
                 .content("content")
                 .startAt(startAt)
-                .endAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(30))
+                .endAt(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(30))
                 .title("title")
                 .maxParticipantCount(maxParticipantCount)
                 .participantCount(participantCount)

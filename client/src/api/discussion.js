@@ -48,6 +48,25 @@ export async function participateDiscussion(id) {
   return res.data;
 }
 
+export async function updateDiscussion(id, { title, content, startDateTime, endDateTime, participantCount, location, track, summary}) {
+  const res = await api.patch(`/discussions/${id}`, {
+    title,
+    content,
+    startAt: startDateTime,
+    endAt: endDateTime,
+    place: location,
+    maxParticipantCount: participantCount,
+    category: track,
+    summary
+  });
+  return res.data;
+}
+
+export async function deleteDiscussion(id) {
+  const res = await api.delete(`/discussions/${id}`);
+  return res.data;
+}
+
 /**
  * 검색된 게시글 목록을 불러온다.
  * @param {Object} params

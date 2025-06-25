@@ -2,6 +2,7 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
@@ -16,6 +17,7 @@ import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,11 +42,11 @@ public class DiscussionService {
     private final DiscussionParticipantRepository discussionParticipantRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     @Transactional
     public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
-        User author = userRepository.findById(userId)
-                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User author = getUser(userId);
         Discussion discussion = request.toDiscussion(author);
         try {
             Discussion savedDiscussion = discussionRepository.save(discussion);
@@ -74,11 +76,13 @@ public class DiscussionService {
     public DiscussionDetailResponse getDiscussionById(Long discussionId) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+        User author = discussion.getAuthor();
+        ProfileImage profileImage = profileImageRepository.findByUser(author).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         List<DiscussionParticipant> discussionParticipants = discussionParticipantRepository.findByDiscussion(
                 discussion
         );
         long likeCount = likeRepository.countByDiscussion(discussion);
-        return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants);
+        return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants, profileImage);
     }
 
     @Transactional
@@ -131,7 +135,50 @@ public class DiscussionService {
         return buildDateCursorResponse(discussions, size);
     }
 
-    private static void validatePageSize(int size) {
+    @Transactional(readOnly = true)
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionByAuthorId(
+            DiscussionCursorPageRequest request,
+            Long authorId) {
+        int pageSize = request.size();
+        String cursor = request.cursor();
+
+        validatePageSize(pageSize);
+
+        User author = getUser(authorId);
+
+        return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
+    }
+
+    private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(
+            String cursor, int pageSize, User author) {
+        List<Discussion> discussions;
+        if (cursor == null || cursor.isEmpty()) {
+            discussions = discussionRepository.findFirstPageDiscussionsByAuthorOrderByDate(
+                    PageRequest.of(0, pageSize + 1),
+                    author
+            );
+        } else {
+            String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
+            LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
+            Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
+
+            discussions = discussionRepository.findDiscussionsByAuthorBeforeDateCursor(
+                    cursorTime,
+                    cursorId,
+                    author,
+                    PageRequest.of(0, pageSize + 1)
+            );
+        }
+
+        return buildDateCursorResponse(discussions, pageSize);
+    }
+
+    private User getUser(Long authorId) {
+        return userRepository.findById(authorId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private void validatePageSize(int size) {
         if (size > MAX_PAGE_SIZE) {
             throw new DialogException(ErrorCode.PAGE_SIZE_TOO_LARGE);
         }

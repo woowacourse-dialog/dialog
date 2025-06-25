@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -7,9 +7,10 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import './DiscussionDetailPage.css';
-import { findDiscussionById, participateDiscussion } from '../../../api/discussion';
+import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
 import { likeDiscussion, deleteLikeDiscussion } from '../../../api/like';
 import { scrapDiscussion, deleteScrapDiscussion } from '../../../api/scrap';
+import useMe from '../../../hooks/useMe';
 
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
@@ -17,7 +18,6 @@ const TRACKS = [
   { id: 'ANDROID', name: '안드로이드' },
   { id: 'COMMON', name: '공통' }
 ];
-
 
 const getDiscussionStatus = (startAt, endAt) => {
   const now = new Date();
@@ -33,9 +33,19 @@ const getDiscussionStatus = (startAt, endAt) => {
   }
 };
 
+const getAuthorProfileImageSrc = (author) => {
+  if (!author || !author.profileImage) return '';
+  if (author.profileImage.customImageUri) {
+    return author.profileImage.customImageUri;
+  }
+  return author.profileImage.basicImageUri;
+};
+
 const DiscussionDetailPage = () => {
+  const navigate = useNavigate();
   const hasFetched = useRef(false);
   const { id } = useParams();
+  const { me } = useMe();
   const [discussion, setDiscussion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
@@ -49,9 +59,7 @@ const DiscussionDetailPage = () => {
     
     const fetchDiscussion = async () => {
       try {
-        // 임시 데이터
         const res = await findDiscussionById(id);
-
         setDiscussion(res.data);
         setLikeCount(res.data.likeCount);
         setIsBookmarked(res.data.isBookmarked);
@@ -70,11 +78,30 @@ const DiscussionDetailPage = () => {
     try {
       await participateDiscussion(discussion.id);
       alert('토론 참여가 완료되었습니다!');
+      // 페이지 새로고침하여 참여자 목록 업데이트
+      window.location.reload();
     } catch (error) {
       console.error('Failed to join discussion:', error);
       alert(error.response.data.message);
     }
     setJoining(false);
+  };
+
+  const handleEdit = () => {
+    navigate(`/discussion/${id}/edit`);
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('정말로 이 토론을 삭제하시겠습니까?')) {
+      try {
+        await deleteDiscussion(id);
+        alert('토론이 삭제되었습니다.');
+        navigate('/');
+      } catch (error) {
+        console.error('Failed to delete discussion:', error);
+        alert('토론 삭제 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   const handleLike = async () => {
@@ -116,6 +143,7 @@ const DiscussionDetailPage = () => {
   }
 
   const { status, label } = getDiscussionStatus(discussion.startAt, discussion.endAt);
+  const isAuthor = me?.id === discussion.author.id;
 
   const formatDateTime = (dateTimeStr) => {
     const date = new Date(dateTimeStr);
@@ -158,14 +186,14 @@ const DiscussionDetailPage = () => {
               </div>
             </div>
             <div className="discussion-creator">
-              <img src={discussion.author.profileImage} alt={discussion.author.name} className="creator-image" />
+              <img src={getAuthorProfileImageSrc(discussion.author)} alt={discussion.author.name} className="creator-image" />
               <span className="creator-name">{discussion.author.name}</span>
               <span className="creator-created-at">님이 개설한 토론</span>
             </div>
             <div className="discussion-meta">
               <div className="meta-item">
                 <span className="meta-label">장소</span>
-                <span className="meta-value">{discussion.location}</span>
+                <span className="meta-value">{discussion.place}</span>
               </div>
               <div className="meta-item">
                 <span className="meta-label">인원</span>
@@ -229,15 +257,32 @@ const DiscussionDetailPage = () => {
           </div>
 
           <div className="discussion-join-section">
-            <button 
-              className="join-button" 
-              onClick={handleJoin}
-              disabled={joining || discussion.participantCount >= discussion.maxParticipants}
-            >
-              {joining ? '참여 중...' : 
-               discussion.participantCount >= discussion.maxParticipants ? '인원 마감' : 
-               '참여하기'}
-            </button>
+            {isAuthor ? (
+              <div className="author-actions">
+                <button 
+                  className="edit-button" 
+                  onClick={handleEdit}
+                >
+                  수정
+                </button>
+                <button 
+                  className="delete-button" 
+                  onClick={handleDelete}
+                >
+                  삭제
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="join-button" 
+                onClick={handleJoin}
+                disabled={joining || discussion.participantCount >= discussion.maxParticipantCount}
+              >
+                {joining ? '참여 중...' : 
+                 discussion.participantCount >= discussion.maxParticipantCount ? '인원 마감' : 
+                 '참여하기'}
+              </button>
+            )}
           </div>
         </div>
       </div>

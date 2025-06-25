@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -122,7 +123,8 @@ public class UserService {
         String storedFileName = getStoredFileName(fileExtension);
         String updatedImageUri;
         try {
-            updatedImageUri = s3Uploader.upload(imageFile, "profile-images", storedFileName);
+            String uploadDirName = "profile-images";
+            updatedImageUri = s3Uploader.upload(imageFile, uploadDirName, storedFileName);
         } catch (IOException e) {
             throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
         }
@@ -139,25 +141,35 @@ public class UserService {
 
     private String getOriginFileName(MultipartFile imageFile) {
         String originFilename = imageFile.getOriginalFilename();
-        if (originFilename == null || originFilename.contains("..")) {
+        String invalidPath = "..";
+        if (originFilename == null || originFilename.contains(invalidPath)) {
             throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
         }
         return originFilename;
     }
 
     private String getFileExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        String fileExtension = (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
-        validateImageExtension(fileExtension);
+        String separator = ".";
+        int separatorIndex = fileName.lastIndexOf(separator);
+        String fileExtension;
+        if (separatorIndex == -1) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        } else {
+            fileExtension = fileName.substring(separatorIndex + 1).toLowerCase();
+        }
+        validateAvailableExtension(fileExtension);
         return fileExtension;
     }
 
     private String getStoredFileName(String fileExtension) {
-        return UUID.randomUUID() + "." + fileExtension;
+        String storedFileRegex = "%s.%s";
+        UUID uuid = UUID.randomUUID();
+        return String.format(storedFileRegex, uuid, fileExtension);
     }
 
-    private void validateImageExtension(String extension) {
-        if (!("jpg".equals(extension) || "jpeg".equals(extension) || "png".equals(extension) || "gif".equals(extension))) {
+    private void validateAvailableExtension(String extension) {
+        List<String> availableExtensions = List.of("png", "jpg", "jpeg", "gif");
+        if (!availableExtensions.contains(extension)) {
             throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
         }
     }

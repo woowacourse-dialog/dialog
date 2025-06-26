@@ -19,6 +19,7 @@ const DiscussionList = ({
       {items.map((item) => (
         <DiscussionCard
           key={item.id}
+          id={item.id}
           nickname={item.author}
           participants={item.participantCount}
           maxParticipants={item.maxParticipantCount}

@@ -14,14 +14,14 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import com.dialog.server.util.ImageFileExtractor;
+import com.dialog.server.util.ProfileImageFileInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final S3Uploader s3Uploader;
+    private final ImageFileExtractor imageFileExtractor;
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
@@ -103,74 +104,22 @@ public class UserService {
     }
 
     private ProfileImage createBasicProfileFile(String basicProfileUri, User user) {
-        validBasicProfileUri(basicProfileUri);
         return ProfileImage.builder()
                 .basicImageUri(basicProfileUri)
                 .user(user)
                 .build();
     }
 
-    private void validBasicProfileUri(String basicProfileUri) {
-        if (basicProfileUri == null || basicProfileUri.isBlank()) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-    }
-
     private ProfileImage uploadAndSaveProfileImage(MultipartFile imageFile, ProfileImage profileImage) {
-        validEmptyFile(imageFile);
-        String originFilename = getOriginFileName(imageFile);
-        String fileExtension = getFileExtension(originFilename);
-        String storedFileName = getStoredFileName(fileExtension);
+        ProfileImageFileInfo fileInfo = imageFileExtractor.getInfo(imageFile);
         String updatedImageUri;
         try {
-            String uploadDirName = "profile-images";
-            updatedImageUri = s3Uploader.upload(imageFile, uploadDirName, storedFileName);
+            updatedImageUri = s3Uploader.uploadProfileImage(imageFile, fileInfo.storedFileName());
         } catch (IOException e) {
             throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
         }
-        profileImage.updateProfileImage(originFilename, storedFileName, updatedImageUri);
+        profileImage.updateProfileImage(fileInfo, updatedImageUri);
         profileImageRepository.save(profileImage);
         return profileImage;
-    }
-
-    private void validEmptyFile(MultipartFile imageFile) {
-        if (imageFile.isEmpty()) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-    }
-
-    private String getOriginFileName(MultipartFile imageFile) {
-        String originFilename = imageFile.getOriginalFilename();
-        String invalidPath = "..";
-        if (originFilename == null || originFilename.contains(invalidPath)) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-        return originFilename;
-    }
-
-    private String getFileExtension(String fileName) {
-        String separator = ".";
-        int separatorIndex = fileName.lastIndexOf(separator);
-        String fileExtension;
-        if (separatorIndex == -1) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        } else {
-            fileExtension = fileName.substring(separatorIndex + 1).toLowerCase();
-        }
-        validateAvailableExtension(fileExtension);
-        return fileExtension;
-    }
-
-    private String getStoredFileName(String fileExtension) {
-        String storedFileRegex = "%s.%s";
-        UUID uuid = UUID.randomUUID();
-        return String.format(storedFileRegex, uuid, fileExtension);
-    }
-
-    private void validateAvailableExtension(String extension) {
-        List<String> availableExtensions = List.of("png", "jpg", "jpeg", "gif");
-        if (!availableExtensions.contains(extension)) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
     }
 }

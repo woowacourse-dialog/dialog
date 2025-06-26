@@ -169,7 +169,7 @@ const DiscussionCreateFormPage = () => {
             </div>
 
             <div className="discussion-form-actions">
-              <button type="button" className="discussion-button discussion-button-cancel">취소</button>
+              <button type="button" className="discussion-button discussion-button-cancel" onClick={() => navigate(-1)}>취소</button>
               <button type="submit" className="discussion-button discussion-button-submit">등록</button>
             </div>
           </form>

@@ -1,24 +1,19 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import Header from '../components/Header/Header';
-import SearchBar from '../components/SearchBar';
-import DiscussionList from '../components/DiscussionList';
-import useDiscussionList from '../hooks/useDiscussionList';
-import { useAuth } from '../context/AuthContext';
-import { useNotification } from '../hooks/useNotification';
-import NotificationGuideModal from '../components/NotificationGuideModal/NotificationGuideModal';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import useDiscussionList from '../../../hooks/useDiscussionList';
+import DiscussionList from '../../../components/DiscussionList';
+import Header from '../../../components/Header/Header';
+import SearchBar from '../../../components/SearchBar';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-const Home = () => {
-  const { isLoggedIn } = useAuth();
-  const { showGuideModal, setShowGuideModal } = useNotification(isLoggedIn);
-  const navigate = useNavigate();
+const SearchResultPage = () => {
+  const [searchParams] = useSearchParams();
+  const searchType = Number(searchParams.get('searchType'));
+  const query = searchParams.get('query') || '';
   const loaderRef = useRef(null);
-  const [searchParamsObj, setSearchParamsObj] = useState(null); // { searchType, query } or null
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  // useDiscussionList 훅 사용
   const {
     items,
     loading,
@@ -26,13 +21,11 @@ const Home = () => {
     hasMore,
     isFetchingMore,
     loadMore,
-    reset,
   } = useDiscussionList({
-    searchParams: searchParamsObj,
+    searchParams: { searchType, query },
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  // Intersection Observer로 무한 스크롤 트리거
   useEffect(() => {
     if (!loaderRef.current || !hasMore || loading || isFetchingMore) return;
     const observer = new window.IntersectionObserver((entries) => {
@@ -44,15 +37,9 @@ const Home = () => {
     return () => observer.disconnect();
   }, [loadMore, hasMore, loading, isFetchingMore]);
 
-  // 검색 핸들러 및 검색 취소 핸들러 (기존 코드에 맞게 추가 필요)
+  // 검색 핸들러: 검색 시 /discussion/search로 이동
   const handleSearch = ({ searchType, query }) => {
     navigate(`/discussion/search?searchType=${searchType}&query=${encodeURIComponent(query)}`);
-  };
-
-  const handleCancelSearch = () => {
-    setSearchParamsObj(null);
-    setSearchParams({});
-    reset();
   };
 
   return (
@@ -61,12 +48,10 @@ const Home = () => {
       <div className="home" style={{ marginTop: 64 }}>
         <SearchBar
           onSearch={handleSearch}
-          initialType={searchParamsObj?.searchType || 0}
-          initialQuery={searchParamsObj?.query || ''}
+          initialType={searchType}
+          initialQuery={query}
         />
-        {searchParamsObj && (
-          <button onClick={handleCancelSearch} style={{ marginBottom: 16 }}>검색 취소</button>
-        )}
+        <h2>검색 결과</h2>
         <DiscussionList
           items={items}
           loading={loading}
@@ -74,12 +59,9 @@ const Home = () => {
           hasMore={hasMore}
           isFetchingMore={isFetchingMore}
           loaderRef={loaderRef}
-          emptyMessage={searchParamsObj ? '검색 결과가 없습니다.' : '게시글이 없습니다.'}
-          endMessage={searchParamsObj ? '모든 검색 결과를 불러왔습니다.' : '모든 게시물을 불러왔습니다.'}
+          emptyMessage={'검색 결과가 없습니다.'}
+          endMessage={'모든 검색 결과를 불러왔습니다.'}
         />
-        {showGuideModal && (
-          <NotificationGuideModal onClose={() => setShowGuideModal(false)} />
-        )}
       </div>
       {/* 플로팅 액션 버튼 */}
       <div
@@ -117,4 +99,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default SearchResultPage;

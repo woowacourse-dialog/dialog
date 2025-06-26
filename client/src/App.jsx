@@ -7,6 +7,7 @@ import './App.css';
 import DiscussionCreateFormPage from './pages/discussion/create/DiscussionCreateFormPage';
 import DiscussionDetailPage from './pages/discussion/detail/DiscussionDetailPage';
 import DiscussionEditFormPage from './pages/discussion/edit/DiscussionEditFormPage';
+import SearchResultPage from './pages/discussion/search/SearchResultPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
               <Route path="/discussion/new" element={<DiscussionCreateFormPage />} />
               <Route path="/discussion/:id" element={<DiscussionDetailPage />} />
               <Route path="/discussion/:id/edit" element={<DiscussionEditFormPage />} />
+              <Route path="/discussion/search" element={<SearchResultPage />} />
             </Routes>
           </main>
         </div>

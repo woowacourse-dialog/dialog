@@ -20,22 +20,16 @@ import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static com.dialog.server.dto.request.SearchType.AUTHOR_NICKNAME;
-import static com.dialog.server.dto.request.SearchType.TITLE_OR_CONTENT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @ActiveProfiles("test")
@@ -185,8 +179,8 @@ class DiscussionServiceTest {
         createDummyDiscussions(totalCount);
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null,null, pageSize
         );
 
         // then
@@ -205,13 +199,13 @@ class DiscussionServiceTest {
         int totalCount = 20;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", firstSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -230,16 +224,16 @@ class DiscussionServiceTest {
         int totalCount = 25;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", firstSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                TITLE_OR_CONTENT, "홀수", secondSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT, "홀수", null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then
@@ -260,8 +254,8 @@ class DiscussionServiceTest {
         createDummyDiscussions(totalCount);
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
 
         // then
@@ -280,13 +274,13 @@ class DiscussionServiceTest {
         int totalCount = 20;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", firstSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -305,16 +299,16 @@ class DiscussionServiceTest {
         int totalCount = 25;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", null, pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", firstSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                AUTHOR_NICKNAME, "test 2", secondSearch.nextCursor(), pageSize
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                AUTHOR_NICKNAME, "test 2", null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then

@@ -13,15 +13,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -199,5 +198,14 @@ public class Discussion extends BaseEntity {
                 throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
             }
         }
+    }
+
+    public DiscussionStatus getDiscussionStatus() {
+        return DiscussionStatus.decideDiscussionStatus(
+                this.startAt,
+                this.endAt,
+                this.participantCount,
+                this.maxParticipantCount
+        );
     }
 }

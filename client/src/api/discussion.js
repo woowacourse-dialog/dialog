@@ -72,19 +72,28 @@ export async function deleteDiscussion(id) {
  * @param {Object} params
  * @param {number} params.searchBy - 0: 제목+내용, 1: 작성자
  * @param {string} params.query - 검색어
+ * @param {Array<string>} [params.categories] - 카테고리 필터
+ * @param {Array<string>} [params.statuses] - 상태 필터
  * @param {string|null} params.cursor - 커서(처음엔 null)
  * @param {number} params.size - 페이지 크기
  * @returns {Promise<{content: Array, nextCursor: string|null, hasNext: boolean}>}
  */
-export async function fetchSearchDiscussions({ searchBy, query, cursor = null, size = 10 }) {
-  const res = await api.get('/discussions/search', {
-    params: {
-      searchBy,
-      query,
-      cursor,
-      size,
-    },
-  });
+export async function fetchSearchDiscussions({ searchBy, query, categories, statuses, cursor = null, size = 10 }) {
+  const params = {
+    searchBy,
+    query,
+    cursor,
+    size,
+  };
+
+  if (categories && categories.length > 0) {
+    params.categories = categories.join(',');
+  }
+  if (statuses && statuses.length > 0) {
+    params.statuses = statuses.join(',');
+  }
+
+  const res = await api.get('/discussions/search', { params });
   return {
     content: res.data.data.content,
     nextCursor: res.data.data.nextCursor,

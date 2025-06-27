@@ -3,7 +3,7 @@ import { fetchDiscussions, fetchSearchDiscussions } from '../api/discussion';
 
 /**
  * @param {Object} options
- * @param {Object|null} options.searchParams - { searchType, query } or null
+ * @param {Object|null} options.searchParams - { searchType, query, categories, statuses } or null
  * @param {number} [options.pageSize=10]
  */
 export default function useDiscussionList({ searchParams = null, pageSize = 10 } = {}) {
@@ -26,15 +26,20 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     async function load() {
       try {
         let result;
-        if (searchParams && searchParams.query) {
+        const commonParams = {
+          categories: searchParams?.categories,
+          statuses: searchParams?.statuses,
+          cursor: null,
+          size: pageSize,
+        };
+        if (searchParams && (searchParams.query || searchParams.categories?.length || searchParams.statuses?.length)) {
           result = await fetchSearchDiscussions({
+            ...commonParams,
             searchBy: searchParams.searchType,
             query: searchParams.query,
-            cursor: null,
-            size: pageSize,
           });
         } else {
-          result = await fetchDiscussions({ cursor: null, size: pageSize });
+          result = await fetchDiscussions(commonParams);
         }
         setItems(result.content);
         setCursor(result.nextCursor);
@@ -48,7 +53,13 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams?.searchType, searchParams?.query, pageSize]);
+  }, [
+    searchParams?.searchType,
+    searchParams?.query,
+    JSON.stringify(searchParams?.categories),
+    JSON.stringify(searchParams?.statuses),
+    pageSize
+  ]);
 
   // 추가 데이터 로드
   const loadMore = useCallback(async () => {
@@ -56,15 +67,20 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     setIsFetchingMore(true);
     try {
       let result;
-      if (searchParams && searchParams.query) {
+      const commonParams = {
+        categories: searchParams?.categories,
+        statuses: searchParams?.statuses,
+        cursor,
+        size: pageSize,
+      };
+      if (searchParams && (searchParams.query || searchParams.categories?.length || searchParams.statuses?.length)) {
         result = await fetchSearchDiscussions({
+          ...commonParams,
           searchBy: searchParams.searchType,
           query: searchParams.query,
-          cursor,
-          size: pageSize,
         });
       } else {
-        result = await fetchDiscussions({ cursor, size: pageSize });
+        result = await fetchDiscussions(commonParams);
       }
       setItems((prev) => [...prev, ...result.content]);
       setCursor(result.nextCursor);

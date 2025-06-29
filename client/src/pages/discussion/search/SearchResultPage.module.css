@@ -14,4 +14,8 @@
 .mainContent {
   flex: 1; /* 나머지 공간 모두 차지 */
   min-width: 0; /* flex item의 크기가 줄어들 수 있도록 */
+}
+
+.centered {
+  justify-content: center;
 } 

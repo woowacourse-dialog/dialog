@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Header from '../components/Header/Header';
 import SearchBar from '../components/SearchBar';
 import DiscussionList from '../components/DiscussionList';
@@ -18,6 +18,7 @@ const Home = () => {
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const [searchParams] = useSearchParams();
+  const [showFilter, setShowFilter] = useState(true);
 
   // URL에서 필터 파라미터 추출
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
@@ -77,15 +78,30 @@ const Home = () => {
   return (
     <>
       <Header />
-      <div className={pageStyles.pageContainer} style={{ marginTop: 64 }}>
-        <aside className={pageStyles.sidebar}>
-          <DiscussionFilter
-            initialCategories={categories}
-            initialStatuses={statuses}
-            onApply={handleApplyFilters}
-          />
-        </aside>
-        <main className={pageStyles.mainContent}>
+      <div
+        className={
+          pageStyles.pageContainer + (showFilter ? '' : ' ' + pageStyles.centered)
+        }
+        style={{ marginTop: 64, position: 'relative' }}
+      >
+        {showFilter && (
+          <aside className={pageStyles.sidebar}>
+            <DiscussionFilter
+              initialCategories={categories}
+              initialStatuses={statuses}
+              onApply={handleApplyFilters}
+              showFilter={showFilter}
+              onToggleFilter={() => setShowFilter((prev) => !prev)}
+            />
+          </aside>
+        )}
+        <main className={pageStyles.mainContent} style={{ position: 'relative' }}>
+          {!showFilter && (
+            <DiscussionFilter
+              showFilter={showFilter}
+              onToggleFilter={() => setShowFilter((prev) => !prev)}
+            />
+          )}
           <SearchBar onSearch={handleSearch} />
           <h2 style={{ marginTop: 24, textAlign: 'center', padding: '16px' }}>토론 목록</h2>
           <DiscussionList

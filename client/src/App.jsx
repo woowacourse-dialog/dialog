@@ -17,6 +17,7 @@ function App() {
           <main className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/discussion" element={<Home />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/discussion/new" element={<DiscussionCreateFormPage />} />

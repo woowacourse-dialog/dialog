@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Header from '../components/Header/Header';
 import SearchBar from '../components/SearchBar';
 import DiscussionList from '../components/DiscussionList';
@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../hooks/useNotification';
 import NotificationGuideModal from '../components/NotificationGuideModal/NotificationGuideModal';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import DiscussionFilter from '../components/DiscussionFilter';
+import pageStyles from './discussion/search/SearchResultPage.module.css';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -15,10 +17,13 @@ const Home = () => {
   const { showGuideModal, setShowGuideModal } = useNotification(isLoggedIn);
   const navigate = useNavigate();
   const loaderRef = useRef(null);
-  const [searchParamsObj, setSearchParamsObj] = useState(null); // { searchType, query } or null
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  // useDiscussionList 훅 사용
+  // URL에서 필터 파라미터 추출
+  const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
+  const statuses = searchParams.get('statuses')?.split(',').filter(Boolean) || [];
+
+  // useDiscussionList 훅 사용 - URL 파라미터를 직접 전달
   const {
     items,
     loading,
@@ -26,9 +31,8 @@ const Home = () => {
     hasMore,
     isFetchingMore,
     loadMore,
-    reset,
   } = useDiscussionList({
-    searchParams: searchParamsObj,
+    searchParams: { categories, statuses }, // query, searchType은 홈에서 사용 안 함
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
@@ -44,39 +48,57 @@ const Home = () => {
     return () => observer.disconnect();
   }, [loadMore, hasMore, loading, isFetchingMore]);
 
-  // 검색 핸들러 및 검색 취소 핸들러 (기존 코드에 맞게 추가 필요)
+  // 검색 핸들러: 검색 시 검색 페이지로 이동
   const handleSearch = ({ searchType, query }) => {
-    navigate(`/discussion/search?searchType=${searchType}&query=${encodeURIComponent(query)}`);
+    const params = new URLSearchParams();
+    params.set('searchType', String(searchType));
+    params.set('query', query);
+    // 홈에서 검색 시 필터는 유지하지 않음 (선택적)
+    // 만약 유지하고 싶다면 아래 주석을 해제
+    // if (categories.length > 0) params.set('categories', categories.join(','));
+    // if (statuses.length > 0) params.set('statuses', statuses.join(','));
+    navigate(`/discussion/search?${params.toString()}`);
   };
 
-  const handleCancelSearch = () => {
-    setSearchParamsObj(null);
-    setSearchParams({});
-    reset();
+  // 필터 적용 핸들러: URL 파라미터 변경
+  const handleApplyFilters = ({ categories, statuses }) => {
+    const newParams = new URLSearchParams();
+    if (categories.length > 0) {
+      newParams.set('categories', categories.join(','));
+    }
+    if (statuses.length > 0) {
+      newParams.set('statuses', statuses.join(','));
+    }
+    const queryString = newParams.toString();
+    // 필터 적용 시 항상 /discussion 경로로 이동
+    navigate(`/discussion${queryString ? `?${queryString}` : ''}`);
   };
 
   return (
     <>
       <Header />
-      <div className="home" style={{ marginTop: 64 }}>
-        <SearchBar
-          onSearch={handleSearch}
-          initialType={searchParamsObj?.searchType || 0}
-          initialQuery={searchParamsObj?.query || ''}
-        />
-        {searchParamsObj && (
-          <button onClick={handleCancelSearch} style={{ marginBottom: 16 }}>검색 취소</button>
-        )}
-        <DiscussionList
-          items={items}
-          loading={loading}
-          error={error}
-          hasMore={hasMore}
-          isFetchingMore={isFetchingMore}
-          loaderRef={loaderRef}
-          emptyMessage={searchParamsObj ? '검색 결과가 없습니다.' : '게시글이 없습니다.'}
-          endMessage={searchParamsObj ? '모든 검색 결과를 불러왔습니다.' : '모든 게시물을 불러왔습니다.'}
-        />
+      <div className={pageStyles.pageContainer} style={{ marginTop: 64 }}>
+        <aside className={pageStyles.sidebar}>
+          <DiscussionFilter
+            initialCategories={categories}
+            initialStatuses={statuses}
+            onApply={handleApplyFilters}
+          />
+        </aside>
+        <main className={pageStyles.mainContent}>
+          <SearchBar onSearch={handleSearch} />
+          <h2 style={{ marginTop: 24, textAlign: 'center', padding: '16px' }}>토론 목록</h2>
+          <DiscussionList
+            items={items}
+            loading={loading}
+            error={error}
+            hasMore={hasMore}
+            isFetchingMore={isFetchingMore}
+            loaderRef={loaderRef}
+            emptyMessage={'게시글이 없습니다.'}
+            endMessage={'모든 게시물을 불러왔습니다.'}
+          />
+        </main>
         {showGuideModal && (
           <NotificationGuideModal onClose={() => setShowGuideModal(false)} />
         )}

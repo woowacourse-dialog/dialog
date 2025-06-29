@@ -32,7 +32,9 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
           cursor: null,
           size: pageSize,
         };
-        if (searchParams && (searchParams.query || searchParams.categories?.length || searchParams.statuses?.length)) {
+
+        // 검색어(query)의 존재 여부로 API를 분기
+        if (searchParams && typeof searchParams.query === 'string') {
           result = await fetchSearchDiscussions({
             ...commonParams,
             searchBy: searchParams.searchType,
@@ -73,7 +75,9 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
         cursor,
         size: pageSize,
       };
-      if (searchParams && (searchParams.query || searchParams.categories?.length || searchParams.statuses?.length)) {
+
+      // 검색어(query)의 존재 여부로 API를 분기
+      if (searchParams && typeof searchParams.query === 'string') {
         result = await fetchSearchDiscussions({
           ...commonParams,
           searchBy: searchParams.searchType,

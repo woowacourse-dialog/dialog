@@ -1,0 +1,63 @@
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.filterGroup {
+  margin-bottom: 28px;
+}
+
+.groupTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #868e96;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f3f5;
+  text-transform: uppercase;
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 8px;
+  margin-bottom: 4px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  color: #495057;
+}
+
+.optionItem:hover {
+  background-color: #f8f9fa;
+}
+
+.optionItem.selected {
+  font-weight: 600;
+  color: #4bd1cc; /* 테마 색상 */
+  background-color: #f0fdfc;
+}
+
+.hiddenCheckbox {
+  display: none;
+}
+
+.applyButton {
+  margin-top: 24px; /* 버튼을 필터 그룹 아래에 위치시키기 위한 상단 여백 */
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #4bd1cc; /* 메인 테마 색상 */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  text-align: center;
+}
+
+.applyButton:hover {
+  background-color: #3aa9a4;
+  box-shadow: 0 4px 12px rgba(75, 209, 204, 0.3);
+} 

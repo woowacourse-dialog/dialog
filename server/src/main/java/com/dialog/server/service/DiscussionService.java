@@ -99,6 +99,8 @@ public class DiscussionService {
 
     @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
             DiscussionCursorPageRequest request) {
         int pageSize = request.size();
         String cursor = request.cursor();
@@ -106,17 +108,25 @@ public class DiscussionService {
         List<Discussion> discussions;
 
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
+            discussions = discussionRepository.findWithFiltersPageable(categories, statuses, PageRequest.of(0, pageSize + 1));
+//            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
+            discussions = discussionRepository.findWithFiltersBeforeDateCursor(
+                    categories,
+                    statuses,
                     cursorTime,
                     cursorId,
-                    PageRequest.of(0, pageSize + 1)
+                    pageSize + 1
             );
+//            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
+//                    cursorTime,
+//                    cursorId,
+//                    PageRequest.of(0, pageSize + 1)
+//            );
         }
 
         return buildDateCursorResponse(discussions, pageSize);

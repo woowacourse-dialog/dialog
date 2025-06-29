@@ -131,13 +131,13 @@ class DiscussionServiceTest {
         // 첫 번째 페이지 조회 (cursor 없음)
         DiscussionCursorPageRequest firstPageRequest = new DiscussionCursorPageRequest(null, pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> firstPage =
-                discussionService.getDiscussionsPage(firstPageRequest);
+                discussionService.getDiscussionsPage(null, null, firstPageRequest);
 
         // 다음 페이지 조회 (첫 페이지의 nextCursor 사용)
         DiscussionCursorPageRequest secondPageRequest =
                 new DiscussionCursorPageRequest(firstPage.nextCursor(), pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> secondPage =
-                discussionService.getDiscussionsPage(secondPageRequest);
+                discussionService.getDiscussionsPage(null, null, secondPageRequest);
 
         // then
         // 첫 번째 페이지 검증

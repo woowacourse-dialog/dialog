@@ -56,12 +56,17 @@ public class DiscussionController {
 
     @GetMapping
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsWithCursor(
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) List<String> statuses,
             @RequestParam(required = false) String cursor,
             @RequestParam int size
     ) {
         DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
-                request);
+                Category.fromValues(categories),
+                DiscussionStatus.fromValues(statuses),
+                request
+        );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(pageDiscussions));
     }
 
@@ -69,7 +74,7 @@ public class DiscussionController {
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> searchDiscussions(
             @RequestParam int searchBy,
             @RequestParam String query,
-            @RequestParam(required = false) List<String> categories, // categories=frontend,backend,common
+            @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "10") int size

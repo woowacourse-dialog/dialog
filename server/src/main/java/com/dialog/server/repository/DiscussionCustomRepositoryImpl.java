@@ -22,6 +22,38 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     private final QUser user = QUser.user;
 
     @Override
+    public List<Discussion> findWithFiltersPageable(List<Category> categories, List<DiscussionStatus> statuses,
+                                                    Pageable pageable) {
+        return queryFactory.selectFrom(discussion)
+                .innerJoin(discussion.author, user)
+                .fetchJoin()
+                .where(
+                        categoryIn(categories),
+                        statusIn(statuses)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Override
+    public List<Discussion> findWithFiltersBeforeDateCursor(List<Category> categories, List<DiscussionStatus> statuses,
+                                                            LocalDateTime cursor, Long id, int limit) {
+        return queryFactory.selectFrom(discussion)
+                .innerJoin(discussion.author, user)
+                .fetchJoin()
+                .where(
+                        categoryIn(categories),
+                        statusIn(statuses),
+                        cursorBefore(cursor, id)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
     public List<Discussion> findByTitleOrContentContainingWithFiltersPageable(String keyword,
                                                                               List<Category> categories,
                                                                               List<DiscussionStatus> statuses,

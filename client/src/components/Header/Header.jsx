@@ -26,6 +26,10 @@ const Header = () => {
     navigate('/mypage');
   };
 
+  const handleMyDiscussions = () => {
+    navigate('/discussion/my');
+  };
+
   const handleLogout = async () => {
     try {
       const response = await api.delete('/api/logout');
@@ -50,6 +54,9 @@ const Header = () => {
         <div className="header-nav">
           {isLoggedIn ? (
             <div className="nav-buttons">
+              {/* <button className="nav-button my-discussions-button" onClick={handleMyDiscussions}>
+                내 토론
+              </button> */}
               <button className="nav-button mypage-button" onClick={handleMyPage}>
                 My Page
               </button>

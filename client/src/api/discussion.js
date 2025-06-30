@@ -108,3 +108,46 @@ export async function fetchSearchDiscussions({ searchBy, query, categories, stat
     size: res.data.data.size,
   };
 }
+
+/**
+ * 내가 개설한 토론 목록을 불러온다.
+ * @param {Object} params
+ * @param {string|null} params.cursor - 커서(처음엔 null)
+ * @param {number} params.size - 페이지 크기
+ * @returns {Promise<{content: Array, nextCursor: string|null, hasNext: boolean}>}
+ */
+export async function fetchMyDiscussions({ cursor = null, size = 10} = {}) {
+  const res = await api.get('/discussions/me', {
+    params: {
+      cursor,
+      size
+    }
+  });
+  return {
+    content: res.data.data.content,
+    nextCursor: res.data.data.nextCursor,
+    hasNext: res.data.data.hasNext,
+    size: res.data.data.size
+  };
+}
+
+/**
+ * 내가 스크랩한 토론 목록을 불러온다.
+ * @param {Object} params
+ * @param {number|null} params.lastCursorId - 마지막으로 받은 id(처음엔 null)
+ * @param {number} params.size - 페이지 크기
+ * @returns {Promise<{content: Array, nextCursorId: number|null, hasNext: boolean}>}
+ */
+export async function fetchScrapDiscussions({ lastCursorId, size = 10 } = {}) {
+  const params = { size };
+  if (lastCursorId !== undefined && lastCursorId !== null) {
+    params.lastCursorId = lastCursorId;
+  }
+  const res = await api.get('/scraps/me', { params });
+  return {
+    content: res.data.data.content,
+    nextCursorId: res.data.data.nextCursorId,
+    hasNext: res.data.data.hasNext,
+    size: res.data.data.size
+  };
+}

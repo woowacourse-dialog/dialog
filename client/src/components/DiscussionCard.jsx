@@ -1,6 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const TRACKS = [
+  { id: 'FRONTEND', name: '프론트엔드' },
+  { id: 'BACKEND', name: '백엔드' },
+  { id: 'ANDROID', name: '안드로이드' },
+  { id: 'COMMON', name: '공통' }
+];
+
 export default function DiscussionCard({
   id,
   nickname,
@@ -15,6 +22,13 @@ export default function DiscussionCard({
   summary
 }) {
   const navigate = useNavigate();
+  
+  // 트랙 ID를 한글 이름으로 변환
+  const getTrackName = (trackId) => {
+    const track = TRACKS.find(t => t.id === trackId);
+    return track ? track.name : trackId;
+  };
+  
   // 토론 상태 계산
   const now = new Date();
   const start = new Date(startAt);
@@ -65,7 +79,7 @@ export default function DiscussionCard({
           padding: '4px 12px',
           fontWeight: 500,
           fontSize: 13
-        }}>{category}</span>
+        }}>{getTrackName(category)}</span>
         <span style={{
           background: stateStyle[discussionState].background,
           color: stateStyle[discussionState].color,

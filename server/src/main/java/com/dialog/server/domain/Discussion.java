@@ -13,15 +13,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -91,6 +90,32 @@ public class Discussion extends BaseEntity {
         this.category = category;
         this.summary = summary;
         this.author = author;
+    }
+
+    public static Discussion withNoValidateOf(String title,
+                                              String content,
+                                              LocalDateTime startAt,
+                                              LocalDateTime endAt,
+                                              String place,
+                                              int viewCount,
+                                              int participantCount,
+                                              int maxParticipantCount,
+                                              Category category,
+                                              String summary,
+                                              User author) {
+        Discussion discussion = new Discussion();
+        discussion.title = title;
+        discussion.content = content;
+        discussion.startAt = startAt;
+        discussion.endAt = endAt;
+        discussion.place = place;
+        discussion.viewCount = viewCount;
+        discussion.participantCount = participantCount;
+        discussion.maxParticipantCount = maxParticipantCount;
+        discussion.category = category;
+        discussion.summary = summary;
+        discussion.author = author;
+        return discussion;
     }
 
     private void validateDiscussion(
@@ -199,5 +224,14 @@ public class Discussion extends BaseEntity {
                 throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
             }
         }
+    }
+
+    public DiscussionStatus getDiscussionStatus() {
+        return DiscussionStatus.decideDiscussionStatus(
+                this.startAt,
+                this.endAt,
+                this.participantCount,
+                this.maxParticipantCount
+        );
     }
 }

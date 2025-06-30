@@ -1,7 +1,9 @@
 package com.dialog.server.service;
 
+import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
@@ -97,6 +99,8 @@ public class DiscussionService {
 
     @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
             DiscussionCursorPageRequest request) {
         int pageSize = request.size();
         String cursor = request.cursor();
@@ -104,32 +108,42 @@ public class DiscussionService {
         List<Discussion> discussions;
 
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
+            discussions = discussionRepository.findWithFiltersPageable(categories, statuses, PageRequest.of(0, pageSize + 1));
+//            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
+            discussions = discussionRepository.findWithFiltersBeforeDateCursor(
+                    categories,
+                    statuses,
                     cursorTime,
                     cursorId,
-                    PageRequest.of(0, pageSize + 1)
+                    pageSize + 1
             );
+//            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
+//                    cursorTime,
+//                    cursorId,
+//                    PageRequest.of(0, pageSize + 1)
+//            );
         }
 
         return buildDateCursorResponse(discussions, pageSize);
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussion(SearchType searchType,
-                                                                                    String query,
-                                                                                    String cursor,
-                                                                                    int size) {
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussionWithFilters(SearchType searchType,
+                                                                                               String query,
+                                                                                               List<Category> categories,
+                                                                                               List<DiscussionStatus> statuses,
+                                                                                               String cursor,
+                                                                                               int size) {
         validatePageSize(size);
         List<Discussion> discussions;
         switch (searchType) {
-            case TITLE_OR_CONTENT -> discussions = searchDiscussionByTitleOrContent(query, cursor, size);
-            case AUTHOR_NICKNAME -> discussions = searchDiscussionByAuthorNickname(query, cursor, size);
+            case TITLE_OR_CONTENT -> discussions = searchDiscussionByTitleOrContentWithFilters(query, categories, statuses, cursor, size);
+            case AUTHOR_NICKNAME -> discussions = searchDiscussionByAuthorNicknameWithFilters(query, categories, statuses, cursor, size);
             default -> throw new DialogException(ErrorCode.INVALID_SEARCH_TYPE);
         }
         return buildDateCursorResponse(discussions, size);
@@ -184,20 +198,28 @@ public class DiscussionService {
         }
     }
 
-    private List<Discussion> searchDiscussionByTitleOrContent(String query,
-                                                              String cursor,
-                                                              int size) {
+    private List<Discussion> searchDiscussionByTitleOrContentWithFilters(String query,
+                                                                         List<Category> categories,
+                                                                         List<DiscussionStatus> statuses,
+                                                                         String cursor,
+                                                                         int size) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findByTitleOrContentContainingPageable(query,
-                    PageRequest.of(0, size + 1));
+            discussions = discussionRepository.findByTitleOrContentContainingWithFiltersPageable(
+                    query,
+                    categories,
+                    statuses,
+                    PageRequest.of(0, size + 1)
+            );
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findByTitleOrContentContainingBeforeDateCursor(
+            discussions = discussionRepository.findByTitleOrContentContainingWithFiltersBeforeDateCursor(
                     query,
+                    categories,
+                    statuses,
                     cursorTime,
                     cursorId,
                     size + 1
@@ -206,11 +228,17 @@ public class DiscussionService {
         return discussions;
     }
 
-    private List<Discussion> searchDiscussionByAuthorNickname(String query, String cursor, int size) {
+    private List<Discussion> searchDiscussionByAuthorNicknameWithFilters(String query,
+                                                                         List<Category> categories,
+                                                                         List<DiscussionStatus> statuses,
+                                                                         String cursor,
+                                                                         int size) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findByAuthorNicknameContainingPageable(
+            discussions = discussionRepository.findByAuthorNicknameContainingWithFiltersPageable(
                     query,
+                    categories,
+                    statuses,
                     PageRequest.of(0, size + 1)
             );
         } else {
@@ -218,8 +246,10 @@ public class DiscussionService {
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
             Long cursorId = Long.valueOf(cursorParts[CURSOR_ID_INDEX]);
 
-            discussions = discussionRepository.findByAuthorNicknameContainingBeforeDateCursor(
+            discussions = discussionRepository.findByAuthorNicknameContainingWithFiltersBeforeDateCursor(
                     query,
+                    categories,
+                    statuses,
                     cursorTime,
                     cursorId,
                     size + 1

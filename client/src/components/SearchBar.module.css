@@ -47,7 +47,8 @@
   height: 40px;
   padding: 0;
   background: #fff;
-  border: 2px solid #193f91;
+  border: 2px solid #2c3f50;
+  aspect-ratio: 1/1;
   border-radius: 50%;
   font-size: 18px;
   font-weight: 500;
@@ -61,7 +62,7 @@
 }
 .button:hover, .button:focus {
   background: #fff;
-  border: 2px solid #193f91;
+  border: 2px solid #2c3f50;
 }
 .button img {
   width: 24px;

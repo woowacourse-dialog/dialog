@@ -1,5 +1,7 @@
 package com.dialog.server.controller;
 
+import com.dialog.server.domain.Category;
+import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
@@ -14,6 +16,7 @@ import com.dialog.server.service.DiscussionService;
 import com.dialog.server.service.NotificationService;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,12 +56,17 @@ public class DiscussionController {
 
     @GetMapping
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsWithCursor(
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) List<String> statuses,
             @RequestParam(required = false) String cursor,
             @RequestParam int size
     ) {
         DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
-                request);
+                Category.fromValues(categories),
+                DiscussionStatus.fromValues(statuses),
+                request
+        );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(pageDiscussions));
     }
 
@@ -66,11 +74,18 @@ public class DiscussionController {
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> searchDiscussions(
             @RequestParam int searchBy,
             @RequestParam String query,
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) List<String> statuses,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussion(
-                SearchType.fromValue(searchBy), query, cursor, size
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+                SearchType.fromValue(searchBy),
+                query,
+                Category.fromValues(categories),
+                DiscussionStatus.fromValues(statuses),
+                cursor,
+                size
         );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(searched));
     }

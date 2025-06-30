@@ -126,7 +126,7 @@ app:
 aws:
   s3:
     bucket: test_aws_s3_buket_name
-  region: test_aws_region
+  region: ap-northeast-2
   credentials:
     access-key: test_aws_access_key
     secret-key: test_aws_secret_key

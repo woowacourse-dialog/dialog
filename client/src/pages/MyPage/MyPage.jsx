@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Header from '../../components/Header/Header';
 import axios from 'axios';
 import './MyPage.css';
+import { useNavigate } from 'react-router-dom';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -33,6 +34,7 @@ const MyPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalSelectedFile, setModalSelectedFile] = useState(null);
   const [modalPreviewUrl, setModalPreviewUrl] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -252,6 +254,51 @@ const MyPage = () => {
                   <span className="slider round"></span>
                 </label>
               </div>
+            </div>
+            {/* 버튼 영역 */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              gap: '1rem',
+              width: '100%'
+            }}>
+              <button
+                className="mypage-my-discussion-btn"
+                style={{
+                  background: '#4bd1cc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.8rem 1.5rem',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(60,64,67,0.08)',
+                  width: '100%'
+                }}
+                onClick={() => navigate('/discussion/my')}
+              >
+                내가 개설한 토론 보기
+              </button>
+              <button
+                className="mypage-my-scrap-btn"
+                style={{
+                  background: '#4bd1cc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.8rem 1.5rem',
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(60,64,67,0.08)',
+                  width: '100%'
+                }}
+                onClick={() => navigate('/discussion/scrap')}
+              >
+                내가 스크랩한 토론 보기
+              </button>
             </div>
           </div>
         )}

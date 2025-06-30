@@ -115,6 +115,17 @@
   background: none;
 }
 
+.my-discussions-button {
+  background-color: #4bd1cc;
+  color: white;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.my-discussions-button:hover {
+  background-color: #3fb5b1;
+}
+
 .nav-buttons {
   display: flex;
   gap: 1rem;

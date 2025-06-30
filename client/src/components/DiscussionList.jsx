@@ -27,7 +27,6 @@ const DiscussionList = ({
           place={item.place}
           startAt={item.startAt}
           endAt={item.endAt}
-          likes={item.likeCount}
           views={item.viewCount}
           title={item.title}
           summary={item.summary}

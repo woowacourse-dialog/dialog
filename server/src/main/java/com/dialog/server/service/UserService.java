@@ -14,13 +14,14 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import com.dialog.server.util.ImageFileExtractor;
+import com.dialog.server.util.ProfileImageFileInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final S3Uploader s3Uploader;
+    private final ImageFileExtractor imageFileExtractor;
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
@@ -102,63 +104,22 @@ public class UserService {
     }
 
     private ProfileImage createBasicProfileFile(String basicProfileUri, User user) {
-        validBasicProfileUri(basicProfileUri);
         return ProfileImage.builder()
                 .basicImageUri(basicProfileUri)
                 .user(user)
                 .build();
     }
 
-    private void validBasicProfileUri(String basicProfileUri) {
-        if (basicProfileUri == null || basicProfileUri.isBlank()) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-    }
-
     private ProfileImage uploadAndSaveProfileImage(MultipartFile imageFile, ProfileImage profileImage) {
-        validEmptyFile(imageFile);
-        String originFilename = getOriginFileName(imageFile);
-        String fileExtension = getFileExtension(originFilename);
-        String storedFileName = getStoredFileName(fileExtension);
+        ProfileImageFileInfo fileInfo = imageFileExtractor.getInfo(imageFile);
         String updatedImageUri;
         try {
-            updatedImageUri = s3Uploader.upload(imageFile, "profile-images", storedFileName);
+            updatedImageUri = s3Uploader.uploadProfileImage(imageFile, fileInfo.storedFileName());
         } catch (IOException e) {
             throw new DialogException(ErrorCode.FAILED_SAVE_IMAGE);
         }
-        profileImage.updateProfileImage(originFilename, storedFileName, updatedImageUri);
+        profileImage.updateProfileImage(fileInfo, updatedImageUri);
         profileImageRepository.save(profileImage);
         return profileImage;
-    }
-
-    private void validEmptyFile(MultipartFile imageFile) {
-        if (imageFile.isEmpty()) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-    }
-
-    private String getOriginFileName(MultipartFile imageFile) {
-        String originFilename = imageFile.getOriginalFilename();
-        if (originFilename == null || originFilename.contains("..")) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
-        return originFilename;
-    }
-
-    private String getFileExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        String fileExtension = (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1).toLowerCase();
-        validateImageExtension(fileExtension);
-        return fileExtension;
-    }
-
-    private String getStoredFileName(String fileExtension) {
-        return UUID.randomUUID() + "." + fileExtension;
-    }
-
-    private void validateImageExtension(String extension) {
-        if (!("jpg".equals(extension) || "jpeg".equals(extension) || "png".equals(extension) || "gif".equals(extension))) {
-            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
-        }
     }
 }

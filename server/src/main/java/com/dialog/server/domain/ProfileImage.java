@@ -1,5 +1,8 @@
 package com.dialog.server.domain;
 
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.util.ProfileImageFileInfo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -20,6 +24,8 @@ import java.util.Objects;
 @Table(name = "profile_image")
 @Entity
 public class ProfileImage extends BaseEntity {
+
+    private static final List<String> AVAILABLE_EXTENSIONS = List.of("png", "jpg", "jpeg", "gif");
 
     @Column(name = "profile_image_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +49,7 @@ public class ProfileImage extends BaseEntity {
             String basicImageUri,
             User user
     ) {
+        validBasicProfileUri(basicImageUri);
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
         this.customImageUri = customImageUri;
@@ -51,13 +58,25 @@ public class ProfileImage extends BaseEntity {
     }
 
     public void updateProfileImage(
-            String originalFileName,
-            String storedFileName,
+            ProfileImageFileInfo fileInfo,
             String updatedImageUri
     ) {
-        this.originalFileName = originalFileName;
-        this.storedFileName = storedFileName;
+        validateAvailableExtension(fileInfo.fileExtension());
+        this.originalFileName = fileInfo.originalFileName();
+        this.storedFileName = fileInfo.storedFileName();
         this.customImageUri = updatedImageUri;
+    }
+
+    private void validBasicProfileUri(String basicProfileUri) {
+        if (basicProfileUri == null || basicProfileUri.isBlank()) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
+    }
+
+    private void validateAvailableExtension(String extension) {
+        if (!AVAILABLE_EXTENSIONS.contains(extension)) {
+            throw new DialogException(ErrorCode.INVALID_IMAGE_FORMAT);
+        }
     }
 
     @Override

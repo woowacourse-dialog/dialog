@@ -11,6 +11,7 @@ import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.UserRepository;
+import com.dialog.server.util.ImageFileExtractor;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
-@Import({JpaConfig.class, UserService.class})
+@Import({JpaConfig.class, UserService.class, ImageFileExtractor.class})
 @ActiveProfiles("test")
 @DataJpaTest
 public class UserServiceTest {
@@ -54,7 +55,7 @@ public class UserServiceTest {
     void setUp() throws IOException {
         user = userRepository.save(createUser());
 
-        Mockito.when(s3Uploader.upload(any(MultipartFile.class), any(String.class), any(String.class)))
+        Mockito.when(s3Uploader.uploadProfileImage(any(MultipartFile.class), any(String.class)))
                 .thenReturn("https://awss3.com/profile-images/mocked-image.png");
     }
 

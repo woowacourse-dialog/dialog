@@ -40,7 +40,7 @@ public class DiscussionScrapController {
 
     @GetMapping("scraps/me")
     public ResponseEntity<ApiSuccessResponse<ScrapCursorPageResponse<DiscussionPreviewResponse>>> getScraps(
-            @RequestParam Long lastCursorId,
+            @RequestParam(required = false) Long lastCursorId,
             @RequestParam(defaultValue = "10") Integer size,
             @AuthenticatedUserId Long userId) {
         ScrapCursorPageRequest scrapCursorPageRequest = new ScrapCursorPageRequest(lastCursorId, size);

@@ -35,18 +35,24 @@ export default function DiscussionCard({
   const end = new Date(endAt);
   let discussionState = '';
   if (now < start) {
-    discussionState = '모집중';
+    if (participants >= maxParticipants) {
+      discussionState = '모집 완료';
+    } else {
+      discussionState = '모집 중';
+    }
+  
   } else if (now >= start && now <= end) {
-    discussionState = '진행중';
+    discussionState = '토론 중';
   } else {
     discussionState = '완료';
   }
 
   // 상태별 색상
   const stateStyle = {
-    모집중: { background: '#ffe066', color: '#333' },
-    진행중: { background: '#42a5f5', color: '#fff' },
-    완료:   { background: '#bdbdbd', color: '#fff' }
+    '모집 중': { background: '#ffe066', color: '#333' },
+    '모집 완료': { background: '#ff7043', color: '#fff' },
+    '토론 중': { background: '#42a5f5', color: '#fff' },
+    '완료':   { background: '#bdbdbd', color: '#fff' }
   };
 
   return (

@@ -34,11 +34,17 @@ const getDiscussionStatus = (startAt, endAt) => {
 };
 
 const getAuthorProfileImageSrc = (author) => {
-  if (!author || !author.profileImage) return '';
-  if (author.profileImage.customImageUri) {
-    return author.profileImage.customImageUri;
+  // If no author or no profileImage, use default icon from public assets
+  if (!author || !author.profileImage) return '/src/assets/dialog_icon.png';
+  const { basicImageUri, customImageUri } = author.profileImage;
+  if (customImageUri) {
+    return customImageUri;
   }
-  return author.profileImage.basicImageUri;
+  if (basicImageUri) {
+    return basicImageUri;
+  }
+  // If both are null or undefined, return the default icon from public assets
+  return '/src/assets/dialog_icon.png';
 };
 
 const DiscussionDetailPage = () => {

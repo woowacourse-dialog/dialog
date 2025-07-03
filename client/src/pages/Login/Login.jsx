@@ -6,7 +6,7 @@ const Login = () => {
   const handleGithubLogin = () => {
     
     // GitHub OAuth 인증 URL
-    const githubURL = `http://localhost:8080/oauth2/authorization/github`;
+    const githubURL = `${import.meta.env.VITE_API_URL}/oauth2/authorization/github`;
     
     // GitHub 로그인 페이지로 리다이렉트
     window.location.href = githubURL;

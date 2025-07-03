@@ -18,7 +18,7 @@ const messaging = getMessaging(app);
 // FCM 토큰을 서버에 저장
 const saveTokenToServer = async (token) => {
   try {
-    await axios.post('http://localhost:8080/api/fcm-tokens', { token }, { withCredentials: true });
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/fcm-tokens`, { token }, { withCredentials: true });
     // 토큰 저장 성공 시 로컬 스토리지에 저장
     localStorage.setItem('fcmToken', token);
     return token;

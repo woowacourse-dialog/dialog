@@ -29,7 +29,7 @@ const Signup = () => {
 
   const checkExistingUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/signup/check', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/signup/check`, {
         withCredentials: true
       });
 
@@ -80,7 +80,7 @@ const Signup = () => {
 
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:8080/api/signup', formData, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, formData, {
         withCredentials: true
       });
       alert('회원가입이 완료되었습니다.');

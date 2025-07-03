@@ -4,7 +4,6 @@ import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.ProfileImage;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,7 +55,7 @@ public record DiscussionDetailResponse(
         return new AuthorResponse(
                 discussion.getAuthor().getId(),
                 discussion.getAuthor().getNickname(),
-                ProfileImageResponse.from(profileImage)
+                profileImage == null ? null : ProfileImageResponse.from(profileImage)
         );
     }
 

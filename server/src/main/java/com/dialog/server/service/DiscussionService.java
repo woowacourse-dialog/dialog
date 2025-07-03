@@ -79,7 +79,7 @@ public class DiscussionService {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
         User author = discussion.getAuthor();
-        ProfileImage profileImage = profileImageRepository.findByUser(author).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
+        ProfileImage profileImage = profileImageRepository.findByUser(author).orElse(null);
         List<DiscussionParticipant> discussionParticipants = discussionParticipantRepository.findByDiscussion(
                 discussion
         );

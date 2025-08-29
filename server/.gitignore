@@ -177,4 +177,8 @@ gradle-app.setting
 
 ### Firebase ###
 /src/main/resources/firebase-service-account.json
+
+### Environment File ###
+.env.*
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,macos,java,gradle

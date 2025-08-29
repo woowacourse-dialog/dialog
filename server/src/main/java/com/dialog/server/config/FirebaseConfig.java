@@ -6,18 +6,25 @@ import com.google.firebase.FirebaseOptions;
 import jakarta.annotation.PostConstruct;
 import java.io.FileInputStream;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
 public class FirebaseConfig {
 
+    private final String configPath;
+
+    public FirebaseConfig(@Value("${firebase.config.path}") String configPath) {
+        this.configPath = configPath;
+    }
+
     @PostConstruct
     public void initialize() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
                 FileInputStream serviceAccount =
-                        new FileInputStream("src/main/resources/firebase-service-account.json");
+                        new FileInputStream(configPath);
 
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(serviceAccount))

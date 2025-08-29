@@ -35,6 +35,8 @@ public class WebSecurityConfig {
 //                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer
+                        .authorizationEndpoint(authorization -> authorization.baseUri("/api/oauth2/authorization"))
+                        .redirectionEndpoint(redirection -> redirection.baseUri("/api/login/oauth2/code/*"))
                         .successHandler(oAuth2SuccessHandler)
                         .failureHandler(oAuth2FailureHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)

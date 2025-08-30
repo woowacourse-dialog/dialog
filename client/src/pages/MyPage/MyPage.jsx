@@ -246,9 +246,8 @@ const MyPage = () => {
             )}
             <div className="mypage-profile-info-horizontal" style={{ width: '100%' }}>
               <div className="mypage-profile-nickname-horizontal" style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.3rem' }}>{userInfo.nickname}</div>
-              <div className="mypage-profile-email-horizontal" style={{ color: '#888', fontSize: '1rem', marginBottom: '1rem' }}>{userInfo.email}</div>
               <div className="mypage-info-row" style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '1rem' }}>
-                <span className="mypage-label" style={{ color: '#888', fontSize: '1rem' }}>이메일 알림</span>
+                <span className="mypage-label" style={{ color: '#888', fontSize: '1rem' }}>웹 푸시 알림</span>
                 <label className="switch">
                   <input type="checkbox" checked={isNotificationEnable} onChange={handleNotificationChange} disabled={saving} />
                   <span className="slider round"></span>

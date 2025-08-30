@@ -10,61 +10,24 @@ const Signup = () => {
 
   const [formData, setFormData] = useState({
     nickname: '',
-    email: '',
-    phoneNumber: '',
-    emailNotification: false,
-    phoneNotification: false,
+    webPushNotification: false,
   });
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmailPreFilled, setIsEmailPreFilled] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     if (!checkUserCalled.current) {
       checkUserCalled.current = true;
-      checkExistingUser();
     }
   }, []);
-
-  const checkExistingUser = async () => {
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/signup/check`, {
-        withCredentials: true
-      });
-
-      const userEmail = response.data.data.email;
-
-      if (userEmail) {
-        setFormData(prev => {
-          const newState = { ...prev, email: userEmail };
-          return newState;
-        });
-        setIsEmailPreFilled(true);
-      }
-    } catch (error) {
-        alert(error.response.data.message);
-        navigate('/');
-    }
-  };
 
   const validateForm = () => {
     const newErrors = {};
     
     if (!formData.nickname.trim()) {
       newErrors.nickname = '닉네임을 입력해주세요';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = '이메일을 입력해주세요';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = '올바른 이메일 형식이 아닙니다';
-    }
-    
-    if (!formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = '전화번호를 입력해주세요';
-    } else if (!/^\d{10,11}$/.test(formData.phoneNumber.replace(/-/g, ''))) {
-      newErrors.phoneNumber = '올바른 전화번호 형식이 아닙니다';
     }
 
     setErrors(newErrors);
@@ -124,70 +87,36 @@ const Signup = () => {
             {errors.nickname && <span className="error-message">{errors.nickname}</span>}
           </div>
 
-          <div className="input-group">
-            <label htmlFor="email">
-              이메일
-              <span className="required-mark">*</span>
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="이메일을 입력하세요"
-              className={`input-field ${isEmailPreFilled ? 'pre-filled' : ''}`}
-            />
-            {isEmailPreFilled && (
-              <span className="info-message">원하는 이메일로 수정할 수 있습니다.</span>
-            )}
-            {errors.email && <span className="error-message">{errors.email}</span>}
-          </div>
-
-          <div className="input-group">
-            <label htmlFor="phoneNumber">
-              전화번호
-              <span className="required-mark">*</span>
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="전화번호를 입력하세요"
-              className="input-field"
-            />
-            {errors.phoneNumber && <span className="error-message">{errors.phoneNumber}</span>}
-          </div>
-
           <div className="notification-group">
             <div className="checkbox-group">
               <input
                 type="checkbox"
-                id="emailNotification"
-                name="emailNotification"
-                checked={formData.emailNotification}
+                id="webPushNotification"
+                name="webPushNotification"
+                checked={formData.webPushNotification}
                 onChange={handleChange}
               />
-              <label htmlFor="emailNotification">
-                이메일 알림 수신
+              <label htmlFor="webPushNotification">
+                웹 푸시 알림 수신
                 <span className="optional-mark">(선택)</span>
               </label>
-            </div>
-
-            <div className="checkbox-group">
-              <input
-                type="checkbox"
-                id="phoneNotification"
-                name="phoneNotification"
-                checked={formData.phoneNotification}
-                onChange={handleChange}
-              />
-              <label htmlFor="phoneNotification">
-                휴대폰 알림 수신
-                <span className="optional-mark">(선택)</span>
-              </label>
+              <div 
+                className="info-icon"
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="#6c757d" strokeWidth="2" fill="none"/>
+                  <path d="M12 16v-4" stroke="#6c757d" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="12" cy="8" r="1" fill="#6c757d"/>
+                </svg>
+                {showTooltip && (
+                  <div className="tooltip">
+                    <p>크루들이 토론을 올리면 알림을 받을 수 있습니다.</p>
+                    <p>추후 마이페이지에서 언제든지 알림을 해제할 수 있습니다.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

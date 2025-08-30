@@ -34,8 +34,6 @@ class AuthServiceTest {
     private User tempUser; // 등록되지 않은 사용자 (OAuth 로그인만 수행, 회원가입 하지 않음)
 
     private String newNickname = "new-nickname";
-    private String newMail = "new-email@example.com";
-    private String newPhoneNumber = "new-phone-number";
     private String newOAuthId = "new-oauth-id";
 
     @BeforeEach
@@ -46,15 +44,12 @@ class AuthServiceTest {
                 User.builder()
                         .oauthId("oauth123")
                         .nickname("testUser")
-                        .email("test@example.com")
-                        .phoneNumber("010-1234-5678")
                         .role(Role.USER)
                         .build()
         );
         tempUser = userRepository.save(
                 User.builder()
                         .oauthId("oauth1234")
-                        .email("test2@example.com")
                         .build()
         );
     }
@@ -65,9 +60,6 @@ class AuthServiceTest {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
-                newMail,
-                newPhoneNumber,
-                false,
                 false
         );
 
@@ -80,9 +72,7 @@ class AuthServiceTest {
         assertThat(user).isPresent();
         assertAll(
                 () -> assertThat(user.get().getOauthId()).isEqualTo(tempUser.getOauthId()),
-                () -> assertThat(user.get().getNickname()).isEqualTo(newNickname),
-                () -> assertThat(user.get().getEmail()).isEqualTo(newMail),
-                () -> assertThat(user.get().getPhoneNumber()).isEqualTo(newPhoneNumber)
+                () -> assertThat(user.get().getNickname()).isEqualTo(newNickname)
         );
     }
 
@@ -92,9 +82,6 @@ class AuthServiceTest {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
-                newMail,
-                newPhoneNumber,
-                false,
                 false
         );
 
@@ -104,54 +91,16 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("이미 존재하는 이메일이라면 예외가 발생한다.")
-    void existEmailRegisterTest() {
-        // given
-        SignupRequest signupRequest = new SignupRequest(
-                newNickname,
-                user.getEmail(),
-                newPhoneNumber,
-                false,
-                false
-        );
-
-        // when, then
-        assertThatThrownBy(() -> authService.registerUser(signupRequest, tempUser.getOauthId()))
-                .isInstanceOf(DialogException.class);
-    }
-
-    @Test
     @DisplayName("깃허브 로그인을 하지 않고 회원가입 시도 시 예외가 발생한다")
     void notOAuthUserTest() {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
-                newMail,
-                newPhoneNumber,
-                false,
                 false
         );
 
         // when, then
         assertThatThrownBy(() -> authService.registerUser(signupRequest, newOAuthId))
-                .isInstanceOf(DialogException.class);
-    }
-
-    @Test
-    @DisplayName("임시 저장된 사용자의 정보를 반환한다.")
-    void getTempUserEmailTest() {
-        // when
-        String email = authService.getTempUserEmail(tempUser.getOauthId());
-
-        // then
-        assertThat(email).isEqualTo(tempUser.getEmail());
-    }
-
-    @Test
-    @DisplayName("임시 저장되지 않은 사용자의 정보를 요청할 시 예외 발생")
-    void noTempUserTest() {
-        // when, then
-        assertThatThrownBy(() -> authService.getTempUserEmail(newOAuthId))
                 .isInstanceOf(DialogException.class);
     }
 

@@ -1,5 +1,10 @@
 package com.dialog.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.ProfileImage;
@@ -8,6 +13,8 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,14 +28,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
 @Import({CustomOAuth2UserService.class, JpaConfig.class})
@@ -74,10 +73,8 @@ class CustomOAuth2UserServiceTest {
         userRepository.save(
                 User.builder()
                         .oauthId(registeredOAuthId)
-                        .email(registeredMail)
                         .nickname("test")
-                        .phoneNotification(false)
-                        .emailNotification(false)
+                        .webPushNotification(false)
                         .role(Role.USER)
                         .build()
         );

@@ -7,7 +7,6 @@ import com.dialog.server.domain.Role;
 import com.dialog.server.dto.auth.request.SignupRequest;
 import com.dialog.server.dto.auth.response.LoginCheckResponse;
 import com.dialog.server.dto.auth.response.SignupResponse;
-import com.dialog.server.dto.auth.response.TempUserInfoResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -63,13 +62,6 @@ public class AuthController {
             isLoggedIn = Role.isLoggedInFromAuthorities(authentication.getAuthorities());
         }
         return ResponseEntity.ok(new ApiSuccessResponse<>(new LoginCheckResponse(isLoggedIn)));
-    }
-
-    @GetMapping("/signup/check")
-    public ResponseEntity<ApiSuccessResponse<TempUserInfoResponse>> checkTempUser(HttpServletRequest request) {
-        final String oauthId = extractOAuthIdFromSession(request);
-        final String email = authService.getTempUserEmail(oauthId);
-        return ResponseEntity.ok(new ApiSuccessResponse<>(new TempUserInfoResponse(email)));
     }
 
     @DeleteMapping("/logout")

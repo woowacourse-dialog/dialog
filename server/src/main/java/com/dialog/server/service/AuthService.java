@@ -25,26 +25,13 @@ public class AuthService {
         if (user.getRole() != null && user.isRegistered()) {
             throw new DialogException(ErrorCode.REGISTERED_USER);
         }
-        if (!signupRequest.email().equals(user.getEmail())
-                && userRepository.existsUserByEmail(signupRequest.email())) {
-            throw new DialogException(ErrorCode.EXIST_USER_EMAIL);
-        }
 
         user.register(
                 signupRequest.nickname(),
-                signupRequest.email(),
-                signupRequest.phoneNumber(),
-                signupRequest.emailNotification(),
-                signupRequest.phoneNotification(),
+                signupRequest.webPushNotification(),
                 Role.USER
         );
         return user.getId();
-    }
-
-    public String getTempUserEmail(String oauthId) {
-        User user = userRepository.findUserByOauthId(oauthId)
-                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        return user.getEmail();
     }
 
     public Authentication authenticate(Long userId) {

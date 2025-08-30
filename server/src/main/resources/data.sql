@@ -1,13 +1,13 @@
-INSERT INTO users (user_id, nickname, phone_number, email_notification, phone_notification, created_at, modified_at, is_deleted)
-VALUES (1, '김개발', '010-1234-5678', true, true, NOW(), NOW(), false),
-       (2, '홍길동', '010-9876-5432', true, false, NOW(), NOW(), false),
-       (3, '박코딩', '010-5555-1234', false, true, NOW(), NOW(), false),
-       (4, '한스', '010-1111-1111', true, true, NOW(), NOW(), false),
-       (5, '다로', '010-1111-1112', true, false, NOW(), NOW(), false),
-       (6, '밍곰', '010-1111-1113', false, true, NOW(), NOW(), false),
-       (7, '히포', '010-1111-1114', true, true, NOW(), NOW(), false),
-       (8, '서프귀여워', '010-1111-1115', true, false, NOW(), NOW(), false),
-       (9, '차니', '010-1111-1116', false, true, NOW(), NOW(), false)
+INSERT INTO users (user_id, nickname, web_push_notification, created_at, modified_at, is_deleted)
+VALUES (1, '김개발',true, NOW(), NOW(), false),
+       (2, '홍길동',false, NOW(), NOW(), false),
+       (3, '박코딩',true, NOW(), NOW(), false),
+       (4, '한스',true, NOW(), NOW(), false),
+       (5, '다로',false, NOW(), NOW(), false),
+       (6, '밍곰',true, NOW(), NOW(), false),
+       (7, '히포',true, NOW(), NOW(), false),
+       (8, '서프귀여워',false, NOW(), NOW(), false),
+       (9, '차니',true, NOW(), NOW(), false)
 ;
 
 -- 토론 완료 상태 (과거)

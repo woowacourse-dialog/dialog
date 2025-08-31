@@ -2,7 +2,7 @@ spring:
   config:
     activate:
       # 운영 환경
-      on-profile: default
+      on-profile: prod
 
   datasource:
     url: ${DB_URL}
@@ -17,18 +17,35 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
 
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_OAUTH_CLIENT_ID}
+            client-secret: ${GITHUB_OAUTH_CLIENT_SECRET}
+            redirect-uri: ${OAUTH_REDIRECT_URI}
+
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
 
+app:
+  frontend:
+    url: ${FRONTEND_URL}
+
 aws:
   s3:
-    bucket: ${AWS_S3_BUKET_NAME}
+    bucket: ${AWS_S3_BUCKET_NAME}
   region: ${AWS_REGION}
   credentials:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
+
+firebase:
+  config:
+    path: ${FIREBASE_CONFIG_PATH}
 
 ---
 
@@ -66,6 +83,7 @@ spring:
           github:
             client-id: ${GITHUB_OAUTH_CLIENT_ID}
             client-secret: ${GITHUB_OAUTH_CLIENT_SECRET}
+            redirect-uri: ${OAUTH_REDIRECT_URI}
 
   servlet:
     multipart:
@@ -74,15 +92,19 @@ spring:
 
 app:
   frontend:
-    url: http://localhost:5173
+    url: ${FRONTEND_URL}
 
 aws:
   s3:
-    bucket: ${AWS_S3_BUKET_NAME}
+    bucket: ${AWS_S3_BUCKET_NAME}
   region: ${AWS_REGION}
   credentials:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
+
+firebase:
+  config:
+    path: ${FIREBASE_CONFIG_PATH}
 
 ---
 spring:
@@ -130,3 +152,7 @@ aws:
   credentials:
     access-key: test_aws_access_key
     secret-key: test_aws_secret_key
+
+firebase:
+  config:
+    path: src/test/resources/firebase-service-account-test.json

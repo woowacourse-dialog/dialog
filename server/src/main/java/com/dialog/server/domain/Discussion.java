@@ -21,9 +21,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE discussions SET deleted_at = CURRENT_TIMESTAMP WHERE discussion_id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Table(name = "discussions")
 @Entity
 public class Discussion extends BaseEntity {
@@ -192,10 +196,6 @@ public class Discussion extends BaseEntity {
 
     public boolean canNotDelete() {
         return LocalDateTime.now().isAfter(startAt);
-    }
-
-    public void delete() {
-        deletedAt = LocalDateTime.now();
     }
 
     public void participate(LocalDateTime participateAt, DiscussionParticipant discussionParticipant) {

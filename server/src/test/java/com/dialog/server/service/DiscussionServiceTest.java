@@ -71,11 +71,12 @@ class DiscussionServiceTest {
         // given
         User savedUser = userRepository.save(createUser());
         DiscussionCreateResponse response = saveDiscussion(savedUser);
+
         // when
         discussionService.deleteDiscussion(response.discussionId());
-        Discussion discussion = discussionRepository.findById(response.discussionId()).orElseThrow();
+
         // then
-        assertThat(discussion.getDeletedAt()).isNotNull();
+        assertThat(discussionRepository.findById(response.discussionId())).isNotPresent();
     }
 
     @Test
@@ -184,7 +185,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null,null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
 
         // then

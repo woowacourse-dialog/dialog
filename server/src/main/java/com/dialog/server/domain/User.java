@@ -28,7 +28,9 @@ public class User extends BaseEntity {
 
     private String nickname;
 
-    // todo: user에 track
+    @Enumerated(EnumType.STRING)
+    private Track track;
+
     private boolean webPushNotification;
 
     @Enumerated(EnumType.STRING)
@@ -39,18 +41,22 @@ public class User extends BaseEntity {
     @Builder
     private User(String oauthId,
                  String nickname,
+                 Track track,
                  boolean webPushNotification,
                  Role role) {
         this.oauthId = oauthId;
         this.nickname = nickname;
+        this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;
     }
 
     public void register(String nickname,
+                         Track track,
                          boolean webPushNotification,
                          Role role) {
         this.nickname = nickname;
+        this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;
     }

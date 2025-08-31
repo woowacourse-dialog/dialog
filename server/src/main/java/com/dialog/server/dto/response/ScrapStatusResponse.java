@@ -1,4 +1,6 @@
 package com.dialog.server.dto.response;
 
-public class ScrapStatusResponse {
+public record ScrapStatusResponse(
+        boolean isScraped
+) {
 }

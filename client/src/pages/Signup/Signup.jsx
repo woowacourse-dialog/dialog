@@ -10,6 +10,7 @@ const Signup = () => {
 
   const [formData, setFormData] = useState({
     nickname: '',
+    track: '',
     webPushNotification: false,
   });
 
@@ -30,6 +31,10 @@ const Signup = () => {
       newErrors.nickname = '닉네임을 입력해주세요';
     }
 
+    if (!formData.track) {
+      newErrors.track = '트랙을 선택해주세요';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -43,7 +48,19 @@ const Signup = () => {
 
     setIsLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, formData, {
+      // track 값을 백엔드 형식으로 변환
+      const trackMapping = {
+        '백엔드': 'BACKEND',
+        '프론트엔드': 'FRONTEND',
+        '안드로이드': 'ANDROID'
+      };
+      
+      const submitData = {
+        ...formData,
+        track: trackMapping[formData.track]
+      };
+
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, submitData, {
         withCredentials: true
       });
       alert('회원가입이 완료되었습니다.');
@@ -85,6 +102,26 @@ const Signup = () => {
               className="input-field"
             />
             {errors.nickname && <span className="error-message">{errors.nickname}</span>}
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="track">
+              트랙
+              <span className="required-mark">*</span>
+            </label>
+            <select
+              id="track"
+              name="track"
+              value={formData.track}
+              onChange={handleChange}
+              className="input-field"
+            >
+              <option value="">트랙을 선택해주세요</option>
+              <option value="백엔드">백엔드</option>
+              <option value="프론트엔드">프론트엔드</option>
+              <option value="안드로이드">안드로이드</option>
+            </select>
+            {errors.track && <span className="error-message">{errors.track}</span>}
           </div>
 
           <div className="notification-group">

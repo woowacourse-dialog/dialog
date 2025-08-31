@@ -45,6 +45,14 @@ public class LikeService {
         likeRepository.deleteByUserAndDiscussion(user, discussion);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isLiked(Long userId, Long discussionId) {
+        User user = getUserById(userId);
+        Discussion discussion = getDiscussionById(discussionId);
+
+        return isLiked(user, discussion);
+    }
+
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException(userId + "에 해당하는 user를 찾을 수 없습니다."));

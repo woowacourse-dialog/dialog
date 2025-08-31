@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doNothing;
 
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
@@ -65,6 +66,7 @@ public class UserServiceTest {
         //then
         assertAll(
                 () -> assertThat(userInfo.nickname()).isEqualTo("minggom"),
+                () -> assertThat(userInfo.track()).isEqualTo(Track.BACKEND),
                 () -> assertThat(userInfo.isNotificationEnabled()).isTrue()
         );
     }
@@ -164,6 +166,7 @@ public class UserServiceTest {
         return User.builder()
                 .nickname("minggom")
                 .role(Role.USER)
+                .track(Track.BACKEND)
                 .webPushNotification(true)
                 .oauthId("oauthId1")
                 .build();

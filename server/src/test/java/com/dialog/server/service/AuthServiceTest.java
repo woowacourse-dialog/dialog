@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.SignupRequest;
 import com.dialog.server.exception.DialogException;
@@ -60,6 +61,7 @@ class AuthServiceTest {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
+                Track.BACKEND,
                 false
         );
 
@@ -82,6 +84,7 @@ class AuthServiceTest {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
+                Track.BACKEND,
                 false
         );
 
@@ -96,6 +99,7 @@ class AuthServiceTest {
         // given
         SignupRequest signupRequest = new SignupRequest(
                 newNickname,
+                Track.BACKEND,
                 false
         );
 

@@ -13,16 +13,15 @@ import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.UserRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Import(JpaConfig.class)
 @ActiveProfiles("test")
@@ -105,11 +104,8 @@ class LikeServiceTest {
     
     private User createUser() {
         User user = User.builder()
-                .email("email")
                 .nickname("test")
-                .emailNotification(false)
-                .phoneNotification(false)
-                .phoneNumber("111-111-1111")
+                .webPushNotification(false)
                 .build();
         return userRepository.save(user);
     }

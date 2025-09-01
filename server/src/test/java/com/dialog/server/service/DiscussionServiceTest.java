@@ -706,9 +706,7 @@ class DiscussionServiceTest {
         return User.builder()
                 .oauthId("oauthId 1")
                 .nickname("test 1")
-                .phoneNumber("010-3275-1107")
-                .emailNotification(true)
-                .phoneNotification(false)
+                .webPushNotification(true)
                 .build();
     }
 
@@ -716,9 +714,7 @@ class DiscussionServiceTest {
         return User.builder()
                 .oauthId("oauthId 2")
                 .nickname("test 2")
-                .phoneNumber("010-3275-1107")
-                .emailNotification(true)
-                .phoneNotification(false)
+                .webPushNotification(true)
                 .build();
     }
 

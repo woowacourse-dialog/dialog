@@ -110,7 +110,6 @@ export default function DiscussionCard({
       </div>
       <div style={{ display: 'flex', gap: 24, fontSize: 14, color: '#666' }}>
         <span>참여: {participants} / {maxParticipants}명</span>
-        <span>조회수: {views}</span>
       </div>
     </div>
   );

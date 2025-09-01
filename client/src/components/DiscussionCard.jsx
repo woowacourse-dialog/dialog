@@ -44,7 +44,7 @@ export default function DiscussionCard({
   } else if (now >= start && now <= end) {
     discussionState = '토론 중';
   } else {
-    discussionState = '완료';
+    discussionState = '토론 완료';
   }
 
   // 상태별 색상
@@ -52,7 +52,7 @@ export default function DiscussionCard({
     '모집 중': { background: '#ffe066', color: '#333' },
     '모집 완료': { background: '#ff7043', color: '#fff' },
     '토론 중': { background: '#42a5f5', color: '#fff' },
-    '완료':   { background: '#bdbdbd', color: '#fff' }
+    '토론 완료':   { background: '#bdbdbd', color: '#fff' }
   };
 
   return (

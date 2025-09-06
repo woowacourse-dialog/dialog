@@ -43,7 +43,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/dialog/client/dist
+            sudo mkdir -p /var/www/dialog-client
+            sudo chown -R ${{ secrets.EC2_USERNAME }}:${{ secrets.EC2_USERNAME }} /var/www/dialog-client
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -58,4 +59,4 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "./client-build/*"
-          target: "/home/ubuntu/dialog/client/dist"
+          target: "/var/www/dialog-client"

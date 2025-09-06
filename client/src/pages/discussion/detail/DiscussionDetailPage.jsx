@@ -8,8 +8,10 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
+
 import { scrapDiscussion, deleteScrapDiscussion, getScrapStatus } from '../../../api/scrap';
 import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
+
 import useMe from '../../../hooks/useMe';
 
 const TRACKS = [

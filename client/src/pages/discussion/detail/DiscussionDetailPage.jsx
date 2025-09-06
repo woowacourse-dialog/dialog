@@ -8,8 +8,10 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
+
+import { scrapDiscussion, deleteScrapDiscussion, getScrapStatus } from '../../../api/scrap';
 import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
-import { scrapDiscussion, deleteScrapDiscussion } from '../../../api/scrap';
+
 import useMe from '../../../hooks/useMe';
 
 const TRACKS = [
@@ -81,9 +83,22 @@ const DiscussionDetailPage = () => {
 
   useEffect(() => {
     if (!me) {
-      setIsLiked(false);
+      setIsLiked(false)
+      setIsBookmarked(false);
       return;
     }
+    
+    const fetchScrapStatus = async () => {
+      try {
+        const scrapStatusRes = await getScrapStatus(id);
+        setIsBookmarked(scrapStatusRes.data.isScraped);
+      } catch (error) {
+        console.error('Failed to fetch scrap status:', error);
+        setIsBookmarked(false);
+      }
+    };
+
+    fetchScrapStatus();
     
     const fetchLikeStatus = async () => {
       try {

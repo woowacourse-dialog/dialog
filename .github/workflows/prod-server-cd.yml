@@ -37,19 +37,19 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             export DEPLOY_TAG=${{ env.DEPLOY_TAG }}
-            export DOCKER_USERNAME=${{ secrets.DOCKERHUB_PROD_USERNAME }}
-            export DOCKER_TOKEN=${{ secrets.DOCKERHUB_PROD_TOKEN }}
+            export DOCKER_PROD_USERNAME=${{ secrets.DOCKERHUB_PROD_USERNAME }}
+            export DOCKER_PROD_TOKEN=${{ secrets.DOCKERHUB_PROD_TOKEN }}
 
-            echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+            echo "$DOCKER_PROD_TOKEN" | sudo docker login -u "$DOCKER_PROD_USERNAME" --password-stdin
 
-            if [ "$(sudo docker ps -a -q -f name=moment-app-server)" ]; then
+            if [ "$(sudo docker ps -a -q -f name=dialog-app-server)" ]; then
               echo "--- Stopping and removing existing container ---"
-              sudo docker stop moment-app-server
-              sudo docker rm -f moment-app-server
+              sudo docker stop dialog-app-server
+              sudo docker rm -f dialog-app-server
             fi
 
             echo "--- Pulling latest image ---"
-            sudo docker pull $DOCKER_USERNAME/moment-prod-images:$DEPLOY_TAG
+            sudo docker pull $DOCKER_PROD_USERNAME/dialog-prod-images:$DEPLOY_TAG
 
             echo "--- Deploying with Docker Compose ---"
             cd /home/ubuntu/moment

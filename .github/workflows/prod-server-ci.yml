@@ -4,10 +4,12 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
     branches: [ main ]
-    paths: [ 'server/**' ]
+    paths:
+      - 'server/**'
   push:
     branches: [ main ]
-    paths: [ 'server/**' ]
+    paths:
+      - 'server/**'
 
 jobs:
   test:

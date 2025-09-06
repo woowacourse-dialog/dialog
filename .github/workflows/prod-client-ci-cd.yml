@@ -1,0 +1,61 @@
+name: Client CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'client/**'
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'client/.nvmrc'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client
+
+      - name: Build React app
+        run: npm run build
+        working-directory: ./client
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-build
+          path: client/dist
+
+  deploy-client:
+    needs: build-client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create deploy directory on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/dialog/client/dist
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build
+          path: ./client-build
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "./client-build/*"
+          target: "/home/ubuntu/dialog/client/dist"

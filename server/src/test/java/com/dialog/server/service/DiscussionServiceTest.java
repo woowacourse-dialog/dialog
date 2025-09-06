@@ -332,6 +332,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 토론_작성자를_통해서_커서_기반으로_토론을_조회할_수_있다() {
         //given

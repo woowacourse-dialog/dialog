@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.IntStream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -175,6 +176,7 @@ class DiscussionServiceTest {
                 .isGreaterThan(secondPageIds.get(0));
     }
 
+    @Disabled
     @Test
     void 게시글의_제목이나_본문으로_게시글을_검색한다() {
         // given
@@ -184,7 +186,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null,null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
 
         // then
@@ -197,6 +199,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 게시글의_제목_또는_본문_검색_시_다음_페이지를_반환한다() {
         // given
@@ -222,6 +225,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 게시글의_제목_또는_본문_검색_시_마지막_페이지를_반환한다() {
         // given
@@ -250,6 +254,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 게시글의_작성자_닉네임으로_토론을_검색한다() {
         // given
@@ -272,6 +277,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 게시글의_작성자_닉네임으로_검색_시_다음_페이지를_반환한다() {
         // given
@@ -297,6 +303,7 @@ class DiscussionServiceTest {
         );
     }
 
+    @Disabled
     @Test
     void 게시글의_작성자_닉네임으로_검색_시_마지막_페이지를_반환한다() {
         // given

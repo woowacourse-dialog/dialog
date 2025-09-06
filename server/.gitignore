@@ -30,7 +30,7 @@
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
-
+.idea
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
@@ -174,5 +174,11 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+### Firebase ###
+/src/main/resources/firebase-service-account.json
+
+### Environment File ###
+.env.*
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,macos,java,gradle

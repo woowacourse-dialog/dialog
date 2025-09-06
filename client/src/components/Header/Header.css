@@ -1,0 +1,165 @@
+.header {
+  background-color: #FFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.header-container {
+  margin: 0 auto;
+  padding: 0 4rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  min-width: 320px;
+}
+
+.header-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.header-logo a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.header-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.header-logo span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000;
+  transition: color 0.3s ease;
+}
+
+.header-logo a:hover span {
+  color: #000;
+}
+
+.header-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  position: static;
+  right: auto;
+  top: auto;
+  transform: none;
+}
+
+.header-nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.header-nav a {
+  color: #666;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.header-nav a:hover {
+  color: #646cff;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.login-button {
+  background-color: #24292e;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #2f363d;
+}
+
+.mypage-button, .logout-button {
+  background: none;
+  border: 1.5px solid #ccc;
+  color: #888;
+  box-shadow: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.mypage-button:hover, .logout-button:hover {
+  color: #333;
+  border-color: #888;
+  background: none;
+}
+
+.my-discussions-button {
+  background-color: #4bd1cc;
+  color: white;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.my-discussions-button:hover {
+  background-color: #3fb5b1;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 1rem;
+  }
+  .header-nav {
+    right: 1rem;
+  }
+  .header-logo {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .header-nav ul {
+    gap: 1rem;
+  }
+  
+  .header-nav a {
+    font-size: 0.9rem;
+  }
+  
+  .header-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header-logo span {
+    font-size: 1.2rem;
+  }
+}

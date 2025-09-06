@@ -2,6 +2,8 @@ package com.dialog.server.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,28 +24,64 @@ public class User extends BaseEntity {
     @Id
     private Long id;
 
+    private String oauthId;
+
     private String nickname;
 
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private Track track;
 
-    private String phoneNumber;
+    private boolean webPushNotification;
 
-    private boolean emailNotification;
-
-    private boolean phoneNotification;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private boolean isDeleted;
 
     @Builder
-    private User(String nickname,
-                 String email,
-                 String phoneNumber,
-                 boolean emailNotification,
-                 boolean phoneNotification) {
+    private User(String oauthId,
+                 String nickname,
+                 Track track,
+                 boolean webPushNotification,
+                 Role role) {
+        this.oauthId = oauthId;
         this.nickname = nickname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.emailNotification = emailNotification;
-        this.phoneNotification = phoneNotification;
+        this.track = track;
+        this.webPushNotification = webPushNotification;
+        this.role = role;
+    }
+
+    public void register(String nickname,
+                         Track track,
+                         boolean webPushNotification,
+                         Role role) {
+        this.nickname = nickname;
+        this.track = track;
+        this.webPushNotification = webPushNotification;
+        this.role = role;
+    }
+
+    public boolean isRegistered() {
+        return !role.equals(Role.TEMP_USER);
+    }
+
+    public void updateNotificationSetting(boolean settingValue) {
+        webPushNotification = settingValue;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User that)) {
+            return false;
+        }
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

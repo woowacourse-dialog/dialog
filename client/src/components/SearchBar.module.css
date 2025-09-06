@@ -1,0 +1,77 @@
+.container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 10px 20px;
+  align-items: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.select {
+  border: none;
+  background: #f0f4fa;
+  border-radius: 16px;
+  padding: 8px 16px;
+  font-size: 15px;
+  color: #333;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.select:focus, .select:hover {
+  background: #e3eaff;
+}
+
+.input {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 16px;
+  background: #f7fafd;
+  font-size: 16px;
+  outline: none;
+  color: #222;
+  transition: background 0.2s;
+}
+.input:focus, .input:hover {
+  background: #eaf3ff;
+}
+
+.button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: #fff;
+  border: 2px solid #2c3f50;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color 0.18s, background 0.18s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.button:hover, .button:focus {
+  background: #fff;
+  border: 2px solid #2c3f50;
+}
+.button img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.18s;
+  transform: scale(1.4);
+}
+.button:hover img, .button:focus img {
+  transform: scale(1.7);
+}

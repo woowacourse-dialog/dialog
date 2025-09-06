@@ -1,0 +1,38 @@
+/* Global styles */
+:root {
+  --primary-color: #4bd1cc;
+  --text-color: #333;
+  --background-color: #fff;
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: #fff;
+  color: var(--text-color);
+  position: relative;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--background-color);
+}
+
+.app {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+}
+
+.main-content {
+  padding: 20px 0;
+  background: #fff;
+}

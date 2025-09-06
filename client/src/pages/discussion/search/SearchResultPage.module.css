@@ -1,0 +1,21 @@
+.pageContainer {
+  display: flex;
+  gap: 32px; /* 사이드바와 콘텐츠 사이 간격 */
+  padding: 24px;
+  align-items: flex-start; /* 상단 정렬 */
+}
+
+.sidebar {
+  flex: 0 0 220px; /* 사이드바 너비 고정 */
+  position: sticky; /* 스크롤 시 상단에 고정 */
+  top: 88px; /* 헤더 높이(64px) + 여백(24px) */
+}
+
+.mainContent {
+  flex: 1; /* 나머지 공간 모두 차지 */
+  min-width: 0; /* flex item의 크기가 줄어들 수 있도록 */
+}
+
+.centered {
+  justify-content: center;
+} 

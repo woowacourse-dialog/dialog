@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,11 @@ public class Scrap {
     @ManyToOne
     @JoinColumn(name = "discussion_id", nullable = false)
     private Discussion discussion;
+
+    @Builder
+    private Scrap(Long id, User user, Discussion discussion) {
+        this.id = id;
+        this.user = user;
+        this.discussion = discussion;
+    }
 }

@@ -1,0 +1,64 @@
+name: Prod Server CD
+
+on:
+  workflow_run:
+    workflows: [ "Prod Server CD" ]
+    types: [ completed ]
+    branches: [ main ]
+
+jobs:
+  deploy:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract deploy tag
+        run: |
+          echo "DEPLOY_TAG=$(cat image-tag.txt)" >> $GITHUB_ENV
+          echo "Deploying version: $(cat image-tag.txt)"
+
+      - name: Deploy to Prod Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            export DEPLOY_TAG=${{ env.DEPLOY_TAG }}
+            export DOCKER_USERNAME=${{ secrets.DOCKERHUB_PROD_USERNAME }}
+            export DOCKER_TOKEN=${{ secrets.DOCKERHUB_PROD_TOKEN }}
+
+            echo "$DOCKER_TOKEN" | sudo docker login -u "$DOCKER_USERNAME" --password-stdin
+
+            if [ "$(sudo docker ps -a -q -f name=moment-app-server)" ]; then
+              echo "--- Stopping and removing existing container ---"
+              sudo docker stop moment-app-server
+              sudo docker rm -f moment-app-server
+            fi
+
+            echo "--- Pulling latest image ---"
+            sudo docker pull $DOCKER_USERNAME/moment-prod-images:$DEPLOY_TAG
+
+            echo "--- Deploying with Docker Compose ---"
+            cd /home/ubuntu/moment
+            sudo -E IMAGE_TAG=$DEPLOY_TAG docker compose -f docker-compose.prod.server.yml up --no-deps -d app
+
+            echo "--- Current running containers ---"
+            sudo docker ps
+
+            echo "--- Pruning old docker images ---"
+            sudo docker image prune -f
+
+            sudo docker logout

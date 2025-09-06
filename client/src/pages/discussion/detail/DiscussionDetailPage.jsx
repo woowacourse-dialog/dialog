@@ -8,7 +8,7 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
-import { likeDiscussion, deleteLikeDiscussion } from '../../../api/like';
+import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
 import { scrapDiscussion, deleteScrapDiscussion } from '../../../api/scrap';
 import useMe from '../../../hooks/useMe';
 
@@ -78,6 +78,25 @@ const DiscussionDetailPage = () => {
 
     fetchDiscussion();
   }, [id]);
+
+  useEffect(() => {
+    if (!me) {
+      setIsLiked(false);
+      return;
+    }
+    
+    const fetchLikeStatus = async () => {
+      try {
+        const likeStatusRes = await getLikeStatus(id);
+        setIsLiked(likeStatusRes.data.isLiked);
+      } catch (error) {
+        console.error('Failed to fetch like status:', error);
+        setIsLiked(false);
+      }
+    };
+
+    fetchLikeStatus();
+  }, [id, me]);
 
   const handleJoin = async () => {
     setJoining(true);

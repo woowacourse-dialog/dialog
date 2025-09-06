@@ -84,3 +84,4 @@ jobs:
             sudo chown -R www-data:www-data /var/www/dialog-client
             sudo find /var/www/dialog-client -type d -exec chmod 755 {} \;
             sudo find /var/www/dialog-client -type f -exec chmod 644 {} \;
+            

@@ -58,6 +58,14 @@ public class ScrapService {
         return createCursorResponse(discussions, scrapCursorPageRequest.pageSize());
     }
 
+
+    @Transactional(readOnly = true)
+    public boolean isScraped(Long userId, Long discussionId) {
+        User user = getUserById(userId);
+        Discussion discussion = getDiscussionById(discussionId);
+        return isScraped(user, discussion);
+    }
+  
     private List<Discussion> findScrapDiscussionsByCursor(ScrapCursorPageRequest scrapCursorPageRequest, User user) {
         PageRequest pageRequest = PageRequest.of(0, scrapCursorPageRequest.pageSize() + 1);
         if (scrapCursorPageRequest.lastCursorId() == null) {

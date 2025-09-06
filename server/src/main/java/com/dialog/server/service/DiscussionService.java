@@ -52,6 +52,7 @@ public class DiscussionService {
         Discussion discussion = request.toDiscussion(author);
         try {
             Discussion savedDiscussion = discussionRepository.save(discussion);
+            participantDiscussion(author, discussion);
             return DiscussionCreateResponse.from(savedDiscussion);
         } catch (IllegalArgumentException ex) {
             throw new DialogException(ErrorCode.CREATE_DISCUSSION_FAILED);
@@ -109,7 +110,11 @@ public class DiscussionService {
 
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findWithFiltersPageable(categories, statuses,
-                    PageRequest.of(0, pageSize + 1));
+                    PageRequest.of(
+                            0,
+                            pageSize + 1
+                    )
+            );
 //            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
@@ -143,12 +148,20 @@ public class DiscussionService {
         validatePageSize(size);
         List<Discussion> discussions;
         switch (searchType) {
-            case TITLE_OR_CONTENT ->
-                    discussions = searchDiscussionByTitleOrContentWithFilters(query, categories, statuses, cursor,
-                            size);
-            case AUTHOR_NICKNAME ->
-                    discussions = searchDiscussionByAuthorNicknameWithFilters(query, categories, statuses, cursor,
-                            size);
+            case TITLE_OR_CONTENT -> discussions = searchDiscussionByTitleOrContentWithFilters(
+                    query,
+                    categories,
+                    statuses,
+                    cursor,
+                    size
+            );
+            case AUTHOR_NICKNAME -> discussions = searchDiscussionByAuthorNicknameWithFilters(
+                    query,
+                    categories,
+                    statuses,
+                    cursor,
+                    size
+            );
             default -> throw new DialogException(ErrorCode.INVALID_SEARCH_TYPE);
         }
         return buildDateCursorResponse(discussions, size);
@@ -281,5 +294,14 @@ public class DiscussionService {
                 .map(DiscussionPreviewResponse::from)
                 .toList();
         return new DiscussionCursorPageResponse<>(responses, nextCursor, hasNext, pageSize);
+    }
+
+    private void participantDiscussion(User author, Discussion discussion) {
+        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
+                .participant(author)
+                .discussion(discussion)
+                .build();
+        discussion.participate(LocalDateTime.now(), discussionParticipant);
+        discussionParticipantRepository.save(discussionParticipant);
     }
 }

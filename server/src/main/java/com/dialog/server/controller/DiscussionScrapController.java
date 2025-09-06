@@ -4,6 +4,8 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
+
+import com.dialog.server.dto.response.ScrapStatusResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.ScrapService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +50,15 @@ public class DiscussionScrapController {
                 scrapCursorPageRequest, userId
         );
         return ResponseEntity.ok(new ApiSuccessResponse<>(scrapedDiscussions));
+    }
+
+    @GetMapping("/discussions/{discussionId}/scraps/status")
+    public ResponseEntity<ApiSuccessResponse<ScrapStatusResponse>> getScrapStatus(
+            @PathVariable Long discussionId,
+            @AuthenticatedUserId Long userId
+    ) {
+        boolean scraped = scrapService.isScraped(userId, discussionId);
+
+        return ResponseEntity.ok(new ApiSuccessResponse<>(new ScrapStatusResponse(scraped)));
     }
 }

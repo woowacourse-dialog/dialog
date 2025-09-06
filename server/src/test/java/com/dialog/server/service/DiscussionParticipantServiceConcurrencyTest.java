@@ -147,11 +147,8 @@ class DiscussionParticipantServiceConcurrencyTest {
 
     private User createUser(String email) {
         User user = User.builder()
-                .email(email)
                 .nickname("test")
-                .emailNotification(false)
-                .phoneNotification(false)
-                .phoneNumber("111-111-1111")
+                .webPushNotification(false)
                 .build();
         return userRepository.save(user);
     }

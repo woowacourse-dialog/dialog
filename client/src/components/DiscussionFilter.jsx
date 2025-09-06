@@ -11,10 +11,10 @@ const CATEGORY_OPTIONS = [
 ];
 
 const STATUS_OPTIONS = [
-  { label: '모집중', value: 'recruiting' },
-  { label: '모집완료', value: 'recruitComplete' },
-  { label: '토론중', value: 'inDiscussion' },
-  { label: '토론완료', value: 'discussionComplete' },
+  { label: '모집 중', value: 'recruiting' },
+  { label: '모집 완료', value: 'recruitComplete' },
+  { label: '토론 중', value: 'inDiscussion' },
+  { label: '토론 완료', value: 'discussionComplete' },
 ];
 
 const DiscussionFilter = ({
@@ -28,15 +28,19 @@ const DiscussionFilter = ({
   const [statuses, setStatuses] = useState(initialStatuses);
 
   const handleCategoryToggle = (value) => {
-    setCategories((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    const newCategories = categories.includes(value) 
+      ? categories.filter((v) => v !== value) 
+      : [...categories, value];
+    setCategories(newCategories);
+    onApply({ categories: newCategories, statuses });
   };
 
   const handleStatusToggle = (value) => {
-    setStatuses((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    const newStatuses = statuses.includes(value) 
+      ? statuses.filter((v) => v !== value) 
+      : [...statuses, value];
+    setStatuses(newStatuses);
+    onApply({ categories, statuses: newStatuses });
   };
 
   return (
@@ -82,12 +86,6 @@ const DiscussionFilter = ({
               </label>
             ))}
           </div>
-          <button
-            onClick={() => onApply({ categories, statuses })}
-            className={styles.applyButton}
-          >
-            필터 적용
-          </button>
         </div>
       )}
     </div>

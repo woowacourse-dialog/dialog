@@ -7,7 +7,6 @@ import java.util.Map;
 public class GitHubOAuth2UserInfo {
 
     public static final String ID_PARAM = "id";
-    public static final String EMAIL_PARAM = "email";
     public static final String IMAGE_URL_PARAM = "avatar_url";
 
     private final Map<String, Object> attributes;
@@ -25,11 +24,6 @@ public class GitHubOAuth2UserInfo {
             return String.valueOf(((Number) id).longValue());
         }
         return id.toString();
-    }
-
-    public String getEmail() {
-        Object email = attributes.get(EMAIL_PARAM);
-        return email == null ? null : email.toString();
     }
 
     public String getProfileImageUrl() {

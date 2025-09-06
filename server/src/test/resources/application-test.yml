@@ -1,0 +1,49 @@
+spring:
+  config:
+    activate:
+      # 테스트 환경
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:database-test
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+
+  sql:
+    init:
+      mode: always
+      data-locations:
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: test-client-id
+            client-secret: test-client-secret
+
+  h2:
+    console:
+      enabled: true
+
+app:
+  frontend:
+    url: http://localhost:5173
+
+aws:
+  s3:
+    bucket: test_aws_s3_buket_name
+  region: ap-northeast-2
+  credentials:
+    access-key: test_aws_access_key
+    secret-key: test_aws_secret_key
+
+firebase:
+  config:
+    path: src/test/resources/firebase-service-account-test.json

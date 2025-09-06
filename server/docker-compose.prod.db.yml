@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  db:
+    image: "mysql:8"
+    container_name: dialog-mysql-db
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env.prod
+    volumes:
+      - db-data:/var/lib/mysql
+volumes:
+  db-data:

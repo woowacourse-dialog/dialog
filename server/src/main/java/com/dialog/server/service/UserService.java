@@ -16,12 +16,11 @@ import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import com.dialog.server.util.ImageFileExtractor;
 import com.dialog.server.util.ProfileImageFileInfo;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +47,6 @@ public class UserService {
     private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
         final User tempUser = User.builder()
                 .oauthId(oAuth2UserInfo.getOAuthUserId())
-                .email(oAuth2UserInfo.getEmail())
                 .role(Role.TEMP_USER)
                 .build();
         final ProfileImage profileImage = ProfileImage.builder()

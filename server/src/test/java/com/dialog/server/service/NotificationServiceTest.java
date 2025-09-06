@@ -1,5 +1,12 @@
 package com.dialog.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.User;
@@ -9,6 +16,7 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.MessagingTokenRepository;
 import com.dialog.server.repository.UserRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,15 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -57,17 +56,15 @@ class NotificationServiceTest {
     void setUp() {
         testUser = User.builder()
                 .oauthId("test-oauth-123")
-                .email("test@example.com")
                 .nickname("테스트 사용자")
-                .emailNotification(true)
+                .webPushNotification(true)
                 .build();
         userRepository.save(testUser);
 
         anotherUser = User.builder()
                 .oauthId("another-oauth-456")
-                .email("another@example.com")
                 .nickname("다른 사용자")
-                .emailNotification(true)
+                .webPushNotification(true)
                 .build();
         userRepository.save(anotherUser);
     }
@@ -215,21 +212,18 @@ class NotificationServiceTest {
 
         User receiver1 = User.builder()
                 .oauthId("receiver1")
-                .email("receiver1@example.com")
                 .nickname("수신자1")
-                .emailNotification(true)
+                .webPushNotification(true)
                 .build();
         User receiver2 = User.builder()
                 .oauthId("receiver2")
-                .email("receiver2@example.com")
                 .nickname("수신자2")
-                .emailNotification(true)
+                .webPushNotification(true)
                 .build();
         User notReceiver = User.builder()
                 .oauthId("receiver3")
-                .email("receiver3@example.com")
                 .nickname("수신자3")
-                .emailNotification(false)
+                .webPushNotification(false)
                 .build();
 
         userRepository.saveAll(List.of(receiver1, receiver2, notReceiver));
@@ -282,9 +276,8 @@ class NotificationServiceTest {
 
         User receiver = User.builder()
                 .oauthId("receiver")
-                .email("receiver@example.com")
                 .nickname("수신자")
-                .emailNotification(false)
+                .webPushNotification(false)
                 .build();
         userRepository.save(receiver);
 

@@ -9,6 +9,7 @@ import Header from '../../../components/Header/Header';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
 import { scrapDiscussion, deleteScrapDiscussion, getScrapStatus } from '../../../api/scrap';
+import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
 import useMe from '../../../hooks/useMe';
 
 const TRACKS = [
@@ -80,6 +81,7 @@ const DiscussionDetailPage = () => {
 
   useEffect(() => {
     if (!me) {
+      setIsLiked(false)
       setIsBookmarked(false);
       return;
     }
@@ -95,6 +97,18 @@ const DiscussionDetailPage = () => {
     };
 
     fetchScrapStatus();
+    
+    const fetchLikeStatus = async () => {
+      try {
+        const likeStatusRes = await getLikeStatus(id);
+        setIsLiked(likeStatusRes.data.isLiked);
+      } catch (error) {
+        console.error('Failed to fetch like status:', error);
+        setIsLiked(false);
+      }
+    };
+
+    fetchLikeStatus();
   }, [id, me]);
 
   const handleJoin = async () => {

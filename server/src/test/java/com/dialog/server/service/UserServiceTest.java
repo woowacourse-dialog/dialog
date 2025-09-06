@@ -1,7 +1,15 @@
 package com.dialog.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
@@ -12,6 +20,8 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.UserRepository;
 import com.dialog.server.util.ImageFileExtractor;
+import java.io.File;
+import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,16 +34,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 
 @Import({JpaConfig.class, UserService.class, ImageFileExtractor.class})
 @ActiveProfiles("test")
@@ -66,7 +66,7 @@ public class UserServiceTest {
         //then
         assertAll(
                 () -> assertThat(userInfo.nickname()).isEqualTo("minggom"),
-                () -> assertThat(userInfo.email()).isEqualTo("hippo@test.com"),
+                () -> assertThat(userInfo.track()).isEqualTo(Track.BACKEND),
                 () -> assertThat(userInfo.isNotificationEnabled()).isTrue()
         );
     }
@@ -165,11 +165,9 @@ public class UserServiceTest {
     private User createUser() {
         return User.builder()
                 .nickname("minggom")
-                .email("hippo@test.com")
                 .role(Role.USER)
-                .emailNotification(true)
-                .phoneNotification(true)
-                .phoneNumber("01012345678")
+                .track(Track.BACKEND)
+                .webPushNotification(true)
                 .oauthId("oauthId1")
                 .build();
     }

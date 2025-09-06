@@ -63,7 +63,7 @@ public class NotificationService {
     public void sendDiscussionCreatedNotification(Long authorId, String path) {
         final User author = userRepository.findById(authorId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        final List<Long> notificationTargetIds = userRepository.findByEmailNotificationAndIdNot(
+        final List<Long> notificationTargetIds = userRepository.findByWebPushNotificationAndIdNot(
                 true, author.getId()
         ).stream()
                 .map(User::getId)

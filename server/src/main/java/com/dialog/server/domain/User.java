@@ -28,14 +28,10 @@ public class User extends BaseEntity {
 
     private String nickname;
 
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private Track track;
 
-    private String phoneNumber;
-    // todo: user에 track
-    // todo: 알림은 pushNotification 하나로 관리
-    private boolean emailNotification;
-
-    private boolean phoneNotification;
+    private boolean webPushNotification;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -45,31 +41,23 @@ public class User extends BaseEntity {
     @Builder
     private User(String oauthId,
                  String nickname,
-                 String email,
-                 String phoneNumber,
-                 boolean emailNotification,
-                 boolean phoneNotification,
+                 Track track,
+                 boolean webPushNotification,
                  Role role) {
         this.oauthId = oauthId;
         this.nickname = nickname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.emailNotification = emailNotification;
-        this.phoneNotification = phoneNotification;
+        this.track = track;
+        this.webPushNotification = webPushNotification;
         this.role = role;
     }
 
     public void register(String nickname,
-                         String email,
-                         String phoneNumber,
-                         boolean emailNotification,
-                         boolean phoneNotification,
+                         Track track,
+                         boolean webPushNotification,
                          Role role) {
         this.nickname = nickname;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.emailNotification = emailNotification;
-        this.phoneNotification = phoneNotification;
+        this.track = track;
+        this.webPushNotification = webPushNotification;
         this.role = role;
     }
 
@@ -78,7 +66,7 @@ public class User extends BaseEntity {
     }
 
     public void updateNotificationSetting(boolean settingValue) {
-        emailNotification = settingValue;
+        webPushNotification = settingValue;
     }
 
     @Override

@@ -52,7 +52,7 @@ jobs:
             sudo docker pull $DOCKER_PROD_USERNAME/dialog-prod-images:$DEPLOY_TAG
 
             echo "--- Deploying with Docker Compose ---"
-            cd /home/ubuntu/moment
+            cd /home/ubuntu/dialog
             sudo -E IMAGE_TAG=$DEPLOY_TAG docker compose -f docker-compose.prod.server.yml up --no-deps -d app
 
             echo "--- Current running containers ---"

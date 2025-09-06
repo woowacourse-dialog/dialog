@@ -72,11 +72,12 @@ class DiscussionServiceTest {
         // given
         User savedUser = userRepository.save(createUser());
         DiscussionCreateResponse response = saveDiscussion(savedUser);
+
         // when
         discussionService.deleteDiscussion(response.discussionId());
-        Discussion discussion = discussionRepository.findById(response.discussionId()).orElseThrow();
+
         // then
-        assertThat(discussion.getDeletedAt()).isNotNull();
+        assertThat(discussionRepository.findById(response.discussionId())).isNotPresent();
     }
 
     @Test

@@ -95,7 +95,7 @@ public class DiscussionService {
         if (deleteDiscussion.canNotDelete()) {
             throw new DialogException(ErrorCode.CANNOT_DELETE_DISCUSSION);
         }
-        deleteDiscussion.delete();
+        discussionRepository.delete(deleteDiscussion);
     }
 
     @Transactional(readOnly = true)

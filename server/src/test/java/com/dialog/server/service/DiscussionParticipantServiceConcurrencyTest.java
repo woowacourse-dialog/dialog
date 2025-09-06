@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
@@ -42,10 +43,13 @@ class DiscussionParticipantServiceConcurrencyTest {
     @Autowired
     private DiscussionParticipantService discussionParticipantService;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @BeforeEach
     void beforeEach() {
         discussionParticipantRepository.deleteAll();
-        discussionRepository.deleteAll();
+        jdbcTemplate.execute("delete from discussions");
         userRepository.deleteAll();
     }
 

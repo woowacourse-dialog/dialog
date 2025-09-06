@@ -6,7 +6,6 @@ import com.dialog.server.domain.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 
 public record DiscussionCreateRequest(
@@ -36,7 +35,7 @@ public record DiscussionCreateRequest(
                 .place(place)
                 .category(category)
                 .viewCount(0)
-                .participantCount(1)
+                .participantCount(0)
                 .maxParticipantCount(maxParticipantCount)
                 .summary(summary)
                 .author(author)

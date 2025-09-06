@@ -39,49 +39,49 @@ jobs:
         run: npm run build
         working-directory: ./client
 
+      - name: Create compressed artifact
+        run: tar -czvf client-build.tar.gz -C client/dist .
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: client-build
-          path: client/dist
+          name: client-build-artifact
+          path: client-build.tar.gz
 
   deploy-client:
     needs: build-client
     runs-on: ubuntu-latest
     steps:
-      - name: Create deploy directory on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo mkdir -p /var/www/dialog-client
-            sudo chown -R ${{ secrets.EC2_USERNAME }}:${{ secrets.EC2_USERNAME }} /var/www/dialog-client
-
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: client-build
-          path: ./client-build
+          name: client-build-artifact
 
-      - name: Copy files to server
+      - name: Copy artifact to server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "./client-build/*"
-          target: "/var/www/dialog-client"
+          source: "client-build.tar.gz"
+          target: "/tmp"
 
-      - name: Set permissions on server
+      - name: Deploy and set permissions
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Create directory if it doesn't exist
+            sudo mkdir -p /var/www/dialog-client
+            # Clean old files
+            sudo rm -rf /var/www/dialog-client/*
+            # Extract new files
+            sudo tar -xzvf /tmp/client-build.tar.gz -C /var/www/dialog-client
+            # Set ownership and permissions
             sudo chown -R www-data:www-data /var/www/dialog-client
             sudo find /var/www/dialog-client -type d -exec chmod 755 {} \;
             sudo find /var/www/dialog-client -type f -exec chmod 644 {} \;
-            
+            # Clean up the tarball
+            rm /tmp/client-build.tar.gz

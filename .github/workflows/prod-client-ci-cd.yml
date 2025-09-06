@@ -60,3 +60,14 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "./client-build/*"
           target: "/var/www/dialog-client"
+
+      - name: Set permissions on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo chown -R www-data:www-data /var/www/dialog-client
+            sudo find /var/www/dialog-client -type d -exec chmod 755 {} \;
+            sudo find /var/www/dialog-client -type f -exec chmod 644 {} \;

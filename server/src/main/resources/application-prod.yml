@@ -46,3 +46,7 @@ aws:
 firebase:
   config:
     path: ${FIREBASE_CONFIG_PATH}
+
+
+server:
+  forward-headers-strategy: native

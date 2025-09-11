@@ -5,6 +5,7 @@ import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditorUiw from '../../../components/MarkdownEditor/MarkdownEditorUiw';
 import Header from '../../../components/Header/Header';
 import { createDiscussion } from '../../../api/discussion';
+import { userApi } from '../../../api/userApi';
 
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
@@ -75,6 +76,20 @@ const DiscussionCreateFormPage = () => {
     setDate(getDefaultDate());
     setStartTime(getDefaultTime(1)); // 1시간 후
     setEndTime(getDefaultTime(2));   // 2시간 후
+    
+    // 사용자 트랙 조회하여 기본값 설정
+    const fetchUserTrack = async () => {
+      try {
+        const response = await userApi.getTrack();
+        const userTrack = response.data.data.track;
+        setTrack(userTrack);
+      } catch (error) {
+        console.error('Failed to fetch user track:', error);
+        // 에러 시 기본값 유지 (FRONTEND)
+      }
+    };
+    
+    fetchUserTrack();
   }, []);
 
   return (

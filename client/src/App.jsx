@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Signup from './pages/Signup/Signup';
+import SignupComplete from './pages/Signup/SignupComplete';
 import MyPage from './pages/MyPage/MyPage';
 import './App.css';
 import DiscussionCreateFormPage from './pages/discussion/create/DiscussionCreateFormPage';
@@ -22,6 +23,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/discussion" element={<Home />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/signup/complete" element={<SignupComplete />} />
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/discussion/new" element={<DiscussionCreateFormPage />} />
               <Route path="/discussion/my" element={<MyDiscussionPage />} />

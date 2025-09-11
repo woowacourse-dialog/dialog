@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../../components/Header/Header';
+import slackLogo from '../../../assets/slack-logo.svg';
 
 const SLACK_CHANNEL_URL = import.meta.env.VITE_SLACK_CHANNEL_URL || 'https://app.slack.com/client';
 
@@ -30,21 +31,12 @@ const generateShareHtml = (track, title, content, link) => {
   return (
     `<div>` +
       `<div><strong>[${emoji} ${track}] 새로운 토론이 시작되었습니다!</strong></div>` +
-      `<div style="margin-top:6px"><span>📝</span> <strong>제목:</strong> ${escapedTitle}</div>` +
-      `<div style="margin-top:6px"><span>💭</span> <strong>내용:</strong> ${escapedContent}</div>` +
-      `<div style="margin-top:6px"><span>🔗</span> <strong>링크:</strong> <a href="${escapedLink}">${escapedLink}</a></div>` +
+      `<div style=\"margin-top:6px\"><span>📝</span> <strong>제목:</strong> ${escapedTitle}</div>` +
+      `<div style=\"margin-top:6px\"><span>💭</span> <strong>내용:</strong> ${escapedContent}</div>` +
+      `<div style=\"margin-top:6px\"><span>🔗</span> <strong>링크:</strong> <a href=\"${escapedLink}\">${escapedLink}</a></div>` +
     `</div>`
   );
 };
-
-const SlackIcon = ({ size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 122.8 122.8" aria-hidden="true" focusable="false">
-    <path fill="#36C5F0" d="M27.5 77.1c0 7.6-6.2 13.8-13.8 13.8S0 84.7 0 77.1s6.2-13.8 13.8-13.8h13.7v13.8zm6.9 0c0-7.6 6.2-13.8 13.8-13.8s13.8 6.2 13.8 13.8v34.6c0 7.6-6.2 13.8-13.8 13.8s-13.8-6.2-13.8-13.8V77.1z"/>
-    <path fill="#2EB67D" d="M45.1 27.5c-7.6 0-13.8-6.2-13.8-13.8S37.5 0 45.1 0s13.8 6.2 13.8 13.8v13.8H45.1zm0 6.9c7.6 0 13.8 6.2 13.8 13.8s-6.2 13.8-13.8 13.8H10.5C2.9 62 0 55.8 0 48.2s6.2-13.8 13.8-13.8h31.3z"/>
-    <path fill="#ECB22E" d="M95.3 45.1c0-7.6 6.2-13.8 13.8-13.8s13.8 6.2 13.8 13.8-6.2 13.8-13.8 13.8H95.3V45.1zm-6.9 0c0 7.6-6.2 13.8-13.8 13.8S60.8 52.7 60.8 45.1V10.5C60.8 2.9 67 0 74.6 0s13.8 6.2 13.8 13.8v31.3z"/>
-    <path fill="#E01E5A" d="M77.7 95.3c7.6 0 13.8 6.2 13.8 13.8s-6.2 13.8-13.8 13.8-13.8-6.2-13.8-13.8V95.3h13.8zm0-6.9c-7.6 0-13.8-6.2-13.8-13.8s6.2-13.8 13.8-13.8h34.6c7.6 0 13.8 6.2 13.8 13.8s-6.2 13.8-13.8 13.8H77.7z"/>
-  </svg>
-);
 
 const DiscussionCreateCompletePage = () => {
   const navigate = useNavigate();
@@ -89,7 +81,6 @@ const DiscussionCreateCompletePage = () => {
         openSlack();
         return;
       }
-
       if (countdown !== null) {
         if (timerRef.current) {
           clearInterval(timerRef.current);
@@ -205,7 +196,7 @@ const DiscussionCreateCompletePage = () => {
                 color: '#ffffff'
               }}
             >
-              <SlackIcon />
+              <img src={slackLogo} alt="Slack" width={18} height={18} />
               {countdown !== null && !hasOpenedSlack ? `슬랙으로 공유하기 (${countdown})` : '슬랙으로 공유하기'}
             </button>
             <button type="button" className="discussion-button discussion-button-cancel" onClick={() => navigate(`/discussion/${id}`)}>

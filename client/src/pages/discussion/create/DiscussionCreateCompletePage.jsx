@@ -150,6 +150,12 @@ const DiscussionCreateCompletePage = () => {
     };
   }, []);
 
+  const buttonLabel = countdown !== null && !hasOpenedSlack
+    ? `${countdown}초 뒤 슬랙으로 이동합니다.`
+    : hasOpenedSlack
+      ? '슬랙 다시 열기'
+      : '슬랙으로 공유하기';
+
   return (
     <div className="discussion-create-page">
       <Header />
@@ -197,14 +203,14 @@ const DiscussionCreateCompletePage = () => {
               }}
             >
               <img src={slackLogo} alt="Slack" width={18} height={18} />
-              {countdown !== null && !hasOpenedSlack ? `슬랙으로 공유하기 (${countdown})` : '슬랙으로 공유하기'}
+              {buttonLabel}
             </button>
             <button type="button" className="discussion-button discussion-button-cancel" onClick={() => navigate(`/discussion/${id}`)}>
               게시글로 이동
             </button>
           </div>
-          {countdown !== null && !hasOpenedSlack && (
-            <div style={{ marginTop: 8, color: '#6b7280' }}>{countdown}초 뒤 Slack이 새 창으로 열립니다</div>
+          {copied && (
+            <div style={{ marginTop: 8, color: '#10B981' }}>클립보드에 복사되었습니다.</div>
           )}
         </div>
       </div>

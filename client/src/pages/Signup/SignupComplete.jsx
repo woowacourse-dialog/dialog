@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import channelJoinImage from '../../assets/channel-join-image.png';
 import slackLogo from '../../assets/slack-logo.svg';
+import { useAuth } from '../../context/AuthContext';
 
 const SLACK_CHANNEL_URL = import.meta.env.VITE_SLACK_CHANNEL_URL || 'https://app.slack.com/client';
 
 const SignupComplete = () => {
   const navigate = useNavigate();
+  const { checkLoginStatus } = useAuth();
+
+  useEffect(() => {
+    // Refresh auth state so Header shows logout/mypage if logged in
+    checkLoginStatus();
+  }, [checkLoginStatus]);
 
   const openSlack = () => {
     window.open(SLACK_CHANNEL_URL, '_blank', 'noopener,noreferrer');

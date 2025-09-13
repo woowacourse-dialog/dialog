@@ -49,7 +49,9 @@ public class UserController {
 
     @PatchMapping("/mine/profile-image")
     public ResponseEntity<ApiSuccessResponse<ProfileImageUpdateResponse>> patchProfileImage(
-            @RequestParam("file") MultipartFile imageFile, @AuthenticatedUserId Long userId) {
+            @RequestParam("file") MultipartFile imageFile,
+            @AuthenticatedUserId Long userId
+    ) {
         ProfileImageUpdateResponse response = userService.updateProfileImage(imageFile, userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }

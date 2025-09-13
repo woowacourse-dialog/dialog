@@ -7,6 +7,7 @@ import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
+import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
@@ -80,7 +81,8 @@ public class UserService {
     @Transactional
     public ProfileImageUpdateResponse updateProfileImage(MultipartFile imageFile, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        ProfileImage savedProfileImage = profileImageRepository.findByUser(user).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
+        ProfileImage savedProfileImage = profileImageRepository.findByUser(user)
+                .orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         ProfileImage updateProfile = uploadAndSaveProfileImage(imageFile, savedProfileImage);
         return ProfileImageUpdateResponse.from(updateProfile);
     }
@@ -88,7 +90,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public ProfileImageGetResponse getProfileImage(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        ProfileImage profileImage = profileImageRepository.findByUser(user).orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
+        ProfileImage profileImage = profileImageRepository.findByUser(user)
+                .orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         String customImageUri = profileImage.getCustomImageUri();
         String basicImageUri = profileImage.getBasicImageUri();
         return new ProfileImageGetResponse(customImageUri, basicImageUri);
@@ -119,5 +122,10 @@ public class UserService {
         profileImage.updateProfileImage(fileInfo, updatedImageUri);
         profileImageRepository.save(profileImage);
         return profileImage;
+    }
+
+    public MyTrackGetTrackResponse getTrack(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        return MyTrackGetTrackResponse.from(user);
     }
 }

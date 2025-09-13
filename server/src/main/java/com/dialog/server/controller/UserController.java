@@ -4,6 +4,7 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
@@ -33,20 +34,31 @@ public class UserController {
     }
 
     @PatchMapping("/mine/notifications")
-    public ResponseEntity<ApiSuccessResponse<NotificationSettingResponse>> patchNotification(@RequestBody @Valid NotificationSettingRequest request, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<NotificationSettingResponse>> patchNotification(
+            @RequestBody @Valid NotificationSettingRequest request, @AuthenticatedUserId Long userId) {
         NotificationSettingResponse response = userService.updateNotification(request, userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
     @GetMapping("/mine/profile-image")
-    public ResponseEntity<ApiSuccessResponse<ProfileImageGetResponse>> getProfileImage(@AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<ProfileImageGetResponse>> getProfileImage(
+            @AuthenticatedUserId Long userId) {
         ProfileImageGetResponse response = userService.getProfileImage(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
     @PatchMapping("/mine/profile-image")
-    public ResponseEntity<ApiSuccessResponse<ProfileImageUpdateResponse>> patchProfileImage(@RequestParam("file") MultipartFile imageFile, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<ProfileImageUpdateResponse>> patchProfileImage(
+            @RequestParam("file") MultipartFile imageFile,
+            @AuthenticatedUserId Long userId
+    ) {
         ProfileImageUpdateResponse response = userService.updateProfileImage(imageFile, userId);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+    @GetMapping("/mine/track")
+    public ResponseEntity<ApiSuccessResponse<MyTrackGetTrackResponse>> getTrack(@AuthenticatedUserId Long userId) {
+        MyTrackGetTrackResponse response = userService.getTrack(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 }

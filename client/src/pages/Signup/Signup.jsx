@@ -63,8 +63,7 @@ const Signup = () => {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, submitData, {
         withCredentials: true
       });
-      alert('회원가입이 완료되었습니다.');
-      navigate('/'); // 홈페이지로 리다이렉션
+      navigate('/signup/complete');
     } catch (error) {
       console.error('Signup error:', error);
       alert('회원가입 중 오류가 발생했습니다.');

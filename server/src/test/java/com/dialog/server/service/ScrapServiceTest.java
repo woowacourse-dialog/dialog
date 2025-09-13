@@ -21,7 +21,6 @@ import com.dialog.server.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,13 +43,9 @@ class ScrapServiceTest {
     @Autowired
     private ScrapRepository scrapRepository;
 
+    @Autowired
     private ScrapService scrapService;
-
-    @BeforeEach
-    void setUp() {
-        scrapService = new ScrapService(scrapRepository, userRepository, discussionRepository);
-    }
-
+    
     @Test
     void 사용자는_토론에_북마크를_할_수_있다() {
         //given

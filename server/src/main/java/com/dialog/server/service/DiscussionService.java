@@ -24,6 +24,9 @@ import com.dialog.server.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -290,10 +293,24 @@ public class DiscussionService {
             nextCursor = cursorDiscussion.getCreatedAt().toString() + CURSOR_PART_DELIMITER + cursorDiscussion.getId();
         }
 
+        Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
+
         List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
-                .map(DiscussionPreviewResponse::from)
+                .map(discussion -> DiscussionPreviewResponse.from(
+                                discussion,
+                                userProfileImageMap.get(discussion.getAuthor())
+                        )
+                )
                 .toList();
+
         return new DiscussionCursorPageResponse<>(responses, nextCursor, hasNext, pageSize);
+    }
+
+    private Map<User, ProfileImage> getAuthorProfileImages(List<Discussion> discussions) {
+        List<User> discussionAuthors = discussions.stream().map(Discussion::getAuthor).toList();
+        List<ProfileImage> discussionAuthorProfileImages = profileImageRepository.findAllByUserIn(discussionAuthors);
+        return discussionAuthorProfileImages.stream()
+                .collect(Collectors.toMap(ProfileImage::getUser, Function.identity()));
     }
 
     private void participantDiscussion(User author, Discussion discussion) {

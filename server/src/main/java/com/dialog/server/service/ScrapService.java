@@ -1,6 +1,7 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
@@ -9,10 +10,14 @@ import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.ScrapRepository;
 import com.dialog.server.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -25,6 +30,7 @@ public class ScrapService {
     private final ScrapRepository scrapRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     @Transactional
     public void create(Long userId, Long discussionId) {
@@ -65,7 +71,7 @@ public class ScrapService {
         Discussion discussion = getDiscussionById(discussionId);
         return isScraped(user, discussion);
     }
-  
+
     private List<Discussion> findScrapDiscussionsByCursor(ScrapCursorPageRequest scrapCursorPageRequest, User user) {
         PageRequest pageRequest = PageRequest.of(0, scrapCursorPageRequest.pageSize() + 1);
         if (scrapCursorPageRequest.lastCursorId() == null) {
@@ -101,9 +107,23 @@ public class ScrapService {
             nextCursorId = cursorDiscussion.getId();
         }
 
+        Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
+
         List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
-                .map(DiscussionPreviewResponse::from)
+                .map(discussion -> DiscussionPreviewResponse.from(
+                                discussion,
+                                userProfileImageMap.get(discussion.getAuthor())
+                        )
+                )
                 .toList();
+
         return new ScrapCursorPageResponse<>(responses, nextCursorId, hasNext, requestPageSize);
+    }
+
+    private Map<User, ProfileImage> getAuthorProfileImages(List<Discussion> discussions) {
+        List<User> discussionAuthors = discussions.stream().map(Discussion::getAuthor).toList();
+        List<ProfileImage> discussionAuthorProfileImages = profileImageRepository.findAllByUserIn(discussionAuthors);
+        return discussionAuthorProfileImages.stream()
+                .collect(Collectors.toMap(ProfileImage::getUser, Function.identity()));
     }
 }

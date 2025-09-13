@@ -9,6 +9,7 @@ import NotificationGuideModal from '../components/NotificationGuideModal/Notific
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DiscussionFilter from '../components/DiscussionFilter';
 import pageStyles from './discussion/search/SearchResultPage.module.css';
+import useMe from '../hooks/useMe';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -125,7 +126,7 @@ const Home = () => {
         )}
       </div>
       {/* 플로팅 액션 버튼 */}
-      <div
+      {isLoggedIn && <div
         style={{
           position: 'fixed',
           bottom: '30px',
@@ -155,7 +156,7 @@ const Home = () => {
         }}
       >
         +
-      </div>
+      </div>}
     </>
   );
 };

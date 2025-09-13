@@ -4,6 +4,7 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,10 @@ public class AuthenticatedUserIdArgumentResolver implements HandlerMethodArgumen
 
         if (authentication == null) {
             throw new DialogException(ErrorCode.AUTHENTICATION_NOT_FOUND);
+        }
+
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new DialogException(ErrorCode.LOGIN_REQUIRED);
         }
 
         try {

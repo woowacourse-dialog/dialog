@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_SIGNUP("1002", "유효하지 않은 회원가입입니다.", HttpStatus.UNAUTHORIZED),
     AUTHENTICATION_NOT_FOUND("1003", "인증 정보를 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_USER_ID_FORMAT("1004", "유효하지 않은 인증 정보입니다.", HttpStatus.BAD_REQUEST),
+    LOGIN_REQUIRED("1005", "로그인 후 이용할 수 있습니다.", HttpStatus.UNAUTHORIZED),
 
     /**
      * 5XXX - 비즈니스 로직 관련

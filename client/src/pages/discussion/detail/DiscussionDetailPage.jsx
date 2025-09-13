@@ -139,7 +139,7 @@ const DiscussionDetailPage = () => {
         navigate('/');
       } catch (error) {
         console.error('Failed to delete discussion:', error);
-        alert('토론 삭제 중 오류가 발생했습니다.');
+        alert(error.response.data.message);
       }
     }
   };
@@ -156,7 +156,7 @@ const DiscussionDetailPage = () => {
       setIsLiked(!isLiked);
     } catch (error) {
       console.error('Failed to update like:', error);
-      alert('좋아요 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(error.response.data.message);
     }
   };
 
@@ -170,7 +170,7 @@ const DiscussionDetailPage = () => {
       setIsBookmarked(!isBookmarked);
     } catch (error) {
       console.error('Failed to update bookmark:', error);
-      alert('스크랩 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(error.response.data.message);
     }
   };
 

@@ -42,7 +42,8 @@ const DiscussionCreateFormPage = () => {
     try {
       const res = await createDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track, summary: ""});
       const discussionId = res.data.discussionId;
-      navigate(`/discussion/${discussionId}`);
+      const trackName = (TRACKS.find(t => t.id === track)?.name) || track;
+      navigate(`/discussion/${discussionId}/complete`, { state: { title, content, trackName } });
     } catch (error) {
       alert(error.response.data.message);
     }

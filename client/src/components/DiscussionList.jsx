@@ -37,6 +37,7 @@ const DiscussionList = ({
           views={item.viewCount}
           title={item.title}
           summary={item.summary}
+          profileImage={item.profileImage}
         />
       ))}
       {hasMore && (

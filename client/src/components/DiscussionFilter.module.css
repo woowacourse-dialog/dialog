@@ -99,4 +99,157 @@
   color: #2c3f50;
   border: 1.5px solid #d1dbe6;
   box-shadow: 0 2px 8px rgba(44, 63, 80, 0.13);
+}
+
+.mobileCloseButton {
+  display: none;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .filterContainer {
+    padding: 20px 16px;
+    margin: 16px 0;
+    border-radius: 12px;
+    min-height: auto;
+  }
+
+  .filterGroup {
+    margin-bottom: 20px;
+  }
+
+  .groupTitle {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .optionItem {
+    padding: 8px 6px;
+    font-size: 14px;
+  }
+
+  .toggleButton {
+    width: 36px;
+    height: 36px;
+    top: 14px;
+    right: 14px;
+  }
+
+  .toggleButton img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .toggleButtonFloating {
+    left: 16px;
+    top: 100px;
+    width: 36px;
+    height: 36px;
+    box-shadow: 0 4px 12px rgba(44, 63, 80, 0.2);
+  }
+
+  .toggleButtonFloating img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .filterContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
+    background: #f7fafd;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44, 63, 80, 0.15);
+    border: 2px solid #e3e8ee;
+  }
+
+  .filterContainer::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(44, 63, 80, 0.3);
+    z-index: -1;
+  }
+
+  .mobileCloseButton {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .closeButton {
+    background: #2c3f50;
+    color: white;
+    border: 1.5px solid #2c3f50;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+    transition: all 0.2s;
+  }
+
+  .closeButton:hover {
+    background: #34495e;
+    border-color: #34495e;
+  }
+}
+
+@media (max-width: 480px) {
+  .filterContainer {
+    padding: 16px 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+  }
+
+  .filterGroup {
+    margin-bottom: 16px;
+  }
+
+  .groupTitle {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .optionItem {
+    padding: 6px 4px;
+    font-size: 13px;
+  }
+
+  .toggleButton {
+    width: 32px;
+    height: 32px;
+    top: 12px;
+    right: 12px;
+  }
+
+  .toggleButton img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .toggleButtonFloating {
+    left: 12px;
+    top: 90px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .toggleButtonFloating img {
+    width: 18px;
+    height: 18px;
+  }
 } 

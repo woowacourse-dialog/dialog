@@ -75,3 +75,67 @@
 .button:hover img, .button:focus img {
   transform: scale(1.7);
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .container {
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+
+  .select {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .input {
+    padding: 8px 12px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .button img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .select {
+    padding: 5px 10px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .button {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .button img {
+    width: 18px;
+    height: 18px;
+  }
+}

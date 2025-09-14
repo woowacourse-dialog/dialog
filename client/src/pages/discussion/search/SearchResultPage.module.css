@@ -18,4 +18,33 @@
 
 .centered {
   justify-content: center;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .pageContainer {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .sidebar {
+    flex: none;
+    position: static;
+    top: auto;
+    width: 100%;
+    order: 2; /* 사이드바를 아래로 이동 */
+  }
+
+  .mainContent {
+    order: 1; /* 메인 콘텐츠를 위로 이동 */
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding: 12px;
+    gap: 12px;
+  }
 } 

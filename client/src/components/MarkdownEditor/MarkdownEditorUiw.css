@@ -52,4 +52,54 @@
 
 [data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-preview {
   box-shadow: inset 1px 0 0 0 #333 !important;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .markdown-editor-uiw .w-md-editor {
+    flex-direction: column !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-toolbar {
+    padding: 6px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-toolbar li > button {
+    padding: 6px 8px !important;
+    font-size: 14px !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-text {
+    padding: 12px !important;
+    font-size: 16px !important; /* iOS 줌 방지 */
+  }
+
+  .markdown-editor-uiw .w-md-editor-preview {
+    padding: 12px !important;
+    box-shadow: inset 0 1px 0 0 #ddd !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-text-input {
+    font-size: 16px !important; /* iOS 줌 방지 */
+  }
+}
+
+@media (max-width: 480px) {
+  .markdown-editor-uiw .w-md-editor-toolbar {
+    padding: 4px !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-toolbar li > button {
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-text {
+    padding: 10px !important;
+  }
+
+  .markdown-editor-uiw .w-md-editor-preview {
+    padding: 10px !important;
+  }
 } 

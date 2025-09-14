@@ -86,6 +86,15 @@ const DiscussionFilter = ({
               </label>
             ))}
           </div>
+          {/* 모바일에서 필터 닫기 버튼 */}
+          <div className={styles.mobileCloseButton}>
+            <button 
+              onClick={onToggleFilter}
+              className={styles.closeButton}
+            >
+              닫기
+            </button>
+          </div>
         </div>
       )}
     </div>

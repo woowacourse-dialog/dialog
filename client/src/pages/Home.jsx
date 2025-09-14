@@ -19,7 +19,7 @@ const Home = () => {
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const [searchParams] = useSearchParams();
-  const [showFilter, setShowFilter] = useState(true);
+  const [showFilter, setShowFilter] = useState(window.innerWidth > 768);
 
   useEffect(() => {
     checkLoginStatus();
@@ -129,17 +129,17 @@ const Home = () => {
       {isLoggedIn && <div
         style={{
           position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          width: '60px',
-          height: '60px',
+          bottom: window.innerWidth <= 768 ? '20px' : '30px',
+          right: window.innerWidth <= 768 ? '20px' : '30px',
+          width: window.innerWidth <= 768 ? '50px' : '60px',
+          height: window.innerWidth <= 768 ? '50px' : '60px',
           borderRadius: '50%',
           backgroundColor: '#4bd1cc',
           color: 'white',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px',
+          fontSize: window.innerWidth <= 768 ? '20px' : '24px',
           cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           transition: 'all 0.3s ease',

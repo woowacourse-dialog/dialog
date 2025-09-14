@@ -207,14 +207,95 @@ input:checked + .slider:before {
   color: #888;
 }
 
-@media (max-width: 600px) {
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .mypage-container {
+    padding-top: 72px;
+  }
+
+  .mypage-content {
+    padding: 1rem;
+  }
+
+  .mypage-info-box {
+    padding: 1.5rem 1.5rem;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .mypage-profile-card {
+    margin: 2rem auto 0 auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .mypage-profile-settings {
+    margin: 1.5rem auto 0 auto;
+    padding: 1.2rem 1.5rem;
+  }
+
   .mypage-profile-card-horizontal {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
     padding: 1.2rem 1rem;
+    margin: 2rem auto 0 auto;
   }
+
   .mypage-profile-info-horizontal {
     align-items: center;
+  }
+
+  .mypage-profile-avatar-horizontal {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mypage-profile-nickname-horizontal {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mypage-content {
+    padding: 0.75rem;
+  }
+
+  .mypage-info-box {
+    padding: 1.2rem 1rem;
+    margin: 1.2rem auto 0 auto;
+  }
+
+  .mypage-profile-card {
+    margin: 1.5rem auto 0 auto;
+    padding-bottom: 1.2rem;
+  }
+
+  .mypage-profile-settings {
+    margin: 1.2rem auto 0 auto;
+    padding: 1rem 1.2rem;
+  }
+
+  .mypage-profile-card-horizontal {
+    padding: 1rem 0.75rem;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .mypage-profile-avatar-horizontal {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mypage-profile-nickname-horizontal {
+    font-size: 1rem;
+  }
+
+  .mypage-info-row {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .mypage-label {
+    min-width: auto;
   }
 }

@@ -37,6 +37,12 @@ public enum ErrorCode {
     EXIST_USER_EMAIL("5032", "이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
     REGISTERED_USER("5033", "이미 회원가입한 회원입니다.", HttpStatus.BAD_REQUEST),
     NOT_REGISTERED_USER("5034", "회원가입하지 않은 회원입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_TITLE("5035", "제목은 1자 이상 50자 이하로 입력해야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_CONTENT("5036", "내용은 1자 이상 10,000자 이하로 입력해야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_SUMMARY("5037", "요약은 1자 이상 300자 이하로 입력해야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_TIME("5038", "토론 시작/종료 시간이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_START_TIME("5039", "토론 시작 시간은 08:00~23:00 사이여야 합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_DISCUSSION_MAX_PARTICIPANTS("5040", "참여자 수는 1명 이상 10명 이하여야 합니다.", HttpStatus.BAD_REQUEST),
 
     MESSAGING_TOKEN_NOT_FOUND("5041", "메시징 토큰을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     UNAUTHORIZED_TOKEN_ACCESS("5042", "토큰에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN),

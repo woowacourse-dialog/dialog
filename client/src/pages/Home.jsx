@@ -19,11 +19,23 @@ const Home = () => {
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const [searchParams] = useSearchParams();
+  // 데스크톱에서는 필터가 기본적으로 열려있고, 모바일에서는 닫혀있음
   const [showFilter, setShowFilter] = useState(window.innerWidth > 768);
 
   useEffect(() => {
     checkLoginStatus();
     // eslint-disable-next-line
+  }, []);
+
+  // 화면 크기 변경 시 필터 상태 조정
+  useEffect(() => {
+    const handleResize = () => {
+      const isDesktop = window.innerWidth > 768;
+      setShowFilter(isDesktop);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // URL에서 필터 파라미터 추출
@@ -81,13 +93,57 @@ const Home = () => {
     navigate(`/discussion${queryString ? `?${queryString}` : ''}`);
   };
 
+  // 필터 토글 핸들러
+  const handleToggleFilter = () => {
+    setShowFilter(prev => !prev);
+  };
+
+  // 페이지 컨테이너 클래스명 생성
+  const getPageContainerClassName = () => {
+    const baseClass = pageStyles.pageContainer;
+    const centeredClass = showFilter ? '' : pageStyles.centered;
+    return `${baseClass} ${centeredClass}`.trim();
+  };
+
+  // 플로팅 액션 버튼 스타일
+  const getFloatingButtonStyle = () => {
+    const isMobile = window.innerWidth <= 768;
+    return {
+      position: 'fixed',
+      bottom: isMobile ? '20px' : '30px',
+      right: isMobile ? '20px' : '30px',
+      width: isMobile ? '50px' : '60px',
+      height: isMobile ? '50px' : '60px',
+      borderRadius: '50%',
+      backgroundColor: '#4bd1cc',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: isMobile ? '20px' : '24px',
+      cursor: 'pointer',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      transition: 'all 0.3s ease',
+      zIndex: 1000
+    };
+  };
+
+  // 플로팅 버튼 이벤트 핸들러
+  const handleFloatingButtonMouseEnter = (e) => {
+    e.target.style.transform = 'scale(1.1)';
+    e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+  };
+
+  const handleFloatingButtonMouseLeave = (e) => {
+    e.target.style.transform = 'scale(1)';
+    e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+  };
+
   return (
     <>
       <Header />
       <div
-        className={
-          pageStyles.pageContainer + (showFilter ? '' : ' ' + pageStyles.centered)
-        }
+        className={getPageContainerClassName()}
         style={{ marginTop: 64, position: 'relative' }}
       >
         {showFilter && (
@@ -97,7 +153,7 @@ const Home = () => {
               initialStatuses={statuses}
               onApply={handleApplyFilters}
               showFilter={showFilter}
-              onToggleFilter={() => setShowFilter((prev) => !prev)}
+              onToggleFilter={handleToggleFilter}
             />
           </aside>
         )}
@@ -105,7 +161,7 @@ const Home = () => {
           {!showFilter && (
             <DiscussionFilter
               showFilter={showFilter}
-              onToggleFilter={() => setShowFilter((prev) => !prev)}
+              onToggleFilter={handleToggleFilter}
             />
           )}
           <SearchBar onSearch={handleSearch} />
@@ -126,37 +182,16 @@ const Home = () => {
         )}
       </div>
       {/* 플로팅 액션 버튼 */}
-      {isLoggedIn && <div
-        style={{
-          position: 'fixed',
-          bottom: window.innerWidth <= 768 ? '20px' : '30px',
-          right: window.innerWidth <= 768 ? '20px' : '30px',
-          width: window.innerWidth <= 768 ? '50px' : '60px',
-          height: window.innerWidth <= 768 ? '50px' : '60px',
-          borderRadius: '50%',
-          backgroundColor: '#4bd1cc',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: window.innerWidth <= 768 ? '20px' : '24px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease',
-          zIndex: 1000
-        }}
-        onClick={() => navigate('/discussion/new')}
-        onMouseEnter={(e) => {
-          e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
-      >
-        +
-      </div>}
+      {isLoggedIn && (
+        <div
+          style={getFloatingButtonStyle()}
+          onClick={() => navigate('/discussion/new')}
+          onMouseEnter={handleFloatingButtonMouseEnter}
+          onMouseLeave={handleFloatingButtonMouseLeave}
+        >
+          +
+        </div>
+      )}
     </>
   );
 };

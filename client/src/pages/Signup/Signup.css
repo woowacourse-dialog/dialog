@@ -212,3 +212,119 @@ select.input-field:focus {
   display: flex;
   padding-top: 64px;
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .signup-container {
+    width: 95%;
+    margin: 2rem auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .signup-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .signup-form {
+    padding: 0 0.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .input-field {
+    padding: 0.9rem;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .submit-button {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .checkbox-group {
+    gap: 0.5rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .checkbox-group label {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-container {
+    width: 98%;
+    margin: 1.5rem auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .signup-container h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .signup-form {
+    padding: 0 0.25rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .input-field {
+    padding: 0.8rem;
+    font-size: 16px;
+  }
+
+  .submit-button {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .checkbox-group label {
+    font-size: 0.9rem;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .input-field {
+    padding: 12px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .submit-button {
+    padding: 14px 24px;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .checkbox-group {
+    padding: 8px 0;
+    min-height: 44px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  .checkbox-group label {
+    font-size: 1rem;
+  }
+}

@@ -252,4 +252,41 @@
     width: 18px;
     height: 18px;
   }
-} 
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .toggleButton {
+    width: 44px;
+    height: 44px;
+    top: 16px;
+    right: 16px;
+  }
+
+  .toggleButton img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .toggleButtonFloating {
+    width: 44px;
+    height: 44px;
+    left: 20px;
+    top: 120px;
+  }
+
+  .toggleButtonFloating img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .optionItem {
+    padding: 12px 8px;
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .closeButton {
+    min-height: 44px;
+    padding: 14px 24px;
+  }
+}

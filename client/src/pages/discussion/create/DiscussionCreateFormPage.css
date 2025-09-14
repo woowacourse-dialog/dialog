@@ -436,3 +436,43 @@ select.form-input:focus {
     font-size: 0.95rem;
   }
 }
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .discussion-create-form {
+    padding: 1rem;
+  }
+
+  .form-input {
+    padding: 12px;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .date-field input,
+  .time-field input {
+    padding: 12px;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px;
+  }
+
+  .discussion-form-actions .discussion-button {
+    height: 52px;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .track-option {
+    padding: 8px 0;
+    min-height: 44px;
+  }
+
+  .track-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .track-option .radio-label {
+    font-size: 1rem;
+  }
+}

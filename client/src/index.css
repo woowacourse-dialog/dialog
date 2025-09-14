@@ -73,3 +73,26 @@ button:focus-visible {
   margin: 0 auto;
   padding-top: 72px;
 }
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  body {
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+    overscroll-behavior: contain; /* 스크롤 체이닝 방지 */
+  }
+
+  .home {
+    padding-top: 64px;
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding-top: 56px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

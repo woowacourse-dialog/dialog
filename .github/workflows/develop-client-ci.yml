@@ -10,6 +10,7 @@ on:
     branches: [ develop ]
     paths:
       - 'server/**'
+  workflow_dispatch:
 
 jobs:
   test:

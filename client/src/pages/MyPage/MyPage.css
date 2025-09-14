@@ -207,14 +207,144 @@ input:checked + .slider:before {
   color: #888;
 }
 
-@media (max-width: 600px) {
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .mypage-container {
+    padding-top: 72px;
+  }
+
+  .mypage-content {
+    padding: 1rem;
+  }
+
+  .mypage-info-box {
+    padding: 1.5rem 1.5rem;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .mypage-profile-card {
+    margin: 2rem auto 0 auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .mypage-profile-settings {
+    margin: 1.5rem auto 0 auto;
+    padding: 1.2rem 1.5rem;
+  }
+
   .mypage-profile-card-horizontal {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
     padding: 1.2rem 1rem;
+    margin: 2rem auto 0 auto;
   }
+
   .mypage-profile-info-horizontal {
     align-items: center;
+  }
+
+  .mypage-profile-avatar-horizontal {
+    width: 64px;
+    height: 64px;
+  }
+
+  .mypage-profile-nickname-horizontal {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mypage-content {
+    padding: 0.75rem;
+  }
+
+  .mypage-info-box {
+    padding: 1.2rem 1rem;
+    margin: 1.2rem auto 0 auto;
+  }
+
+  .mypage-profile-card {
+    margin: 1.5rem auto 0 auto;
+    padding-bottom: 1.2rem;
+  }
+
+  .mypage-profile-settings {
+    margin: 1.2rem auto 0 auto;
+    padding: 1rem 1.2rem;
+  }
+
+  .mypage-profile-card-horizontal {
+    padding: 1rem 0.75rem;
+    margin: 1.5rem auto 0 auto;
+  }
+
+  .mypage-profile-avatar-horizontal {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mypage-profile-nickname-horizontal {
+    font-size: 1rem;
+  }
+
+  .mypage-info-row {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .mypage-label {
+    min-width: auto;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .mypage-profile-card {
+    margin: 2rem auto 0 auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .mypage-profile-settings {
+    margin: 1.5rem auto 0 auto;
+    padding: 1.2rem 1.5rem;
+  }
+
+  .mypage-profile-card-horizontal {
+    padding: 1.2rem 1rem;
+    margin: 2rem auto 0 auto;
+  }
+
+  .mypage-profile-avatar-horizontal {
+    width: 68px;
+    height: 68px;
+  }
+
+  .mypage-profile-nickname-horizontal {
+    font-size: 1.15rem;
+  }
+
+  .mypage-info-row {
+    font-size: 1.05rem;
+    padding: 8px 0;
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .switch {
+    width: 48px;
+    height: 26px;
+  }
+
+  .slider:before {
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(22px);
   }
 }

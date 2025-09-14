@@ -75,3 +75,100 @@
 .button:hover img, .button:focus img {
   transform: scale(1.7);
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .container {
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+
+  .select {
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .input {
+    padding: 8px 12px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .button img {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .select {
+    padding: 5px 10px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .button {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .button img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .container {
+    padding: 10px 18px;
+    border-radius: 28px;
+  }
+
+  .select {
+    padding: 8px 14px;
+    font-size: 15px;
+    border-radius: 14px;
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .input {
+    padding: 10px 14px;
+    font-size: 16px; /* iOS 줌 방지 */
+    border-radius: 14px;
+    min-height: 44px;
+  }
+
+  .button {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+
+  .button img {
+    width: 22px;
+    height: 22px;
+  }
+}

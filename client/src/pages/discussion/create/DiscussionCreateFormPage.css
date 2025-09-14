@@ -303,3 +303,176 @@ select.form-input:focus {
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   }
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .discussion-create-page {
+    padding-top: 72px;
+  }
+
+  .discussion-create-container {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .discussion-create-form {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem;
+    margin: 0;
+    border: none;
+  }
+
+  .discussion-create-form h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .participant-count {
+    width: 100%;
+  }
+
+  .datetime-container {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .date-field {
+    flex: none;
+    width: 100%;
+  }
+
+  .time-inputs {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .time-field {
+    flex: none;
+  }
+
+  .form-input {
+    padding: 0.8rem;
+    font-size: 16px; /* iOS 줌 방지 */
+  }
+
+  .date-field input,
+  .time-field input {
+    padding: 0.8rem;
+    font-size: 16px; /* iOS 줌 방지 */
+  }
+
+  .discussion-form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 1rem 0;
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .discussion-form-actions .discussion-button {
+    height: 50px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .discussion-create-form {
+    padding: 0.75rem;
+  }
+
+  .discussion-create-form h1 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .form-row {
+    gap: 0.75rem;
+  }
+
+  .datetime-container {
+    gap: 0.75rem;
+  }
+
+  .time-inputs {
+    gap: 0.75rem;
+  }
+
+  .form-input {
+    padding: 0.7rem;
+  }
+
+  .date-field input,
+  .time-field input {
+    padding: 0.7rem;
+  }
+
+  .discussion-form-actions {
+    padding: 0.75rem 0;
+    margin: 0 -0.75rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .discussion-form-actions .discussion-button {
+    height: 48px;
+    font-size: 0.95rem;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .discussion-create-form {
+    padding: 1rem;
+  }
+
+  .form-input {
+    padding: 12px;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .date-field input,
+  .time-field input {
+    padding: 12px;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px;
+  }
+
+  .discussion-form-actions .discussion-button {
+    height: 52px;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .track-option {
+    padding: 8px 0;
+    min-height: 44px;
+  }
+
+  .track-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .track-option .radio-label {
+    font-size: 1rem;
+  }
+}

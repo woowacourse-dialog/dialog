@@ -139,40 +139,40 @@ public class Discussion extends BaseEntity {
 
     private void validateTitleLength(String content) {
         if (content.isBlank() || content.length() > MAX_TITLE_LENGTH) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_TITLE);
         }
     }
 
     private void validateContentLength(String content) {
         if (content.isBlank() || content.length() > MAX_CONTENT_LENGTH) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_CONTENT);
         }
     }
 
     private void validateSummaryLength(String summary) {
         if (summary.isBlank() || summary.length() > MAX_SUMMARY_LENGTH) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_SUMMARY);
         }
     }
 
     private void validateTime(LocalDateTime startAt, LocalDateTime endAt) {
         if (startAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_TIME);
         }
 
         if (startAt.isAfter(endAt) || endAt.isBefore(startAt)) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_TIME);
         }
 
         LocalTime startTime = startAt.toLocalTime();
         if (startTime.isBefore(MIN_START_AT) || startTime.isAfter(MAX_START_AT)) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_START_TIME);
         }
     }
 
     private void validateMaxParticipantCount(int maxParticipantCount) {
         if (maxParticipantCount < MIN_ALLOWED_MAX_PARTICIPANTS || maxParticipantCount > MAX_ALLOWED_MAX_PARTICIPANTS) {
-            throw new IllegalArgumentException();
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_MAX_PARTICIPANTS);
         }
     }
 

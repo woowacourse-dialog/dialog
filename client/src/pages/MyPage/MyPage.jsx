@@ -186,7 +186,7 @@ const MyPage = () => {
                   borderRadius: '50%',
                   background: '#f0f0f0',
                   cursor: 'pointer',
-                  border: '2px solid #3ddad7'
+                  border: '2px solid #303e4f'
                 }}
                 onClick={openModal}
                 title="프로필 이미지 변경"
@@ -237,7 +237,7 @@ const MyPage = () => {
                     disabled={uploading || !modalSelectedFile}
                     style={{
                       padding: '0.5rem 1.2rem',
-                      background: '#3ddad7',
+                      background: '#303e4f',
                       color: '#fff',
                       border: 'none',
                       borderRadius: '0.5rem',
@@ -292,7 +292,7 @@ const MyPage = () => {
               <button
                 className="mypage-my-discussion-btn"
                 style={{
-                  background: '#4bd1cc',
+                  background: '#303e4f',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -310,7 +310,7 @@ const MyPage = () => {
               <button
                 className="mypage-my-scrap-btn"
                 style={{
-                  background: '#4bd1cc',
+                  background: '#303e4f',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',

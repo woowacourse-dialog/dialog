@@ -1,12 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import dialogIcon from '../assets/dialog_icon.png';
+import styles from './DiscussionCard.module.css';
+
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
   { id: 'BACKEND', name: '백엔드' },
   { id: 'ANDROID', name: '안드로이드' },
   { id: 'COMMON', name: '공통' }
 ];
+
+// 프로필 이미지 URL을 가져오는 함수
+const getProfileImageSrc = (profileImage) => {
+  if (!profileImage) return dialogIcon; // 기본 이미지
+  if (profileImage.customImageUri) {
+    return profileImage.customImageUri;
+  }
+  return profileImage.basicImageUri || dialogIcon; // basicImageUri가 없으면 기본 이미지
+};
 
 export default function DiscussionCard({
   id,
@@ -19,7 +31,8 @@ export default function DiscussionCard({
   endAt,
   views,
   title,
-  summary
+  summary,
+  profileImage
 }) {
   const navigate = useNavigate();
   
@@ -57,58 +70,48 @@ export default function DiscussionCard({
 
   return (
     <div
-      style={{
-        background: '#fff',
-        borderRadius: 12,
-        boxShadow: '0 2px 8px rgba(60,64,67,0.08)',
-        padding: 24,
-        marginBottom: 24,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-        border: '1px solid #e0e0e0',
-        width: '100%',
-        maxWidth: 600,
-        boxSizing: 'border-box',
-        wordBreak: 'break-all',
-        position: 'relative',
-        cursor: 'pointer'
-      }}
+      className={styles.discussionCard}
       onClick={() => navigate(`/discussion/${id}`)}
     >
       {/* 우측 상단 카테고리/상태 박스 */}
-      <div style={{ position: 'absolute', top: 24, right: 24, display: 'flex', gap: 8 }}>
-        <span style={{
-          background: '#4bd1cc',
-          color: '#fff',
-          borderRadius: 8,
-          padding: '4px 12px',
-          fontWeight: 500,
-          fontSize: 13
-        }}>{getTrackName(category)}</span>
-        <span style={{
-          background: stateStyle[discussionState].background,
-          color: stateStyle[discussionState].color,
-          borderRadius: 8,
-          padding: '4px 12px',
-          fontWeight: 500,
-          fontSize: 13
-        }}>{discussionState}</span>
+      <div className={styles.categoryStatusContainer}>
+        <span className={styles.categoryBadge}>{getTrackName(category)}</span>
+        <span 
+          className={styles.statusBadge}
+          style={{
+            background: stateStyle[discussionState].background,
+            color: stateStyle[discussionState].color
+          }}
+        >
+          {discussionState}
+        </span>
       </div>
       {/* 본문 */}
       <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{title}</div>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+        <img
+          src={getProfileImageSrc(profileImage)}
+          alt="프로필 이미지"
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            marginRight: '12px',
+            border: '2px solid #e0e0e0'
+          }}
+        />
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600, fontSize: 16 }}>{nickname}</div>
           {/* <div style={{ fontSize: 13, color: '#888' }}>{createdAt}</div> */}
         </div>
       </div>
-      <div style={{ fontSize: 15, color: '#555', marginBottom: 8 }}>{summary}</div>
-      <div style={{ display: 'flex', gap: 24, fontSize: 14, color: '#666', marginBottom: 4 }}>
+      <div className={styles.summary}>{summary}</div>
+      <div className={styles.detailsRow}>
         <span>장소: {place}</span>
         <span>시간: {startAt} ~ {endAt}</span>
       </div>
-      <div style={{ display: 'flex', gap: 24, fontSize: 14, color: '#666' }}>
+      <div className={styles.participantInfo}>
         <span>참여: {participants} / {maxParticipants}명</span>
       </div>
     </div>

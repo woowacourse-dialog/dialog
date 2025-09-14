@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import useDiscussionList from '../../../hooks/useDiscussionList';
 import DiscussionList from '../../../components/DiscussionList';
@@ -13,6 +13,19 @@ const SearchResultPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const loaderRef = useRef(null);
+  // 데스크톱에서는 필터가 기본적으로 열려있고, 모바일에서는 닫혀있음
+  const [showFilter, setShowFilter] = useState(window.innerWidth > 768);
+
+  // 화면 크기 변경 시 필터 상태 조정
+  useEffect(() => {
+    const handleResize = () => {
+      const isDesktop = window.innerWidth > 768;
+      setShowFilter(isDesktop);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // URL에서 검색 및 필터 파라미터 추출
   const searchType = Number(searchParams.get('searchType')) || 0;
@@ -67,18 +80,71 @@ const SearchResultPage = () => {
     navigate(`/discussion/search?${newParams.toString()}`);
   };
 
+  const handleToggleFilter = () => {
+    setShowFilter(prev => !prev);
+  };
+
+  const getPageContainerClassName = () => {
+    const baseClass = pageStyles.pageContainer;
+    const centeredClass = showFilter ? '' : pageStyles.centered;
+    return `${baseClass} ${centeredClass}`.trim();
+  };
+
+  const getFloatingButtonStyle = () => ({
+    position: 'fixed',
+    bottom: '30px',
+    right: '30px',
+    width: '60px',
+    height: '60px',
+    borderRadius: '50%',
+    backgroundColor: '#303e4f',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '24px',
+    cursor: 'pointer',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    transition: 'all 0.3s ease',
+    zIndex: 1000
+  });
+
+  // 플로팅 버튼 이벤트 핸들러
+  const handleFloatingButtonMouseEnter = (e) => {
+    e.target.style.transform = 'scale(1.1)';
+    e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
+  };
+
+  const handleFloatingButtonMouseLeave = (e) => {
+    e.target.style.transform = 'scale(1)';
+    e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+  };
+
   return (
     <>
       <Header />
-      <div className={pageStyles.pageContainer} style={{ marginTop: 64 }}>
-        <aside className={pageStyles.sidebar}>
-          <DiscussionFilter
-            initialCategories={categories}
-            initialStatuses={statuses}
-            onApply={handleApplyFilters}
-          />
-        </aside>
-        <main className={pageStyles.mainContent}>
+      <div
+        className={getPageContainerClassName()}
+        style={{ marginTop: 64, position: 'relative' }}
+      >
+        {showFilter && (
+          <aside className={pageStyles.sidebar}>
+            <DiscussionFilter
+              initialCategories={categories}
+              initialStatuses={statuses}
+              onApply={handleApplyFilters}
+              showFilter={showFilter}
+              onToggleFilter={handleToggleFilter}
+            />
+          </aside>
+        )}
+        <main className={pageStyles.mainContent} style={{ position: 'relative' }}>
+          {!showFilter && (
+            <DiscussionFilter
+              showFilter={showFilter}
+              onToggleFilter={handleToggleFilter}
+            />
+          )}
           <SearchBar
             onSearch={handleSearch}
             initialType={searchType}
@@ -99,33 +165,10 @@ const SearchResultPage = () => {
       </div>
       {/* 플로팅 액션 버튼 */}
       <div
-        style={{
-          position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          backgroundColor: '#4bd1cc',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '24px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease',
-          zIndex: 1000
-        }}
+        style={getFloatingButtonStyle()}
         onClick={() => navigate('/discussion/new')}
-        onMouseEnter={(e) => {
-          e.target.style.transform = 'scale(1.1)';
-          e.target.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.2)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = 'scale(1)';
-          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        }}
+        onMouseEnter={handleFloatingButtonMouseEnter}
+        onMouseLeave={handleFloatingButtonMouseLeave}
       >
         +
       </div>

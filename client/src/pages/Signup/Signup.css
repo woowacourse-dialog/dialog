@@ -66,7 +66,7 @@
 
 .input-field:focus {
   outline: none;
-  border-color: #4bd1cc;
+  border-color: #303e4f;
   box-shadow: 0 0 0 2px rgba(75, 209, 204, 0.1);
 }
 
@@ -87,7 +87,7 @@ select.input-field {
 }
 
 select.input-field:focus {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%234bd1cc' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23303e4f' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
 }
 
 .error-message {
@@ -97,7 +97,7 @@ select.input-field:focus {
 }
 
 .info-message {
-  color: #4bd1cc;
+  color: #303e4f;
   font-size: 0.875rem;
   margin-top: 0.25rem;
 }
@@ -120,7 +120,7 @@ select.input-field:focus {
 .checkbox-group input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #4bd1cc;
+  accent-color: #303e4f;
   cursor: pointer;
 }
 
@@ -183,7 +183,7 @@ select.input-field:focus {
 
 .submit-button {
   padding: 0.8rem;
-  background-color: #4bd1cc;
+  background-color: #303e4f;
   color: white;
   border: none;
   border-radius: 8px;
@@ -198,7 +198,7 @@ select.input-field:focus {
 }
 
 .submit-button:hover {
-  background-color: #3ba8a4;
+  background-color: #2a3344;
 }
 
 .submit-button:disabled {
@@ -211,4 +211,120 @@ select.input-field:focus {
   min-height: 100vh;
   display: flex;
   padding-top: 64px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .signup-container {
+    width: 95%;
+    margin: 2rem auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .signup-container h1 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .signup-form {
+    padding: 0 0.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .input-field {
+    padding: 0.9rem;
+    font-size: 16px; /* iOS 줌 방지 */
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+  }
+
+  .submit-button {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .checkbox-group {
+    gap: 0.5rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  .checkbox-group label {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-container {
+    width: 98%;
+    margin: 1.5rem auto;
+    padding: 1.5rem 1rem;
+  }
+
+  .signup-container h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .signup-form {
+    padding: 0 0.25rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .input-field {
+    padding: 0.8rem;
+    font-size: 16px;
+  }
+
+  .submit-button {
+    padding: 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+
+  .checkbox-group label {
+    font-size: 0.9rem;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .input-field {
+    padding: 12px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .submit-button {
+    padding: 14px 24px;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+
+  .checkbox-group {
+    padding: 8px 0;
+    min-height: 44px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  .checkbox-group label {
+    font-size: 1rem;
+  }
 }

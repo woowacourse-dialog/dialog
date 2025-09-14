@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import dialogIcon from '../../assets/favicon_navy.ico'
+import githubLogo from '../../assets/github-mark-white.svg';
 import './Header.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -66,6 +67,7 @@ const Header = () => {
             </div>
           ) : (
             <button className="nav-button login-button" onClick={handleGithubLogin}>
+              <img src={githubLogo} alt="github" width={18} height={18} />
               Sign in with GitHub
             </button>
           )}

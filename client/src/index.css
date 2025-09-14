@@ -40,12 +40,12 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #4bd1cc;
+  background-color: #303e4f;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #4bd1cc;
+  border-color: #303e4f;
 }
 button:focus,
 button:focus-visible {
@@ -61,7 +61,7 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #4bd1cc;
+    background-color: #303e4f;
   }
 }
 
@@ -72,4 +72,27 @@ button:focus-visible {
   max-width: 700px;
   margin: 0 auto;
   padding-top: 72px;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  body {
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+    overscroll-behavior: contain; /* 스크롤 체이닝 방지 */
+  }
+
+  .home {
+    padding-top: 64px;
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding-top: 56px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 }

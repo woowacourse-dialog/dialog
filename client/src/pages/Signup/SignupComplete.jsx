@@ -42,7 +42,7 @@ const SignupComplete = () => {
         }}>
           <img src={channelJoinImage} alt="채널 참여 안내" style={{ width: 520, maxWidth: '100%', borderRadius: 8 }} />
           <div style={{ width: '100%', textAlign: 'left' }}>
-            <h2 style={{ margin: '8px 0 0 0' }}>&quot;동동-dialog&quot; 채널에 참여하기</h2>
+            <h2 style={{ margin: '8px 0 0 0' }}>&quot;동동-토론&quot; 채널에 참여하기</h2>
             <p style={{ color: '#6b7280', marginTop: 8, lineHeight: 1.6 }}>
               토론 글 알림을 받으려면 채널에 참여해주세요. 작성자는 토론 생성 후, 완료 페이지에서 슬랙으로 쉽게 공유할 수 있어요.
             </p>

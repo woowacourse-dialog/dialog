@@ -46,3 +46,76 @@
 .github-icon {
   font-size: 1.5rem;
 }
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .login-content {
+    padding: 1rem;
+  }
+
+  .login-content h1 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .login-content p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .github-login-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-content {
+    padding: 0.75rem;
+  }
+
+  .login-content h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .login-content p {
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .github-login-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 터치 인터페이스 개선 */
+@media (hover: none) and (pointer: coarse) {
+  .login-content {
+    padding: 1.5rem;
+  }
+
+  .login-content h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .login-content p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .github-login-btn {
+    padding: 14px 28px;
+    font-size: 1.1rem;
+    min-height: 44px; /* 터치 타겟 최소 크기 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .github-icon {
+    font-size: 1.6rem;
+  }
+}

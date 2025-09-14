@@ -51,7 +51,7 @@ const MyDiscussionPage = () => {
           {loading ? (
             <div className="my-discussion-loading">
               <div className="loading-spinner"></div>
-              <div style={{ marginTop: 16, color: '#4bd1cc', fontWeight: 600 }}>토론을 불러오는 중...</div>
+              <div style={{ marginTop: 16, color: '#303e4f', fontWeight: 600 }}>토론을 불러오는 중...</div>
             </div>
           ) : error ? (
             <div className="my-discussion-error">{error}</div>

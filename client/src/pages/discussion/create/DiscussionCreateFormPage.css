@@ -69,7 +69,7 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #4bd1cc !important;
+  border-color: #303e4f !important;
   box-shadow: 0 0 0 2px rgba(75, 209, 204, 0.1);
 }
 
@@ -177,12 +177,12 @@
 }
 
 .discussion-form-actions .discussion-button-submit {
-  background-color: #4bd1cc;
+  background-color: #303e4f;
   color: white;
 }
 
 .discussion-form-actions .discussion-button-submit:hover {
-  background-color: #3fb5b1;
+  background-color: #2a3344;
 }
 
 /* 다크 모드 지원 */
@@ -293,7 +293,7 @@ select.form-input {
 
 select.form-input:focus {
   outline: none;
-  border-color: #4bd1cc !important;
+  border-color: #303e4f !important;
   box-shadow: 0 0 0 2px rgba(75, 209, 204, 0.1);
 }
 

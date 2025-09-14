@@ -76,7 +76,7 @@
 }
 
 .confirm-button {
-  background-color: #4bd1cc;
+  background-color: #303e4f;
   color: white;
   border: none;
   border-radius: 6px;
@@ -87,5 +87,5 @@
 }
 
 .confirm-button:hover {
-  background-color: #3ba8a4;
+  background-color: #2a3344;
 }

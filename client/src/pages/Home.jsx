@@ -115,7 +115,7 @@ const Home = () => {
       width: isMobile ? '50px' : '60px',
       height: isMobile ? '50px' : '60px',
       borderRadius: '50%',
-      backgroundColor: '#4bd1cc',
+      backgroundColor: '#303e4f',
       color: 'white',
       display: 'flex',
       alignItems: 'center',

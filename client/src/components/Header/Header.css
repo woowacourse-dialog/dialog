@@ -95,6 +95,9 @@
 .login-button {
   background-color: #24292e;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .login-button:hover {
@@ -116,14 +119,14 @@
 }
 
 .my-discussions-button {
-  background-color: #4bd1cc;
+  background-color: #303e4f;
   color: white;
   border: none;
   transition: background-color 0.2s;
 }
 
 .my-discussions-button:hover {
-  background-color: #3fb5b1;
+  background-color: #2a3344;
 }
 
 .nav-buttons {

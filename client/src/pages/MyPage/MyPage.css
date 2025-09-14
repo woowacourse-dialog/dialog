@@ -42,7 +42,7 @@
 }
 
 .mypage-success-msg {
-  color: #4bd1cc;
+  color: #303e4f;
   font-size: 0.95rem;
   margin-top: 1rem;
   text-align: center;
@@ -87,7 +87,7 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 input:checked + .slider {
-  background-color: #4bd1cc;
+  background-color: #303e4f;
 }
 input:checked + .slider:before {
   transform: translateX(20px);
@@ -109,7 +109,7 @@ input:checked + .slider:before {
 
 .mypage-profile-cover {
   height: 80px;
-  background: linear-gradient(90deg, #4bd1cc 0%, #42a5f5 100%);
+  background: linear-gradient(90deg, #303e4f 0%, #42a5f5 100%);
 }
 
 .mypage-profile-avatar-row {

@@ -97,7 +97,7 @@ const SearchResultPage = () => {
     width: '60px',
     height: '60px',
     borderRadius: '50%',
-    backgroundColor: '#4bd1cc',
+    backgroundColor: '#303e4f',
     color: 'white',
     display: 'flex',
     alignItems: 'center',

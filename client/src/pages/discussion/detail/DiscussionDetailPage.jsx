@@ -21,17 +21,28 @@ const TRACKS = [
   { id: 'COMMON', name: '공통' }
 ];
 
-const getDiscussionStatus = (startAt, endAt) => {
+const stateStyle = {
+  '모집 중': { background: '#ffe066', color: '#333' },
+  '모집 완료': { background: '#ff7043', color: '#fff' },
+  '토론 중': { background: '#42a5f5', color: '#fff' },
+  '토론 완료':   { background: '#bdbdbd', color: '#fff' }
+};
+
+
+const getDiscussionStatus = (startAt, endAt, discussion) => {
   const now = new Date();
   const start = new Date(startAt);
   const end = new Date(endAt);
 
   if (now < start) {
-    return { status: 'upcoming', label: '시작 전' };
+    if(discussion.participantCount >= discussion.maxParticipantCount) {
+      return { status: '모집 완료', label: '모집 완료' };  
+    }
+    return { status: '모집 중', label: '모집 중' };
   } else if (now > end) {
-    return { status: 'ended', label: '마감됨' };
+    return { status: '토론 완료', label: '토론 완료' };
   } else {
-    return { status: 'ongoing', label: '진행중' };
+    return { status: '토론 중', label: '토론 중' };
   }
 };
 
@@ -182,7 +193,7 @@ const DiscussionDetailPage = () => {
     return <div className="discussion-detail-error">토론을 찾을 수 없습니다.</div>;
   }
 
-  const { status, label } = getDiscussionStatus(discussion.startAt, discussion.endAt);
+  const { status, label } = getDiscussionStatus(discussion.startAt, discussion.endAt, discussion);
   const isAuthor = me?.id === discussion.author.id;
 
   const formatDateTime = (dateTimeStr) => {
@@ -205,7 +216,12 @@ const DiscussionDetailPage = () => {
           <div className="discussion-detail-header">
             <div className="discussion-header-top">
               <div className="discussion-track">{TRACKS.find(track => track.id === discussion.track).name}</div>
-              <div className={`discussion-status ${status}`}>{label}</div>
+              <div 
+                className="discussion-status" 
+                style={{
+                  background: stateStyle[status].background,
+                  color: stateStyle[status].color
+                }}>{label}</div>
             </div>
             <div className="discussion-title-row">
               <h1>{discussion.title}</h1>

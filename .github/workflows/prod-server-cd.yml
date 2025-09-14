@@ -5,6 +5,7 @@ on:
     workflows: [ "Prod Server CI" ]
     types: [ completed ]
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   deploy:

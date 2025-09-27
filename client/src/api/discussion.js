@@ -151,3 +151,56 @@ export async function fetchScrapDiscussions({ lastCursorId, size = 10 } = {}) {
     size: res.data.data.size
   };
 }
+
+// 댓글 관련 API 함수들
+
+/**
+ * 토론의 댓글 목록을 불러온다.
+ * @param {number} discussionId - 토론 ID
+ * @returns {Promise<Array>} 댓글 목록 (계층 구조)
+ */
+export async function getComments(discussionId) {
+  const res = await api.get(`/discussions/${discussionId}/comments`);
+  return res.data.data.discussionComments;
+}
+
+/**
+ * 댓글을 작성한다.
+ * @param {Object} params
+ * @param {string} params.content - 댓글 내용
+ * @param {number} params.discussionId - 토론 ID
+ * @param {number|null} params.parentDiscussionCommentId - 부모 댓글 ID (대댓글인 경우)
+ * @returns {Promise<Object>} 생성된 댓글 정보
+ */
+export async function createComment({ content, discussionId, parentDiscussionCommentId = null }) {
+  const res = await api.post('/discussions/comments', {
+    content,
+    discussionId,
+    parentDiscussionCommentId
+  });
+  return res.data;
+}
+
+/**
+ * 댓글을 수정한다.
+ * @param {number} commentId - 댓글 ID
+ * @param {Object} params
+ * @param {string} params.content - 수정할 내용
+ * @returns {Promise<Object>} 수정 결과
+ */
+export async function updateComment(commentId, { content }) {
+  const res = await api.patch(`/discussions/comments/${commentId}`, {
+    content
+  });
+  return res.data;
+}
+
+/**
+ * 댓글을 삭제한다.
+ * @param {number} commentId - 댓글 ID
+ * @returns {Promise<Object>} 삭제 결과
+ */
+export async function deleteComment(commentId) {
+  const res = await api.delete(`/discussions/comments/${commentId}`);
+  return res.data;
+}

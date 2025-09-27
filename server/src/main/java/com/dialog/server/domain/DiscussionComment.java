@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,6 +60,16 @@ public class DiscussionComment extends BaseEntity {
         this.author = author;
         this.parentDiscussionComment = parentDiscussionComment;
     }
+
+    public boolean hasParent() {
+        return parentDiscussionComment != null;
+    }
+
+    public boolean isNotAuthor(Long userId) {
+        return !Objects.equals(author.getId(), userId);
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
-
-

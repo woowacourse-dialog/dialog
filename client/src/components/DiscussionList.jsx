@@ -34,10 +34,10 @@ const DiscussionList = ({
           place={item.place}
           startAt={item.startAt}
           endAt={item.endAt}
-          views={item.viewCount}
           title={item.title}
           summary={item.summary}
           profileImage={item.profileImage}
+          commentCount={item.commentCount || 0}
         />
       ))}
       {hasMore && (

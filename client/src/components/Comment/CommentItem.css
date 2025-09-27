@@ -1,0 +1,257 @@
+.comment-item {
+  margin-bottom: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-reply {
+  margin-left: 32px;
+  margin-top: 16px;
+  padding-left: 16px;
+  border-left: 2px solid #e0e0e0;
+}
+
+.comment-content {
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-name {
+  font-weight: 600;
+  color: #303e4f;
+  font-size: 14px;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: #8e8e93;
+  margin-left: 8px;
+}
+
+.comment-modified {
+  font-size: 12px;
+  color: #8e8e93;
+  margin-left: 4px;
+}
+
+.comment-owner-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.comment-footer {
+  margin-top: 8px;
+}
+
+.reply-button {
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.reply-button:hover:not(:disabled) {
+  color: #303e4f;
+  text-decoration: underline;
+}
+
+.reply-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-button {
+  color: #656d76 !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  transition: text-decoration 0.2s ease !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
+}
+
+.edit-button:hover:not(:disabled) {
+  text-decoration: underline !important;
+  background: none !important;
+  color: #656d76 !important;
+}
+
+.delete-button {
+  color: #d1242f !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  transition: text-decoration 0.2s ease !important;
+  text-decoration: none !important;
+  font-weight: normal !important;
+}
+
+.delete-button:hover:not(:disabled) {
+  text-decoration: underline !important;
+  background: none !important;
+  color: #d1242f !important;
+}
+
+.edit-button:disabled,
+.delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-button-separator {
+  color: #656d76;
+  margin: 0 4px;
+}
+
+.comment-body {
+  margin-bottom: 8px;
+}
+
+.comment-text {
+  color: #24292f;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.comment-text h1,
+.comment-text h2,
+.comment-text h3,
+.comment-text h4,
+.comment-text h5,
+.comment-text h6 {
+  margin: 16px 0 8px 0;
+  color: #24292f;
+  font-weight: 600;
+}
+
+.comment-text p {
+  margin: 8px 0;
+}
+
+.comment-text pre {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+.comment-text code {
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 85%;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  color: #1f2328;
+}
+
+.comment-text blockquote {
+  border-left: 4px solid #d0d7de;
+  margin: 16px 0;
+  padding: 0 16px;
+  color: #656d76;
+}
+
+.comment-text ul,
+.comment-text ol {
+  margin: 16px 0;
+  padding-left: 32px;
+}
+
+.comment-text li {
+  margin: 4px 0;
+}
+
+.comment-text strong {
+  font-weight: 600;
+}
+
+.comment-text em {
+  font-style: italic;
+}
+
+.reply-form {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.comment-replies {
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .comment-reply {
+    margin-left: 20px;
+    padding-left: 12px;
+  }
+
+  .author-avatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .author-name {
+    font-size: 13px;
+  }
+
+  .comment-date,
+  .comment-modified {
+    font-size: 11px;
+  }
+
+  .comment-owner-actions {
+    font-size: 11px;
+  }
+
+  .edit-button,
+  .delete-button,
+  .reply-button {
+    font-size: 11px;
+  }
+
+  .comment-text {
+    font-size: 13px;
+  }
+
+  .reply-form {
+    padding: 12px;
+  }
+}

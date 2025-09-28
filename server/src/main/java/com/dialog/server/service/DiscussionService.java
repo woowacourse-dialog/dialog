@@ -16,6 +16,7 @@ import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
@@ -48,6 +49,7 @@ public class DiscussionService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final DiscussionCommentRepository discussionCommentRepository;
 
     @Transactional
     public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
@@ -294,11 +296,13 @@ public class DiscussionService {
         }
 
         Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
+        Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
         List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
                 .map(discussion -> DiscussionPreviewResponse.from(
                                 discussion,
-                                userProfileImageMap.get(discussion.getAuthor())
+                                userProfileImageMap.get(discussion.getAuthor()),
+                                commentCountMap.getOrDefault(discussion.getId(), 0L)
                         )
                 )
                 .toList();
@@ -311,6 +315,15 @@ public class DiscussionService {
         List<ProfileImage> discussionAuthorProfileImages = profileImageRepository.findAllByUserIn(discussionAuthors);
         return discussionAuthorProfileImages.stream()
                 .collect(Collectors.toMap(ProfileImage::getUser, Function.identity()));
+    }
+
+    private Map<Long, Long> getDiscussionCommentCounts(List<Discussion> discussions) {
+        List<Long> discussionIds = discussions.stream().map(Discussion::getId).toList();
+        return discussionIds.stream()
+                .collect(Collectors.toMap(
+                    Function.identity(),
+                    discussionCommentRepository::countByDiscussionId
+                ));
     }
 
     private void participantDiscussion(User author, Discussion discussion) {

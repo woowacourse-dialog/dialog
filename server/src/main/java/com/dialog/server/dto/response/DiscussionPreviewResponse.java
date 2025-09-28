@@ -21,10 +21,11 @@ public record DiscussionPreviewResponse(
         int maxParticipantCount,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
-        int viewCount
+        int viewCount,
+        long commentCount
 ) {
 
-    public static DiscussionPreviewResponse from(Discussion discussion, ProfileImage profileImage) {
+    public static DiscussionPreviewResponse from(Discussion discussion, ProfileImage profileImage, long commentCount) {
         return new DiscussionPreviewResponse(
                 discussion.getId(),
                 discussion.getTitle(),
@@ -38,7 +39,8 @@ public record DiscussionPreviewResponse(
                 discussion.getMaxParticipantCount(),
                 discussion.getCreatedAt(),
                 discussion.getModifiedAt(),
-                discussion.getViewCount()
+                discussion.getViewCount(),
+                commentCount
         );
     }
 

@@ -88,7 +88,20 @@
 
 .participantInfo {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+.commentInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.commentCount {
   font-size: 14px;
   color: #666;
 }
@@ -143,6 +156,14 @@
     gap: 16px;
     font-size: 13px;
   }
+
+  .commentInfo {
+    gap: 3px;
+  }
+
+  .commentCount {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -190,6 +211,14 @@
   }
 
   .participantInfo {
+    font-size: 12px;
+  }
+
+  .commentInfo {
+    gap: 2px;
+  }
+
+  .commentCount {
     font-size: 12px;
   }
 }
@@ -250,5 +279,13 @@
   .participantInfo {
     font-size: 13px;
     gap: 20px;
+  }
+
+  .commentInfo {
+    gap: 4px;
+  }
+
+  .commentCount {
+    font-size: 13px;
   }
 }

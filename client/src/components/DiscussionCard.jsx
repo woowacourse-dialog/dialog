@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import dialogIcon from '../assets/dialog_icon.png';
+import commentIcon from '../assets/comment-icon.svg';
 import styles from './DiscussionCard.module.css';
 
 const TRACKS = [
@@ -29,10 +30,10 @@ export default function DiscussionCard({
   place,
   startAt,
   endAt,
-  views,
   title,
   summary,
-  profileImage
+  profileImage,
+  commentCount = 0
 }) {
   const navigate = useNavigate();
   
@@ -113,6 +114,10 @@ export default function DiscussionCard({
       </div>
       <div className={styles.participantInfo}>
         <span>참여: {participants} / {maxParticipants}명</span>
+        <span className={styles.commentInfo}>
+          <img src={commentIcon} alt="댓글" width="14" height="14" style={{ color: '#666' }} />
+          <span className={styles.commentCount}>{commentCount}</span>
+        </span>
       </div>
     </div>
   );

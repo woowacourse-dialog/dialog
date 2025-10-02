@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
+import CommentList from '../../../components/Comment/CommentList';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
 
@@ -315,31 +316,32 @@ const DiscussionDetailPage = () => {
           <div className="discussion-join-section">
             {isAuthor ? (
               <div className="author-actions">
-                <button 
-                  className="edit-button" 
+                <button
+                  className="edit-button"
                   onClick={handleEdit}
                 >
                   수정
                 </button>
-                <button 
-                  className="delete-button" 
+                <button
+                  className="delete-button"
                   onClick={handleDelete}
                 >
                   삭제
                 </button>
               </div>
             ) : (
-              <button 
-                className="join-button" 
+              <button
+                className="join-button"
                 onClick={handleJoin}
                 disabled={joining || discussion.participantCount >= discussion.maxParticipantCount}
               >
-                {joining ? '참여 중...' : 
-                 discussion.participantCount >= discussion.maxParticipantCount ? '인원 마감' : 
+                {joining ? '참여 중...' :
+                 discussion.participantCount >= discussion.maxParticipantCount ? '인원 마감' :
                  '참여하기'}
               </button>
             )}
           </div>
+          <CommentList discussionId={id} />
         </div>
       </div>
     </div>

@@ -1,0 +1,107 @@
+.comments-section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.comments-header {
+  margin-bottom: 20px;
+}
+
+.comments-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303e4f;
+  margin: 0;
+}
+
+.comment-form-section {
+  margin-bottom: 24px;
+}
+
+.login-required {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid #e9ecef;
+}
+
+.comments-list {
+  margin-top: 16px;
+}
+
+.comments-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.comments-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #dc3545;
+  font-size: 14px;
+}
+
+.retry-button {
+  margin-top: 16px;
+  padding: 5px 16px;
+  background: #1f883d;
+  color: white;
+  border: 1px solid #1f883d;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  height: 32px;
+  transition: background-color 0.15s ease;
+}
+
+.retry-button:hover {
+  background: #1a7f37;
+  border-color: #1a7f37;
+}
+
+.no-comments {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .comments-section {
+    margin-top: 32px;
+    padding-top: 20px;
+  }
+
+  .comments-header h3 {
+    font-size: 16px;
+  }
+
+  .comment-form-section {
+    margin-bottom: 20px;
+  }
+
+  .no-comments {
+    padding: 32px 16px;
+    font-size: 13px;
+  }
+
+  .comments-loading,
+  .comments-error {
+    padding: 32px 16px;
+    font-size: 13px;
+  }
+
+  .login-required {
+    padding: 12px;
+    font-size: 13px;
+  }
+}

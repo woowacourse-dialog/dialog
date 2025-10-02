@@ -51,6 +51,10 @@ public enum ErrorCode {
     PROFILE_IMAGE_NOT_FOUND("5051", "프로필 이미지를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
     CONFLICT_PROFILE_IMAGE("5052", "프로필 이미지가 이미 존재합니다.", HttpStatus.CONFLICT),
     FAILED_SAVE_IMAGE("5053", "이미지 저장에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    COMMENT_NOT_FOUND("5060", "댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    REPLY_DEPTH_EXCEEDED("5061", "답글에 답글을 달 수 없습니다.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACCESS("5062", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     ;
 
     public final String code;

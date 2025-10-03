@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import MarkdownRender from '../Markdown/MarkdownRender';
 import './MarkdownEditor.css';
 
 const MarkdownEditor = ({ value, onChange, placeholder }) => {
@@ -56,30 +53,7 @@ function hello() {
           />
         ) : (
           <div className="markdown-preview">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                code({node, inline, className, children, ...props}) {
-                  const match = /language-(\w+)/.exec(className || '');
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
-                      {children}
-                    </code>
-                  );
-                }
-              }}
-            >
-              {value || '내용을 입력해주세요.'}
-            </ReactMarkdown>
+            <MarkdownRender content={value || '내용을 입력해주세요.'} />
           </div>
         )}
       </div>

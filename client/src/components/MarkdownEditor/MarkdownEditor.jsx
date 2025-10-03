@@ -203,11 +203,6 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
     });
   }, [replaceSelection, value]);
 
-  const applyHeading = useCallback((level) => {
-    const hashes = '#'.repeat(level) + ' ';
-    insertAtLineStart(hashes);
-  }, [insertAtLineStart]);
-
   const applyUnorderedList = useCallback(() => insertAtLineStart('- '), [insertAtLineStart]);
   const applyOrderedList = useCallback(() => insertAtLineStart('1. '), [insertAtLineStart]);
   const applyBlockquote = useCallback(() => insertAtLineStart('> '), [insertAtLineStart]);

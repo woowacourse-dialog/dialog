@@ -81,7 +81,7 @@ const CommentList = ({ discussionId }) => {
   return (
     <div className="comments-section">
       <div className="comments-header">
-        <h3>댓글 {comments.length}개</h3>
+        <h3>댓글 {comments.reduce((total, comment) => total + 1 + ((comment.childComments && comment.childComments.length) || 0), 0)}개</h3>
       </div>
 
       {me && (

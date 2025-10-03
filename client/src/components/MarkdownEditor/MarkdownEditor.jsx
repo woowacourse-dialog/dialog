@@ -13,6 +13,7 @@ import iconQuote from '../../assets/markdown/indent.svg';
 const MarkdownEditor = ({ value, onChange, placeholder }) => {
   const [mode, setMode] = useState('write'); // 'write' | 'preview' | 'split'
   const textareaRef = useRef(null);
+  const isComposingRef = useRef(false);
 
   const defaultPlaceholder = `마크다운 형식으로 내용을 작성해주세요.`;
 
@@ -230,6 +231,10 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
 
     // Smart list handling
     if (e.key === 'Enter') {
+      // Avoid interfering with IME (Korean/Japanese/Chinese) composition enter
+      if (e.isComposing || isComposingRef.current) {
+        return;
+      }
       const textarea = textareaRef.current;
       if (!textarea) return;
       const pos = textarea.selectionStart;
@@ -388,6 +393,8 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
             ref={textareaRef}
             value={value}
             onKeyDown={handleKeyDown}
+            onCompositionStart={() => { isComposingRef.current = true; }}
+            onCompositionEnd={() => { isComposingRef.current = false; }}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder || defaultPlaceholder}
             className="markdown-input"

@@ -76,6 +76,33 @@
 .markdown-preview ol {
   padding-left: 1.5rem;
   margin-bottom: 1rem;
+  list-style-position: outside;
+}
+
+/* Reset override: show bullets/numbers in preview */
+.markdown-preview ul {
+  list-style: disc;
+}
+
+.markdown-preview ol {
+  list-style: decimal;
+}
+
+/* Nested list types */
+.markdown-preview ul ul {
+  list-style: circle;
+}
+
+.markdown-preview ul ul ul {
+  list-style: square;
+}
+
+.markdown-preview ol ol {
+  list-style: lower-alpha;
+}
+
+.markdown-preview ol ol ol {
+  list-style: lower-roman;
 }
 
 .markdown-preview li {

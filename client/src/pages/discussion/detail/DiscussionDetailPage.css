@@ -285,11 +285,38 @@
 .discussion-detail-content ol {
   margin: 1rem 0;
   padding-left: 1.5rem;
+  list-style-position: outside;
 }
 
 .discussion-detail-content li {
   margin: 0.5rem 0;
   line-height: 1.6;
+}
+
+/* Reset override: ensure list markers show in rendered content */
+.discussion-detail-content ul {
+  list-style: disc;
+}
+
+.discussion-detail-content ol {
+  list-style: decimal;
+}
+
+/* Nested list styles for readability */
+.discussion-detail-content ul ul {
+  list-style: circle;
+}
+
+.discussion-detail-content ul ul ul {
+  list-style: square;
+}
+
+.discussion-detail-content ol ol {
+  list-style: lower-alpha;
+}
+
+.discussion-detail-content ol ol ol {
+  list-style: lower-roman;
 }
 
 .discussion-detail-content code {

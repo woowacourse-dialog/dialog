@@ -35,6 +35,23 @@
   box-shadow: inset 1px 0 0 0 #ddd !important;
 }
 
+/* Ensure list markers appear in UIW preview (override global reset) */
+.markdown-editor-uiw .wmde-markdown ul,
+.markdown-editor-uiw .wmde-markdown ol {
+  margin: 1rem 0 !important;
+  padding-left: 1.5rem !important;
+  list-style-position: outside !important;
+}
+
+.markdown-editor-uiw .wmde-markdown ul { list-style: disc !important; }
+.markdown-editor-uiw .wmde-markdown ol { list-style: decimal !important; }
+
+/* Nested list styles for clarity */
+.markdown-editor-uiw .wmde-markdown ul ul { list-style: circle !important; }
+.markdown-editor-uiw .wmde-markdown ul ul ul { list-style: square !important; }
+.markdown-editor-uiw .wmde-markdown ol ol { list-style: lower-alpha !important; }
+.markdown-editor-uiw .wmde-markdown ol ol ol { list-style: lower-roman !important; }
+
 /* 다크 모드 지원 */
 [data-color-mode="dark"] .markdown-editor-uiw .w-md-editor-toolbar {
   background-color: #1e1e1e !important;

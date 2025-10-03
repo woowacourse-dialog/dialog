@@ -191,11 +191,22 @@
 .comment-text ol {
   margin: 16px 0;
   padding-left: 32px;
+  list-style-position: outside;
 }
 
 .comment-text li {
   margin: 4px 0;
 }
+
+/* Ensure markers appear despite global reset */
+.comment-text ul { list-style: disc; }
+.comment-text ol { list-style: decimal; }
+
+/* Nested list styles */
+.comment-text ul ul { list-style: circle; }
+.comment-text ul ul ul { list-style: square; }
+.comment-text ol ol { list-style: lower-alpha; }
+.comment-text ol ol ol { list-style: lower-roman; }
 
 .comment-text strong {
   font-weight: 600;

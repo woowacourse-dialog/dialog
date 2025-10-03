@@ -88,3 +88,7 @@
   font-weight: 600;
 }
 
+.markdown-content a {
+  color: #0969da;
+  text-decoration: underline;
+}

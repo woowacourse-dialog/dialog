@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
-import MarkdownEditorUiw from '../../../components/MarkdownEditor/MarkdownEditorUiw';
+import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 import Header from '../../../components/Header/Header';
 import { createDiscussion } from '../../../api/discussion';
 import { userApi } from '../../../api/userApi';
@@ -181,7 +181,7 @@ const DiscussionCreateFormPage = () => {
             </div>
 
             <div className="form-group">
-              <MarkdownEditorUiw value={content} onChange={setContent} />
+              <MarkdownEditor value={content} onChange={setContent} />
             </div>
 
             <div className="discussion-form-actions">

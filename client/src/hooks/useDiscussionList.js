@@ -65,7 +65,7 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
 
   // 추가 데이터 로드
   const loadMore = useCallback(async () => {
-    if (!hasMore || isFetchingMore || loading) return;
+    if (!hasMore || isFetchingMore || loading || !cursor) return;
     setIsFetchingMore(true);
     try {
       let result;
@@ -115,5 +115,6 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     isFetchingMore,
     loadMore,
     reset,
+    hasFetched: hasFetched.current,
   };
 } 

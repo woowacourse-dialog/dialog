@@ -117,4 +117,4 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     reset,
     hasFetched: hasFetched.current,
   };
-} 
+}

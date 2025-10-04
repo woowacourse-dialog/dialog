@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../create/DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
-import MarkdownEditorUiw from '../../../components/MarkdownEditor/MarkdownEditorUiw';
+import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 import Header from '../../../components/Header/Header';
 import { findDiscussionById, updateDiscussion } from '../../../api/discussion';
 
@@ -174,7 +174,7 @@ const DiscussionEditFormPage = () => {
             </div>
 
             <div className="form-group">
-              <MarkdownEditorUiw value={content} onChange={setContent} />
+              <MarkdownEditor value={content} onChange={setContent} />
             </div>
 
             <div className="discussion-form-actions">

@@ -6,10 +6,13 @@
 
 .editor-header {
   border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .editor-tab {
-  padding: 0.8rem 1.5rem;
+  padding: 0.6rem 1.0rem;
   background: none;
   border: none;
   border-right: 1px solid #ddd;
@@ -24,22 +27,47 @@
 }
 
 .editor-tab.active {
-  background-color: #fff;
-  color: var(--primary-color);
+  background-color: #303e4f;
+  color: #ffffff;
   font-weight: 600;
-  border-bottom: 2px solid var(--primary-color);
-  margin-bottom: -1px;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+.toolbar-btn {
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.toolbar-btn:hover {
+  background: #f6f8fa;
+}
+
+.toolbar-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .markdown-input {
   width: 100%;
-  min-height: 300px;
+  min-height: var(--md-editor-min-height, 300px);
+  max-height: var(--md-editor-max-height, none);
   padding: 1rem;
   border: none;
   resize: vertical;
   font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   font-size: 0.9rem;
   line-height: 1.6;
+  overflow-y: auto;
 }
 
 .markdown-input:focus {
@@ -48,8 +76,21 @@
 
 .markdown-preview {
   padding: 1rem;
-  min-height: 300px;
+  min-height: var(--md-editor-min-height, 300px);
+  max-height: var(--md-editor-max-height, none);
   line-height: 1.6;
+  overflow-y: auto;
+}
+
+.editor-content.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.editor-tabs {
+  display: flex;
+  padding: 4px 8px;
 }
 
 /* 마크다운 스타일 */
@@ -76,6 +117,33 @@
 .markdown-preview ol {
   padding-left: 1.5rem;
   margin-bottom: 1rem;
+  list-style-position: outside;
+}
+
+/* Reset override: show bullets/numbers in preview */
+.markdown-preview ul {
+  list-style: disc;
+}
+
+.markdown-preview ol {
+  list-style: decimal;
+}
+
+/* Nested list types */
+.markdown-preview ul ul {
+  list-style: circle;
+}
+
+.markdown-preview ul ul ul {
+  list-style: square;
+}
+
+.markdown-preview ol ol {
+  list-style: lower-alpha;
+}
+
+.markdown-preview ol ol ol {
+  list-style: lower-roman;
 }
 
 .markdown-preview li {
@@ -155,14 +223,14 @@
   }
 
   .markdown-input {
-    min-height: 250px;
+    min-height: var(--md-editor-min-height, 250px);
     padding: 0.8rem;
     font-size: 16px; /* iOS 줌 방지 */
   }
 
   .markdown-preview {
     padding: 0.8rem;
-    min-height: 250px;
+    min-height: var(--md-editor-min-height, 250px);
   }
 
   .markdown-preview h1 {
@@ -199,14 +267,14 @@
   }
 
   .markdown-input {
-    min-height: 200px;
+    min-height: var(--md-editor-min-height, 200px);
     padding: 0.6rem;
     font-size: 16px;
   }
 
   .markdown-preview {
     padding: 0.6rem;
-    min-height: 200px;
+    min-height: var(--md-editor-min-height, 200px);
   }
 
   .markdown-preview h1 {

@@ -8,138 +8,13 @@
 }
 
 .comment-form-content .markdown-editor {
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  background: #ffffff;
-  overflow: hidden;
-  transition: border-color 0.2s ease;
-}
-
-.comment-form-content .markdown-editor:focus-within {
-  border-color: #0969da;
-  outline: 2px solid rgba(9, 105, 218, 0.3);
-  outline-offset: -1px;
-}
-
-.comment-form-content .markdown-editor .editor-header {
-  background: #f6f8fa;
-  border-bottom: 1px solid #d0d7de;
-  padding: 8px 12px;
-}
-
-.comment-form-content .markdown-editor .editor-tab {
-  padding: 4px 8px;
-  font-size: 12px;
-  border: none;
-  background: transparent;
-  color: #656d76;
-  cursor: pointer;
-  border-radius: 4px;
-  margin-right: 4px;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.comment-form-content .markdown-editor .editor-tab:hover {
-  background: #f3f4f6;
-  color: #24292f;
-}
-
-.comment-form-content .markdown-editor .editor-tab.active {
-  background: #0969da;
-  color: white;
-}
-
-.comment-form-content .markdown-editor .editor-content {
-  border-radius: 0;
+  --md-editor-min-height: 96px;
+  --md-editor-max-height: 500px;
 }
 
 .comment-form-content .markdown-editor .markdown-input {
-  width: 100%;
-  min-height: 96px;
-  max-height: 500px;
-  padding: 12px;
-  border: none;
-  resize: vertical;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  padding: 12px;  
   font-size: 14px;
-  line-height: 1.5;
-  outline: none;
-  background: #ffffff;
-  color: #24292f;
-  box-sizing: border-box;
-}
-
-.comment-form-content .markdown-editor .markdown-input::placeholder {
-  color: #656d76;
-}
-
-.comment-form-content .markdown-editor .markdown-preview {
-  min-height: 96px;
-  padding: 12px;
-  background: #ffffff;
-  color: #24292f;
-  font-size: 14px;
-  line-height: 1.5;
-  border: none;
-}
-
-.comment-form-content .markdown-editor .markdown-preview h1,
-.comment-form-content .markdown-editor .markdown-preview h2,
-.comment-form-content .markdown-editor .markdown-preview h3,
-.comment-form-content .markdown-editor .markdown-preview h4,
-.comment-form-content .markdown-editor .markdown-preview h5,
-.comment-form-content .markdown-editor .markdown-preview h6 {
-  margin: 16px 0 8px 0;
-  color: #24292f;
-  font-weight: 600;
-}
-
-.comment-form-content .markdown-editor .markdown-preview p {
-  margin: 8px 0;
-}
-
-.comment-form-content .markdown-editor .markdown-preview pre {
-  background: #f6f8fa;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  padding: 16px;
-  overflow-x: auto;
-  font-size: 13px;
-  margin: 12px 0;
-}
-
-.comment-form-content .markdown-editor .markdown-preview code {
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-size: 85%;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-  color: #1f2328;
-}
-
-.comment-form-content .markdown-editor .markdown-preview blockquote {
-  border-left: 4px solid #d0d7de;
-  margin: 16px 0;
-  padding: 0 16px;
-  color: #656d76;
-}
-
-.comment-form-content .markdown-editor .markdown-preview ul,
-.comment-form-content .markdown-editor .markdown-preview ol {
-  margin: 16px 0;
-  padding-left: 32px;
-}
-
-.comment-form-content .markdown-editor .markdown-preview li {
-  margin: 4px 0;
-}
-
-.comment-form-content .markdown-editor .markdown-preview strong {
-  font-weight: 600;
-}
-
-.comment-form-content .markdown-editor .markdown-preview em {
-  font-style: italic;
 }
 
 .comment-form-actions {
@@ -198,13 +73,13 @@
 
 @media (max-width: 768px) {
   .comment-form-content .markdown-editor .markdown-input {
-    min-height: 80px;
+    /* inherit via CSS var */
     padding: 12px;
     font-size: 16px;
   }
 
   .comment-form-content .markdown-editor .markdown-preview {
-    min-height: 80px;
+    /* inherit via CSS var */
     padding: 12px;
     font-size: 16px;
   }

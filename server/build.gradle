@@ -24,24 +24,21 @@ repositories {
     maven { url 'https://repo.spring.io/milestone' }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:1.0.0-M1"
-    }
-}
-
 dependencies {
+    // Spring AI - 안정적인 마일스톤 버전 사용
+    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-M4")
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
-    implementation 'org.springframework.ai:spring-ai-google-gemini-spring-boot-starter'
+    implementation 'org.springframework.ai:spring-ai-vertex-ai-gemini-spring-boot-starter'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.google.firebase:firebase-admin:9.5.0'
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     implementation 'com.querydsl:querydsl-core:5.0.0'
     implementation 'software.amazon.awssdk:s3:2.31.68'
-
 
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'

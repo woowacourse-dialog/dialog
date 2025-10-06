@@ -11,9 +11,9 @@ import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
 import com.dialog.server.dto.response.DiscussionDetailResponse;
@@ -86,7 +86,7 @@ class DiscussionServiceTest {
         User savedUser = userRepository.save(createUser());
         profileImageRepository.save(createProfileImage(savedUser));
         DiscussionCreateResponse response = saveDiscussion(savedUser);
-        DiscussionUpdateRequest request = new DiscussionUpdateRequest(
+        OfflineDiscussionUpdateRequest request = new OfflineDiscussionUpdateRequest(
                 "modified title",
                 "test content",
                 LocalDateTime.now(),
@@ -112,7 +112,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            DiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     "테스트 내용입니다",
                     LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15),
@@ -643,7 +643,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            DiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     i % 2 == 0 ? "홀수" : "짝수",
                     LocalDateTime.now().plusHours(1),
@@ -665,7 +665,7 @@ class DiscussionServiceTest {
         }
     }
 
-    private DiscussionCreateRequest createDiscussionRequest(
+    private OfflineDiscussionCreateRequest createDiscussionRequest(
             String title,
             String content,
             LocalDateTime startAt,
@@ -674,7 +674,7 @@ class DiscussionServiceTest {
             int maxParticipantCount,
             Category category,
             String summary) {
-        return new DiscussionCreateRequest(
+        return new OfflineDiscussionCreateRequest(
                 title,
                 content,
                 startAt,
@@ -686,7 +686,7 @@ class DiscussionServiceTest {
         );
     }
 
-    private List<DiscussionCreateRequest> createDiscussionsRequestWithParameters(
+    private List<OfflineDiscussionCreateRequest> createDiscussionsRequestWithParameters(
             int amount,
             String titlePrefix,
             String content,
@@ -698,7 +698,7 @@ class DiscussionServiceTest {
             String summary
     ) {
         return IntStream.range(0, amount)
-                .mapToObj(i -> new DiscussionCreateRequest(
+                .mapToObj(i -> new OfflineDiscussionCreateRequest(
                         titlePrefix + (i + 1),
                         content,
                         startTime,
@@ -738,7 +738,7 @@ class DiscussionServiceTest {
     }
 
     private DiscussionCreateResponse saveDiscussion(User savedUser) {
-        List<DiscussionCreateRequest> request = createDiscussionsRequestWithParameters(
+        List<OfflineDiscussionCreateRequest> request = createDiscussionsRequestWithParameters(
                 1,
                 "modified title",
                 "test content",

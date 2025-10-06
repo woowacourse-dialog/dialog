@@ -4,11 +4,12 @@ import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -52,9 +53,9 @@ public class DiscussionService {
     private final DiscussionCommentRepository discussionCommentRepository;
 
     @Transactional
-    public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
+    public DiscussionCreateResponse createDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
         User author = getUser(userId);
-        Discussion discussion = request.toDiscussion(author);
+        Discussion discussion = request.toOfflineDiscussion(author);
         try {
             Discussion savedDiscussion = discussionRepository.save(discussion);
             participantDiscussion(author, discussion);
@@ -65,19 +66,24 @@ public class DiscussionService {
     }
 
     @Transactional
-    public void updateDiscussion(Long discussionId, DiscussionUpdateRequest request) {
+    public void updateDiscussion(Long discussionId, OfflineDiscussionUpdateRequest request) {
         Discussion savedDiscussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-        savedDiscussion.update(
-                request.title(),
-                request.content(),
-                request.startAt(),
-                request.endAt(),
-                request.place(),
-                request.maxParticipantCount(),
-                request.category(),
-                request.summary()
-        );
+
+        if (savedDiscussion instanceof OfflineDiscussion offlineDiscussion) {
+            offlineDiscussion.update(
+                    request.title(),
+                    request.content(),
+                    request.category(),
+                    request.summary(),
+                    request.startAt(),
+                    request.endAt(),
+                    request.place(),
+                    request.maxParticipantCount()
+            );
+        } else {
+            throw new DialogException(ErrorCode.BAD_REQUEST); // TODO: 예외 수정
+        }
     }
 
     @Transactional(readOnly = true)
@@ -331,7 +337,7 @@ public class DiscussionService {
                 .participant(author)
                 .discussion(discussion)
                 .build();
-        discussion.participate(LocalDateTime.now(), discussionParticipant);
+        ((OfflineDiscussion) discussion).participate(LocalDateTime.now(), discussionParticipant);
         discussionParticipantRepository.save(discussionParticipant);
     }
 }

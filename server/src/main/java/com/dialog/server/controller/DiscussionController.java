@@ -3,9 +3,9 @@ package com.dialog.server.controller;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.dto.auth.AuthenticatedUserId;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -39,7 +39,7 @@ public class DiscussionController {
 
     @PostMapping
     public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(
-            @RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
+            @RequestBody @Valid OfflineDiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
         DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
         notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
@@ -92,7 +92,7 @@ public class DiscussionController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id,
-                                                                     @Valid @RequestBody DiscussionUpdateRequest request) {
+                                                                     @Valid @RequestBody OfflineDiscussionUpdateRequest request) {
         discussionService.updateDiscussion(id, request);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }

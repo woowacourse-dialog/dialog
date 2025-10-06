@@ -16,7 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
@@ -49,7 +48,7 @@ public abstract class Discussion extends BaseEntity {
     protected String summary;
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    protected User author;
     private LocalDateTime deletedAt;
 
     protected Discussion(

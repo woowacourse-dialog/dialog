@@ -31,11 +31,11 @@ public class DiscussionParticipantService {
                 .discussion(discussion)
                 .build();
 
-        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
-            offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
-        } else {
+        if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
             throw new DialogException(ErrorCode.BAD_REQUEST);
         }
+        offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
+        System.out.println("offlineDiscussion.getParticipantCount() = " + offlineDiscussion.getParticipantCount());
 
         discussionParticipantRepository.save(discussionParticipant);
     }

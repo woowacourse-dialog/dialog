@@ -5,6 +5,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -49,6 +50,7 @@ class DiscussionParticipantServiceConcurrencyTest {
     @BeforeEach
     void beforeEach() {
         discussionParticipantRepository.deleteAll();
+        jdbcTemplate.execute("delete from offline_discussions");
         jdbcTemplate.execute("delete from discussions");
         userRepository.deleteAll();
     }
@@ -62,7 +64,7 @@ class DiscussionParticipantServiceConcurrencyTest {
                 createUser("email5@gmail.com"), createUser("email6@gmail.com")
         );
         userRepository.saveAll(users);
-        Discussion discussion = createDiscussion(createUser("admin@admin.com"),
+        Discussion discussion = createOfflineDiscussion(createUser("admin@admin.com"),
                 6,
                 0,
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15)
@@ -101,7 +103,7 @@ class DiscussionParticipantServiceConcurrencyTest {
                 createUser("email5@gmail.com"), createUser("email6@gmail.com")
         );
         userRepository.saveAll(users);
-        Discussion discussion = createDiscussion(createUser("admin@admin.com"),
+        Discussion discussion = createOfflineDiscussion(createUser("admin@admin.com"),
                 5,
                 0,
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15)
@@ -153,11 +155,11 @@ class DiscussionParticipantServiceConcurrencyTest {
         return userRepository.save(user);
     }
 
-    private Discussion createDiscussion(User user,
+    private OfflineDiscussion createOfflineDiscussion(User user,
                                         int maxParticipantCount,
                                         int participantCount,
                                         LocalDateTime startAt) {
-        Discussion discussion = Discussion.builder()
+        Discussion discussion = OfflineDiscussion.builder()
                 .author(user)
                 .category(Category.ANDROID)
                 .content("content")
@@ -167,9 +169,8 @@ class DiscussionParticipantServiceConcurrencyTest {
                 .maxParticipantCount(maxParticipantCount)
                 .participantCount(participantCount)
                 .place("place")
-                .viewCount(3)
                 .summary("summary")
                 .build();
-        return discussionRepository.save(discussion);
+        return (OfflineDiscussion) discussionRepository.save(discussion);
     }
 }

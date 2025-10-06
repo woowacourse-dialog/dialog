@@ -33,8 +33,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
@@ -55,8 +55,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             int limit) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
@@ -76,8 +76,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
@@ -100,8 +100,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             int limit) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
@@ -122,8 +122,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         nicknameContains(nickname),
@@ -146,8 +146,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             int limit) {
 
         return queryFactory.selectFrom(discussion)
-                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
-                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         nicknameContains(nickname),
@@ -187,10 +187,9 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
 
         BooleanExpression condition = null;
         LocalDateTime now = LocalDateTime.now();
-        LocalDate today = now.toLocalDate();
 
         for (DiscussionStatus status : statuses) {
-            BooleanExpression statusCondition = createStatusCondition(status, now, today);
+            BooleanExpression statusCondition = createStatusCondition(status, now);
             condition = condition == null ? statusCondition : condition.or(statusCondition);
         }
 
@@ -199,34 +198,41 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
 
     private BooleanExpression createStatusCondition(
             DiscussionStatus status,
-            LocalDateTime now,
-            LocalDate today) {
+            final LocalDateTime now) {
+
+        BooleanExpression onlineCondition = onlineDiscussion.id.isNotNull().and(
+                switch (status) {
+                    case IN_DISCUSSION -> onlineDiscussion.endDate.gt(LocalDate.from(now));
+
+                    case DISCUSSION_COMPLETE -> onlineDiscussion.endDate.loe(LocalDate.from(now));
+
+                    case RECRUITING, RECRUIT_COMPLETE -> null;
+                }
+        );
+
+        BooleanExpression recruitingCondition = offlineDiscussion.startAt.gt(now)
+                .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
+
+        BooleanExpression recruitCompleteCondition = offlineDiscussion.startAt.gt(now)
+                .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
+
+        BooleanExpression inDiscussionCondition = offlineDiscussion.startAt.loe(now)
+                .and(offlineDiscussion.endAt.goe(now));
+
+        BooleanExpression discussionCompleteCondition = offlineDiscussion.endAt.lt(now);
+
+        BooleanExpression offlineCondition = offlineDiscussion.id.isNotNull().and(
+                switch (status) {
+                    case RECRUITING -> recruitingCondition;
+                    case RECRUIT_COMPLETE -> recruitCompleteCondition;
+                    case IN_DISCUSSION -> inDiscussionCondition;
+                    case DISCUSSION_COMPLETE -> discussionCompleteCondition;
+                }
+        );
 
         return switch (status) {
-            case RECRUITING -> offlineDiscussion.isNotNull()
-                    .and(offlineDiscussion.startAt.gt(now))
-                    .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
-
-            case RECRUIT_COMPLETE -> offlineDiscussion.isNotNull()
-                    .and(offlineDiscussion.startAt.gt(now))
-                    .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
-
-            case IN_DISCUSSION ->
-                // Offline: 시작 <= 현재 < 종료
-                    offlineDiscussion.isNotNull()
-                            .and(offlineDiscussion.startAt.loe(now))
-                            .and(offlineDiscussion.endAt.gt(now))
-                            // Online: 현재 <= 종료일
-                            .or(onlineDiscussion.isNotNull()
-                                    .and(onlineDiscussion.endDate.goe(today)));
-
-            case DISCUSSION_COMPLETE ->
-                // Offline: 종료 < 현재
-                    offlineDiscussion.isNotNull()
-                            .and(offlineDiscussion.endAt.lt(now))
-                            // Online: 종료일 < 현재
-                            .or(onlineDiscussion.isNotNull()
-                                    .and(onlineDiscussion.endDate.lt(today)));
+            case RECRUITING, RECRUIT_COMPLETE -> offlineCondition;
+            case IN_DISCUSSION, DISCUSSION_COMPLETE -> onlineCondition.or(offlineCondition);
         };
     }
 

@@ -44,6 +44,32 @@ public class OfflineDiscussion extends Discussion {
     @OneToMany(mappedBy = "discussion")
     private final List<DiscussionParticipant> discussionParticipants = new ArrayList<>();
 
+    public static Discussion withNoValidateOf(
+            String title,
+            String content,
+            Category category,
+            String summary,
+            User author,
+            LocalDateTime startAt,
+            LocalDateTime endAt,
+            String place,
+            int maxParticipantCount,
+            int participantCount
+    ) {
+        OfflineDiscussion offlineDiscussion = new OfflineDiscussion();
+        offlineDiscussion.title = title;
+        offlineDiscussion.content = content;
+        offlineDiscussion.category = category;
+        offlineDiscussion.summary = summary;
+        offlineDiscussion.author = author;
+        offlineDiscussion.startAt = startAt;
+        offlineDiscussion.endAt = endAt;
+        offlineDiscussion.place = place;
+        offlineDiscussion.maxParticipantCount = maxParticipantCount;
+        offlineDiscussion.participantCount = participantCount;
+        return offlineDiscussion;
+    }
+
     @Builder
     private OfflineDiscussion(
             String title,
@@ -54,14 +80,15 @@ public class OfflineDiscussion extends Discussion {
             LocalDateTime startAt,
             LocalDateTime endAt,
             String place,
-            int maxParticipantCount
+            int maxParticipantCount,
+            int participantCount
     ) {
         super(title, content, category, summary, author);
         this.startAt = startAt;
         this.endAt = endAt;
         this.place = place;
         this.maxParticipantCount = maxParticipantCount;
-        this.participantCount = 0;
+        this.participantCount = participantCount;
         validateOfflineDiscussion();
     }
 

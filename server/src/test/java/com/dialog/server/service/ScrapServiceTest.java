@@ -8,10 +8,11 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
-import com.dialog.server.dto.response.DiscussionPreviewResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -50,7 +51,7 @@ class ScrapServiceTest {
     void 사용자는_토론에_북마크를_할_수_있다() {
         //given
         User user = createUser("email@email.com");
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
 
         //when
         scrapService.create(user.getId(), discussion.getId());
@@ -65,7 +66,7 @@ class ScrapServiceTest {
     void 북마크를_할떄_사용자가_이미_북마크가_되어있다면_예외가_발생한다() {
         //given
         User user = createUser("email@email.com");
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
         createScrap(user, discussion);
 
         //when
@@ -78,7 +79,7 @@ class ScrapServiceTest {
     void 사용자는_토론에_대해_북마크를_취소할_수_있다() {
         //given
         User user = createUser("email@email.com");
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
         Scrap scrap = createScrap(user, discussion);
 
         //when
@@ -93,7 +94,7 @@ class ScrapServiceTest {
     void 북마크를_삭제할떄_사용자가_북마크가_되어있지_않다면_예외가_발생한다() {
         //given
         User user = createUser("email@email.com");
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
 
         //when
         assertThatThrownBy(() -> scrapService.delete(user.getId(), discussion.getId()))
@@ -115,11 +116,11 @@ class ScrapServiceTest {
         User user1 = createUser("email1@email.com");
         User user2 = createUser("email2@email.com");
 
-        Discussion discussion1 = createDiscussion(user1);
-        Discussion discussion2 = createDiscussion(user1);
-        createDiscussion(user1);
-        Discussion discussion4 = createDiscussion(user1);
-        Discussion discussion5 = createDiscussion(user1);
+        Discussion discussion1 = createOfflineDiscussion(user1);
+        Discussion discussion2 = createOfflineDiscussion(user1);
+        createOfflineDiscussion(user1);
+        Discussion discussion4 = createOfflineDiscussion(user1);
+        Discussion discussion5 = createOfflineDiscussion(user1);
 
         createScrap(user2, discussion1);
         Scrap scrap2 = createScrap(user2, discussion2);
@@ -127,9 +128,9 @@ class ScrapServiceTest {
         createScrap(user2, discussion5);
 
         //when
-        ScrapCursorPageResponse<DiscussionPreviewResponse> result1 = scrapService.getScrapedDiscussions(
+        ScrapCursorPageResponse<DiscussionPreviewResponseV2> result1 = scrapService.getScrapedDiscussions(
                 new ScrapCursorPageRequest(null, 2), user2.getId());
-        ScrapCursorPageResponse<DiscussionPreviewResponse> result2 = scrapService.getScrapedDiscussions(
+        ScrapCursorPageResponse<DiscussionPreviewResponseV2> result2 = scrapService.getScrapedDiscussions(
                 new ScrapCursorPageRequest(result1.nextCursorId(), 2), user2.getId());
 
         //then
@@ -147,8 +148,8 @@ class ScrapServiceTest {
         });
     }
 
-    private Discussion createDiscussion(User user) {
-        Discussion discussion = Discussion.builder()
+    private OfflineDiscussion createOfflineDiscussion(User user) {
+        Discussion discussion = OfflineDiscussion.builder()
                 .author(user)
                 .category(Category.ANDROID)
                 .content("content")
@@ -158,10 +159,9 @@ class ScrapServiceTest {
                 .maxParticipantCount(3)
                 .participantCount(3)
                 .place("place")
-                .viewCount(3)
                 .summary("summary")
                 .build();
-        return discussionRepository.save(discussion);
+        return (OfflineDiscussion) discussionRepository.save(discussion);
     }
 
     private Scrap createScrap(User user, Discussion discussion) {

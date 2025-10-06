@@ -6,6 +6,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
@@ -50,7 +51,7 @@ class DiscussionParticipantServiceTest {
         //given
         User user = createUser("email");
 
-        Discussion discussion = createDiscussion(user, 3, 0, LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(15));
+        OfflineDiscussion discussion = createOfflineDiscussion(user, 3, 0, LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15,0)).plusMinutes(15));
 
         //when
         discussionParticipantService.participate(user.getId(), discussion.getId());
@@ -73,11 +74,11 @@ class DiscussionParticipantServiceTest {
         return userRepository.save(user);
     }
 
-    private Discussion createDiscussion(User user,
+    private OfflineDiscussion createOfflineDiscussion(User user,
                                         int maxParticipantCount,
                                         int participantCount,
                                         LocalDateTime startAt) {
-        Discussion discussion = Discussion.builder()
+        Discussion discussion = OfflineDiscussion.builder()
                 .author(user)
                 .category(Category.ANDROID)
                 .content("content")
@@ -87,9 +88,8 @@ class DiscussionParticipantServiceTest {
                 .maxParticipantCount(maxParticipantCount)
                 .participantCount(participantCount)
                 .place("place")
-                .viewCount(3)
                 .summary("summary")
                 .build();
-        return discussionRepository.save(discussion);
+        return (OfflineDiscussion) discussionRepository.save(discussion);
     }
 }

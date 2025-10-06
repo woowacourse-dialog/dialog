@@ -6,6 +6,8 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
 import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -49,12 +51,33 @@ public class DiscussionController {
                 .body(new ApiSuccessResponse<>(response));
     }
 
+    @PostMapping("/online")
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postOfflineDiscussion(
+            @RequestBody @Valid OnlineDiscussionCreateRequest request,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionCreateResponse response = discussionService.createOnlineDiscussion(request, userId);
+        final URI uri = URI.create("/api/discussions/" + response.discussionId());
+        notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
+        return ResponseEntity.created(uri)
+                .body(new ApiSuccessResponse<>(response));
+    }
+
     @PatchMapping("/offline/{id}")
     public ResponseEntity<ApiSuccessResponse<Void>> updateOfflineDiscussion(
             @PathVariable Long id,
             @Valid @RequestBody OfflineDiscussionUpdateRequest request
     ) {
         discussionService.updateOfflineDiscussion(id, request);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
+    }
+
+    @PatchMapping("/online/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateOnlineDiscussion(
+            @PathVariable Long id,
+            @Valid @RequestBody OnlineDiscussionUpdateRequest request
+    ) {
+        discussionService.updateOnlineDiscussion(id, request);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
 

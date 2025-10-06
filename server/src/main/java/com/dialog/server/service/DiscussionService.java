@@ -5,11 +5,14 @@ import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.OfflineDiscussion;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
 import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -23,6 +26,7 @@ import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +75,14 @@ public class DiscussionService {
         discussionParticipantRepository.save(discussionParticipant);
     }
 
+    public DiscussionCreateResponse createOnlineDiscussion(
+            final @Valid OnlineDiscussionCreateRequest request, final Long userId) {
+        User author = getUser(userId);
+        OnlineDiscussion onlineDiscussion = request.toOnlineDiscussion(author);
+        Discussion savedDiscussion = discussionRepository.save(onlineDiscussion);
+        return DiscussionCreateResponse.from(savedDiscussion);
+    }
+
     @Transactional
     public void updateOfflineDiscussion(Long discussionId, OfflineDiscussionUpdateRequest request) {
         Discussion savedDiscussion = discussionRepository.findById(discussionId)
@@ -88,6 +100,22 @@ public class DiscussionService {
                 request.endAt(),
                 request.place(),
                 request.maxParticipantCount()
+        );
+    }
+
+    @Transactional
+    public void updateOnlineDiscussion(Long discussionId, OnlineDiscussionUpdateRequest request) {
+        Discussion savedDiscussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+
+        if (!(savedDiscussion instanceof OnlineDiscussion onlineDiscussion)) {
+            throw new DialogException(ErrorCode.BAD_REQUEST);
+        }
+        onlineDiscussion.update(
+                request.title(),
+                request.content(),
+                request.category(),
+                request.endDate()
         );
     }
 

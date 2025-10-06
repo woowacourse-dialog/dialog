@@ -49,14 +49,12 @@ public class OnlineDiscussion extends Discussion {
             String title,
             String content,
             Category category,
-            String summary,
             LocalDate endDate
     ) {
         validateDiscussion(title, content);
         this.title = title;
         this.content = content;
         this.category = category;
-        this.summary = summary;
         this.endDate = endDate;
     }
 

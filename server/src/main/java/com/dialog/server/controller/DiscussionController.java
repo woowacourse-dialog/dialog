@@ -2,6 +2,7 @@ package com.dialog.server.controller;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
 import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
@@ -98,6 +99,7 @@ public class DiscussionController {
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsWithCursor(
             @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
+            @RequestParam(required = false) List<String> discussionTypes,
             @RequestParam(required = false) String cursor,
             @RequestParam int size
     ) {
@@ -105,6 +107,7 @@ public class DiscussionController {
         DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(discussionTypes),
                 request
         );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(pageDiscussions));
@@ -116,6 +119,7 @@ public class DiscussionController {
             @RequestParam String query,
             @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
+            @RequestParam(required = false) List<String> discussionTypes,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
@@ -124,6 +128,7 @@ public class DiscussionController {
                 query,
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(discussionTypes),
                 cursor,
                 size
         );

@@ -4,6 +4,7 @@ import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
@@ -158,6 +159,7 @@ public class DiscussionService {
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             DiscussionCursorPageRequest request
     ) {
         int pageSize = request.size();
@@ -167,7 +169,7 @@ public class DiscussionService {
 
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findWithFiltersPageable(
-                    categories, statuses,
+                    categories, statuses, discussionTypes,
                     PageRequest.of(
                             0,
                             pageSize + 1
@@ -181,6 +183,7 @@ public class DiscussionService {
             discussions = discussionRepository.findWithFiltersBeforeDateCursor(
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     pageSize + 1
@@ -196,6 +199,7 @@ public class DiscussionService {
             String query,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             String cursor,
             int size
     ) {
@@ -206,6 +210,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursor,
                     size
             );
@@ -213,6 +218,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursor,
                     size
             );
@@ -275,6 +281,7 @@ public class DiscussionService {
             String query,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             String cursor,
             int size
     ) {
@@ -284,6 +291,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     PageRequest.of(0, size + 1)
             );
         } else {
@@ -295,6 +303,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     size + 1
@@ -307,6 +316,7 @@ public class DiscussionService {
             String query,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<com.dialog.server.domain.DiscussionType> discussionTypes,
             String cursor,
             int size
     ) {
@@ -316,6 +326,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     PageRequest.of(0, size + 1)
             );
         } else {
@@ -327,6 +338,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     size + 1

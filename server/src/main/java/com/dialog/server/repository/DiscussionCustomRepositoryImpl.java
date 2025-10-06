@@ -3,6 +3,7 @@ package com.dialog.server.repository;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.domain.QDiscussion;
 import com.dialog.server.domain.QOfflineDiscussion;
 import com.dialog.server.domain.QOnlineDiscussion;
@@ -30,6 +31,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     public List<Discussion> findWithFiltersPageable(
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
@@ -38,7 +40,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                 .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
-                        statusIn(statuses)
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
@@ -50,6 +53,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     public List<Discussion> findWithFiltersBeforeDateCursor(
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             LocalDateTime cursor,
             Long id,
             int limit) {
@@ -61,6 +65,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                 .where(
                         categoryIn(categories),
                         statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
                         cursorBefore(cursor, id)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
@@ -73,6 +78,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             String keyword,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
@@ -82,7 +88,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
-                        statusIn(statuses)
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
@@ -95,6 +102,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             String keyword,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             LocalDateTime cursor,
             Long cursorId,
             int limit) {
@@ -107,6 +115,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                         titleOrContentContains(keyword),
                         categoryIn(categories),
                         statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
                         cursorBefore(cursor, cursorId)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
@@ -119,6 +128,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             String nickname,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             Pageable pageable) {
 
         return queryFactory.selectFrom(discussion)
@@ -128,7 +138,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                 .where(
                         nicknameContains(nickname),
                         categoryIn(categories),
-                        statusIn(statuses)
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
@@ -141,6 +152,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             String nickname,
             List<Category> categories,
             List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
             LocalDateTime cursor,
             Long cursorId,
             int limit) {
@@ -153,6 +165,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                         nicknameContains(nickname),
                         categoryIn(categories),
                         statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
                         cursorBefore(cursor, cursorId)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
@@ -242,6 +255,22 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
         }
         return discussion.createdAt.lt(cursor)
                 .or(discussion.createdAt.eq(cursor).and(discussion.id.lt(cursorId)));
+    }
+
+    private BooleanExpression discussionTypeIn(List<DiscussionType> discussionTypes) {
+        if (discussionTypes == null || discussionTypes.isEmpty()) {
+            return null;
+        }
+
+        BooleanExpression condition = null;
+        for (DiscussionType type : discussionTypes) {
+            BooleanExpression typeCondition = switch (type) {
+                case OFFLINE -> offlineDiscussion.id.isNotNull();
+                case ONLINE -> onlineDiscussion.id.isNotNull();
+            };
+            condition = condition == null ? typeCondition : condition.or(typeCondition);
+        }
+        return condition;
     }
 
     private boolean hasText(String text) {

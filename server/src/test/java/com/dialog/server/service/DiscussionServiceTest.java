@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
@@ -139,13 +140,13 @@ class DiscussionServiceTest {
         // 첫 번째 페이지 조회 (cursor 없음)
         DiscussionCursorPageRequest firstPageRequest = new DiscussionCursorPageRequest(null, pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> firstPage =
-                discussionService.getDiscussionsPage(null, null, firstPageRequest);
+                discussionService.getDiscussionsPage(null, null, null, firstPageRequest);
 
         // 다음 페이지 조회 (첫 페이지의 nextCursor 사용)
         DiscussionCursorPageRequest secondPageRequest =
                 new DiscussionCursorPageRequest(firstPage.nextCursor(), pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> secondPage =
-                discussionService.getDiscussionsPage(null, null, secondPageRequest);
+                discussionService.getDiscussionsPage(null, null, null, secondPageRequest);
 
         // then
         // 첫 번째 페이지 검증
@@ -189,7 +190,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
 
         // then
@@ -210,12 +211,12 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -236,15 +237,15 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, secondSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then
@@ -267,7 +268,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
 
         // then
@@ -288,12 +289,12 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -314,15 +315,15 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, secondSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then
@@ -374,12 +375,12 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                Category.fromValues(categories), null, new DiscussionCursorPageRequest(null, 10)
+                Category.fromValues(categories), null, null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(5),
+                () -> assertThat(result.content()).hasSize(7),
                 () -> assertThat(result.content()).allMatch(discussion ->
                         discussion.commonDiscussionInfo().category().equals(Category.BACKEND) ||
                                 discussion.commonDiscussionInfo().category().equals(Category.FRONTEND))
@@ -394,7 +395,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                null, DiscussionStatus.fromValues(statuses), new DiscussionCursorPageRequest(null, 10)
+                null, DiscussionStatus.fromValues(statuses), null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
@@ -418,6 +419,7 @@ class DiscussionServiceTest {
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                null,
                 new DiscussionCursorPageRequest(null, 10)
         );
 
@@ -440,12 +442,12 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트", Category.fromValues(categories), null, null, 10
+                TITLE_OR_CONTENT, "테스트", Category.fromValues(categories), null, null, null, 10
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(4),
+                () -> assertThat(result.content()).hasSize(7),
                 () -> assertThat(result.content()).allMatch(discussion ->
                         discussion.commonDiscussionInfo().category().equals(Category.BACKEND) ||
                                 discussion.commonDiscussionInfo().category().equals(Category.FRONTEND))
@@ -460,7 +462,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트", null, DiscussionStatus.fromValues(statuses), null, 10
+                TITLE_OR_CONTENT, "테스트", null, DiscussionStatus.fromValues(statuses), null, null, 10
         );
 
         // then
@@ -482,10 +484,13 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트",
+                TITLE_OR_CONTENT,
+                "테스트",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
-                null, 10
+                null,
+                null,
+                10
         );
 
         // then
@@ -500,6 +505,39 @@ class DiscussionServiceTest {
     }
 
     @Test
+    void 제목_또는_본문_검색_시_카테고리와_토론_상태_토론_종류_필터를_동시에_적용할_수_있다() {
+        // given
+        createFilterTestData();
+        List<String> categories = List.of("backend");
+        List<String> statuses = List.of("inDiscussion");
+        List<String> types = List.of("online");
+
+        // when
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT,
+                "테스트",
+                Category.fromValues(categories),
+                DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(types),
+                null,
+                10
+        );
+
+        // then
+        assertAll(
+                () -> assertThat(result.content()).hasSize(1),
+                () -> assertThat(result.content().getFirst().commonDiscussionInfo().category()).isEqualTo(Category.BACKEND),
+                () -> {
+                    Discussion entity = discussionRepository.findById(result.content().getFirst().id()).orElseThrow();
+                    assertThat(entity.getDiscussionStatus()).isEqualTo(DiscussionStatus.IN_DISCUSSION);
+                },
+                () -> assertThat(result.content()).allMatch(discussion ->
+                        discussion.onlineDiscussionInfo() != null && discussion.offlineDiscussionInfo() == null
+                )
+        );
+    }
+
+    @Test
     void 작성자_닉네임_검색_시_카테고리_필터를_적용할_수_있다() {
         // given
         createFilterTestData();
@@ -507,12 +545,12 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test", Category.fromValues(categories), null, null, 10
+                AUTHOR_NICKNAME, "test", Category.fromValues(categories), null, null, null, 10
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(2),
+                () -> assertThat(result.content()).hasSize(3),
                 () -> assertThat(result.content()).allMatch(discussion ->
                         discussion.commonDiscussionInfo().category().equals(Category.ANDROID) ||
                                 discussion.commonDiscussionInfo().category().equals(Category.COMMON))
@@ -527,7 +565,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test", null, DiscussionStatus.fromValues(statuses), null, 10
+                AUTHOR_NICKNAME, "test", null, DiscussionStatus.fromValues(statuses), null, null, 10
         );
 
         // then
@@ -549,10 +587,13 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test",
+                AUTHOR_NICKNAME,
+                "test",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
-                null, 10
+                null,
+                null,
+                10
         );
 
         // then
@@ -573,11 +614,11 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                null, null, new DiscussionCursorPageRequest(null, 10)
+                null, null, null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
-        assertThat(result.content()).hasSize(7);
+        assertThat(result.content()).hasSize(10);
     }
 
     private void createFilterTestData() {
@@ -620,13 +661,47 @@ class DiscussionServiceTest {
                 LocalDateTime.now().minusHours(3), LocalDateTime.now().minusHours(1), 4, 5
         ));
 
+        // ONLINE + BACKEND + IN_DISCUSSION
         discussionRepository.save(
                 OnlineDiscussion.builder()
-                        .title("title")
+                        .title("테스트")
                         .content("content")
                         .author(user2)
                         .category(Category.BACKEND)
                         .endDate(LocalDate.now().plusDays(3))
+                        .build()
+        );
+
+        // ONLINE + BACKEND + DISCUSSION_COMPLETE
+        discussionRepository.save(
+                OnlineDiscussion.builder()
+                        .title("테스트")
+                        .content("content")
+                        .author(user2)
+                        .category(Category.BACKEND)
+                        .endDate(LocalDate.now().minusDays(3))
+                        .build()
+        );
+
+        // ONLINE + FE + IN_DISCUSSION
+        discussionRepository.save(
+                OnlineDiscussion.builder()
+                        .title("테스트")
+                        .content("content")
+                        .author(user2)
+                        .category(Category.FRONTEND)
+                        .endDate(LocalDate.now().plusDays(3))
+                        .build()
+        );
+
+        // ONLINE + AN + DISCUSSION_COMPLETE
+        discussionRepository.save(
+                OnlineDiscussion.builder()
+                        .title("테스트")
+                        .content("content")
+                        .author(user2)
+                        .category(Category.ANDROID)
+                        .endDate(LocalDate.now().minusDays(3))
                         .build()
         );
     }

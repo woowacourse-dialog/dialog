@@ -10,205 +10,221 @@ VALUES (1, '김개발','BACKEND', true, NOW(), NOW(), false),
        (9, '차니','BACKEND', true, NOW(), NOW(), false)
 ;
 
--- 토론 완료 상태 (과거)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 토론 완료 상태 (과거)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (100, '모바일 UX 설계 전략', '이 주제에 대한 경험과 전략을 토론합니다.',
-        DATE_SUB(NOW(), INTERVAL 5 DAY),
+        'ANDROID', '모바일 UX 설계 전략에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 7 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (100, DATE_SUB(NOW(), INTERVAL 5 DAY),
         DATE_SUB(NOW(), INTERVAL 5 DAY) + INTERVAL 2 HOUR,
-        '구글 미트', 15, 3, 10, 'ANDROID', '모바일 UX 설계 전략에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 7 DAY),
-        NOW(), NULL);
+        '구글 미트', 3, 10);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (101, '대규모 트래픽 처리 전략', '각자의 관점을 공유해 주세요.',
-        DATE_SUB(NOW(), INTERVAL 3 DAY),
+        'BACKEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 5 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (101, DATE_SUB(NOW(), INTERVAL 3 DAY),
         DATE_SUB(NOW(), INTERVAL 3 DAY) + INTERVAL 3 HOUR,
-        '온라인 줌 미팅', 22, 5, 5, 'BACKEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 5 DAY),
-        NOW(), NULL);
+        '온라인 줌 미팅', 5, 5);
 
--- 토론 중 상태 (현재 진행중)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 토론 중 상태 (현재 진행중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (102, '모바일 UX 설계 전략', '각자의 관점을 공유해 주세요.',
-        DATE_SUB(NOW(), INTERVAL 1 HOUR),
+        'ANDROID', '모바일 UX 설계 전략에 대한 경험과 의견 공유', 2,
+        DATE_SUB(NOW(), INTERVAL 2 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (102, DATE_SUB(NOW(), INTERVAL 1 HOUR),
         DATE_ADD(NOW(), INTERVAL 1 HOUR),
-        '온라인 게더타운', 8, 2, 8, 'ANDROID', '모바일 UX 설계 전략에 대한 경험과 의견 공유', 2,
-        DATE_SUB(NOW(), INTERVAL 2 DAY),
-        NOW(), NULL);
+        '온라인 게더타운', 2, 8);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (103, '실시간 채팅 구현 전략', '각자의 관점을 공유해 주세요.',
-        DATE_SUB(NOW(), INTERVAL 30 MINUTE),
+        'ANDROID', '실시간 채팅 구현 전략에 대한 경험과 의견 공유', 1,
+        DATE_SUB(NOW(), INTERVAL 1 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (103, DATE_SUB(NOW(), INTERVAL 30 MINUTE),
         DATE_ADD(NOW(), INTERVAL 90 MINUTE),
-        '디스코드 채널', 12, 2, 8, 'ANDROID', '실시간 채팅 구현 전략에 대한 경험과 의견 공유', 1,
-        DATE_SUB(NOW(), INTERVAL 1 DAY),
-        NOW(), NULL);
+        '디스코드 채널', 2, 8);
 
--- 모집 완료 상태 (시작 전이지만 정원 마감)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 모집 완료 상태 (시작 전이지만 정원 마감)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (104, 'iOS와 Android 비교', '이 주제에 대한 경험과 전략을 토론합니다.',
-        DATE_ADD(NOW(), INTERVAL 2 HOUR),
+        'BACKEND', 'iOS와 Android 비교에 대한 경험과 의견 공유', 1,
+        DATE_SUB(NOW(), INTERVAL 3 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (104, DATE_ADD(NOW(), INTERVAL 2 HOUR),
         DATE_ADD(NOW(), INTERVAL 4 HOUR),
-        '카페 모임', 5, 9, 9, 'BACKEND', 'iOS와 Android 비교에 대한 경험과 의견 공유', 1,
-        DATE_SUB(NOW(), INTERVAL 3 DAY),
-        NOW(), NULL);
+        '카페 모임', 9, 9);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (105, 'CI/CD 구축 사례', '이 주제에 대한 경험과 전략을 토론합니다.',
-        DATE_ADD(NOW(), INTERVAL 6 HOUR),
+        'ANDROID', 'CI/CD 구축 사례에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 4 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (105, DATE_ADD(NOW(), INTERVAL 6 HOUR),
         DATE_ADD(NOW(), INTERVAL 8 HOUR),
-        '회사 회의실', 3, 5, 5, 'ANDROID', 'CI/CD 구축 사례에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 4 DAY),
-        NOW(), NULL);
+        '회사 회의실', 5, 5);
 
--- 모집 중 상태 (미래 시작, 정원 미달)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 모집 중 상태 (미래 시작, 정원 미달)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (106, 'AI 도구를 활용한 생산성 향상', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 1 DAY),
+        'FRONTEND', 'AI 도구를 활용한 생산성 향상에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 10 MINUTE), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (106, DATE_ADD(NOW(), INTERVAL 1 DAY),
         DATE_ADD(NOW(), INTERVAL 1 DAY) + INTERVAL 2 HOUR,
-        '구글 미트', 2, 2, 10, 'FRONTEND', 'AI 도구를 활용한 생산성 향상에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 10 MINUTE),
-        NOW(), NULL);
+        '구글 미트', 2, 10);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (107, 'GraphQL 활용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 2 DAY),
+        'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (107, DATE_ADD(NOW(), INTERVAL 2 DAY),
         DATE_ADD(NOW(), INTERVAL 2 DAY) + INTERVAL 3 HOUR,
-        '온라인 게더타운', 1, 2, 10, 'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 30 MINUTE),
-        NOW(), NULL);
+        '온라인 게더타운', 2, 10);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 온라인 토론 (토론 중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (108, '협업 툴의 선택 기준', '각자의 관점을 공유해 주세요.',
-        DATE_ADD(NOW(), INTERVAL 3 DAY),
-        DATE_ADD(NOW(), INTERVAL 3 DAY) + INTERVAL 2 HOUR,
-        '온라인 줌 미팅', 0, 1, 7, 'BACKEND', '협업 툴의 선택 기준에 대한 경험과 의견 공유', 1,
-        DATE_SUB(NOW(), INTERVAL 5 MINUTE),
-        NOW(), NULL);
+        'BACKEND', '협업 툴의 선택 기준에 대한 경험과 의견 공유', 1,
+        DATE_SUB(NOW(), INTERVAL 5 MINUTE), NOW(), NULL);
 
--- 추가 과거 토론들 (다양한 시점)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (108, DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY));
+
+-- 오프라인 토론들 (과거)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (109, '클린 아키텍처 적용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_SUB(NOW(), INTERVAL 10 DAY),
+        'BACKEND', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
+        DATE_SUB(NOW(), INTERVAL 12 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (109, DATE_SUB(NOW(), INTERVAL 10 DAY),
         DATE_SUB(NOW(), INTERVAL 10 DAY) + INTERVAL 2 HOUR,
-        '온라인 줌 미팅', 45, 6, 6, 'BACKEND', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
-        DATE_SUB(NOW(), INTERVAL 12 DAY),
-        NOW(), NULL);
+        '온라인 줌 미팅', 6, 6);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (110, '클린 아키텍처 적용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_SUB(NOW(), INTERVAL 15 DAY),
+        'ANDROID', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
+        DATE_SUB(NOW(), INTERVAL 18 DAY), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (110, DATE_SUB(NOW(), INTERVAL 15 DAY),
         DATE_SUB(NOW(), INTERVAL 15 DAY) + INTERVAL 3 HOUR,
-        '디스코드 채널', 67, 7, 7, 'ANDROID', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
-        DATE_SUB(NOW(), INTERVAL 18 DAY),
-        NOW(), NULL);
+        '디스코드 채널', 7, 7);
 
--- 미래 모집 중 토론들
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 미래 모집 중 토론들
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (111, 'iOS와 Android 비교', '이 주제에 대한 경험과 전략을 토론합니다.',
-        DATE_ADD(NOW(), INTERVAL 5 DAY),
+        'BACKEND', 'iOS와 Android 비교에 대한 경험과 의견 공유', 1,
+        DATE_SUB(NOW(), INTERVAL 2 HOUR), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (111, DATE_ADD(NOW(), INTERVAL 5 DAY),
         DATE_ADD(NOW(), INTERVAL 5 DAY) + INTERVAL 2 HOUR,
-        '온라인 게더타운', 0, 2, 9, 'BACKEND', 'iOS와 Android 비교에 대한 경험과 의견 공유', 1,
-        DATE_SUB(NOW(), INTERVAL 2 HOUR),
-        NOW(), NULL);
+        '온라인 게더타운', 2, 9);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 온라인 토론 (토론 중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (112, 'GraphQL 활용기', '개선 경험과 효과를 나눠주세요.',
-        DATE_ADD(NOW(), INTERVAL 7 DAY),
-        DATE_ADD(NOW(), INTERVAL 7 DAY) + INTERVAL 2 HOUR,
-        '온라인 줌 미팅', 0, 1, 9, 'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 1 HOUR),
-        NOW(), NULL);
+        'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 1 HOUR), NOW(), NULL);
 
--- 미래 모집 완료 상태
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (112, DATE_ADD(CURRENT_DATE, INTERVAL 2 DAY));
+
+-- 오프라인 미래 모집 완료 상태
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (113, '대규모 트래픽 처리 전략', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 4 DAY),
+        'BACKEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
+        DATE_SUB(NOW(), INTERVAL 3 HOUR), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (113, DATE_ADD(NOW(), INTERVAL 4 DAY),
         DATE_ADD(NOW(), INTERVAL 4 DAY) + INTERVAL 3 HOUR,
-        '온라인 게더타운', 1, 7, 7, 'BACKEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
-        DATE_SUB(NOW(), INTERVAL 3 HOUR),
-        NOW(), NULL);
+        '온라인 게더타운', 7, 7);
 
--- 최신 게시글들 (방금 등록)
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 오프라인 최신 게시글들 (방금 등록)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (114, 'GraphQL 활용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 8 DAY),
+        'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
+        NOW() - INTERVAL 5 MINUTE, NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (114, DATE_ADD(NOW(), INTERVAL 8 DAY),
         DATE_ADD(NOW(), INTERVAL 8 DAY) + INTERVAL 2 HOUR,
-        '카페 모임', 0, 3, 7, 'ANDROID', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
-        NOW() - INTERVAL 5 MINUTE,
-        NOW(), NULL);
+        '카페 모임', 3, 7);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 온라인 토론 (완료)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (115, '클린 아키텍처 적용기', '각자의 관점을 공유해 주세요.',
-        DATE_ADD(NOW(), INTERVAL 6 DAY),
-        DATE_ADD(NOW(), INTERVAL 6 DAY) + INTERVAL 2 HOUR,
-        '카페 모임', 0, 2, 7, 'ANDROID', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
-        NOW() - INTERVAL 2 MINUTE,
-        NOW(), NULL);
+        'ANDROID', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 2,
+        NOW() - INTERVAL 2 MINUTE, NOW(), NULL);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (115, DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY));
+
+-- 온라인 토론 (토론 중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (116, 'iOS와 Android 비교', '각자의 관점을 공유해 주세요.',
-        DATE_ADD(NOW(), INTERVAL 9 DAY),
-        DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 2 HOUR,
-        '구글 미트', 0, 2, 7, 'COMMON', 'iOS와 Android 비교에 대한 경험과 의견 공유', 3,
-        NOW() - INTERVAL 1 MINUTE,
-        NOW(), NULL);
+        'COMMON', 'iOS와 Android 비교에 대한 경험과 의견 공유', 3,
+        NOW() - INTERVAL 1 MINUTE, NOW(), NULL);
 
--- 가장 최신 게시글
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (116, DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY));
+
+-- 오프라인 가장 최신 게시글
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (117, 'GraphQL 활용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 10 DAY),
+        'FRONTEND', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
+        NOW(), NOW(), NULL);
+
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (117, DATE_ADD(NOW(), INTERVAL 10 DAY),
         DATE_ADD(NOW(), INTERVAL 10 DAY) + INTERVAL 3 HOUR,
-        '온라인 게더타운', 0, 3, 10, 'FRONTEND', 'GraphQL 활용기에 대한 경험과 의견 공유', 3,
-        NOW(),
-        NOW(), NULL);
+        '온라인 게더타운', 3, 10);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+-- 온라인 토론 (토론 중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (118, '클린 아키텍처 적용기', '실제 프로젝트에서의 사례 중심으로 이야기해봅시다.',
-        DATE_ADD(NOW(), INTERVAL 12 DAY),
-        DATE_ADD(NOW(), INTERVAL 12 DAY) + INTERVAL 2 HOUR,
-        '카페 모임', 0, 3, 8, 'COMMON', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 1,
-        NOW() + INTERVAL 30 SECOND,
-        NOW(), NULL);
+        'COMMON', '클린 아키텍처 적용기에 대한 경험과 의견 공유', 1,
+        NOW() + INTERVAL 30 SECOND, NOW(), NULL);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (118, DATE_ADD(CURRENT_DATE, INTERVAL 2 DAY));
+
+-- 온라인 토론 (토론 중)
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (119, '대규모 트래픽 처리 전략', '개선 경험과 효과를 나눠주세요.',
-        DATE_ADD(NOW(), INTERVAL 11 DAY),
-        DATE_ADD(NOW(), INTERVAL 11 DAY) + INTERVAL 2 HOUR,
-        '디스코드 채널', 0, 2, 8, 'FRONTEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
-        NOW() + INTERVAL 1 MINUTE,
-        NOW(), NULL);
+        'FRONTEND', '대규모 트래픽 처리 전략에 대한 경험과 의견 공유', 3,
+        NOW() + INTERVAL 1 MINUTE, NOW(), NULL);
 
-INSERT INTO discussions (discussion_id, title, content, start_at, end_at, place, view_count, participant_count,
-                         max_participant_count, category, summary, author_id, created_at, modified_at, deleted_at)
+INSERT INTO online_discussions (discussion_id, end_date)
+VALUES (119, DATE_ADD(CURRENT_DATE, INTERVAL 1 DAY));
+
+-- 오프라인 토론 중 상태
+INSERT INTO discussions (discussion_id, title, content, category, summary, author_id, created_at, modified_at, deleted_at)
 VALUES (120, '마이크로서비스 아키텍처 설계', '실제 도입 경험과 장단점을 공유해봅시다.',
-        DATE_SUB(NOW(), INTERVAL 45 MINUTE),
-        DATE_ADD(NOW(), INTERVAL 75 MINUTE),
-        '온라인 줌 미팅', 18, 4, 8, 'BACKEND', '마이크로서비스 아키텍처 설계에 대한 경험과 의견 공유', 2,
-        DATE_SUB(NOW(), INTERVAL 2 DAY),
-        NOW(), NULL);
+        'BACKEND', '마이크로서비스 아키텍처 설계에 대한 경험과 의견 공유', 2,
+        DATE_SUB(NOW(), INTERVAL 2 DAY), NOW(), NULL);
 
--- 참가자 데이터 (기존과 동일)
+INSERT INTO offline_discussions (discussion_id, start_at, end_at, place, participant_count, max_participant_count)
+VALUES (120, DATE_SUB(NOW(), INTERVAL 45 MINUTE),
+        DATE_ADD(NOW(), INTERVAL 75 MINUTE),
+        '온라인 줌 미팅', 4, 8);
+
+-- 참가자 데이터 (오프라인 토론만)
 INSERT INTO discussion_participants (discussion_id, participant_id, created_at, modified_at)
 VALUES (100, 1, NOW(), NOW()),
        (100, 2, NOW(), NOW()),
@@ -229,63 +245,40 @@ VALUES (100, 1, NOW(), NOW()),
        (106, 3, NOW(), NOW()),
        (107, 1, NOW(), NOW()),
        (107, 3, NOW(), NOW()),
-       (108, 1, NOW(), NOW()),
        (109, 2, NOW(), NOW()),
        (109, 3, NOW(), NOW()),
        (110, 2, NOW(), NOW()),
        (111, 1, NOW(), NOW()),
        (111, 3, NOW(), NOW()),
-       (112, 3, NOW(), NOW()),
        (113, 2, NOW(), NOW()),
        (113, 3, NOW(), NOW()),
        (114, 1, NOW(), NOW()),
        (114, 2, NOW(), NOW()),
        (114, 3, NOW(), NOW()),
-       (115, 2, NOW(), NOW()),
-       (115, 3, NOW(), NOW()),
-       (116, 1, NOW(), NOW()),
-       (116, 3, NOW(), NOW()),
        (117, 1, NOW(), NOW()),
        (117, 2, NOW(), NOW()),
        (117, 3, NOW(), NOW()),
-       (118, 1, NOW(), NOW()),
-       (118, 2, NOW(), NOW()),
-       (118, 3, NOW(), NOW()),
-       (119, 1, NOW(), NOW()),
-       (119, 2, NOW(), NOW()),
-       (119, 3, NOW(), NOW()),
-       (119, 4, NOW(), NOW()),
-       (119, 5, NOW(), NOW()),
-       (119, 6, NOW(), NOW()),
-       (119, 7, NOW(), NOW()),
-       (119, 8, NOW(), NOW()),
        (120, 1, NOW(), NOW()),
        (120, 3, NOW(), NOW()),
        (120, 4, NOW(), NOW())
        ;
 
--- participant_count 업데이트 (기존과 동일)
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 100;
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 101;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 102;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 103;
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 104;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 105;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 106;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 107;
-UPDATE discussions SET participant_count = 1 WHERE discussion_id = 108;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 109;
-UPDATE discussions SET participant_count = 1 WHERE discussion_id = 110;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 111;
-UPDATE discussions SET participant_count = 1 WHERE discussion_id = 112;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 113;
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 114;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 115;
-UPDATE discussions SET participant_count = 2 WHERE discussion_id = 116;
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 117;
-UPDATE discussions SET participant_count = 3 WHERE discussion_id = 118;
-UPDATE discussions SET participant_count = 8 WHERE discussion_id = 119;
-UPDATE discussions SET participant_count = 4 WHERE discussion_id = 120;
+-- participant_count 업데이트 (오프라인 토론만)
+UPDATE offline_discussions SET participant_count = 3 WHERE discussion_id = 100;
+UPDATE offline_discussions SET participant_count = 3 WHERE discussion_id = 101;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 102;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 103;
+UPDATE offline_discussions SET participant_count = 3 WHERE discussion_id = 104;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 105;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 106;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 107;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 109;
+UPDATE offline_discussions SET participant_count = 1 WHERE discussion_id = 110;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 111;
+UPDATE offline_discussions SET participant_count = 2 WHERE discussion_id = 113;
+UPDATE offline_discussions SET participant_count = 3 WHERE discussion_id = 114;
+UPDATE offline_discussions SET participant_count = 3 WHERE discussion_id = 117;
+UPDATE offline_discussions SET participant_count = 4 WHERE discussion_id = 120;
 
 -- 토론 댓글 데이터
 INSERT INTO discussion_comments (discussion_comment_id, content, discussion_id, author_id, parent_discussion_comment_id, created_at, modified_at, deleted_at)
@@ -324,53 +317,56 @@ VALUES
 -- 토론 107번 댓글 (GraphQL 활용기)
 (18, 'GraphQL의 N+1 문제는 어떻게 해결하셨나요?', 107, 6, NULL, DATE_ADD(NOW(), INTERVAL 1 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
 
--- 토론 108번 댓글 (협업 툴의 선택 기준) - 댓글 없음
+-- 토론 108번 댓글 (협업 툴의 선택 기준 - 온라인)
+(19, '협업 툴 선택 시 가장 중요한 기준이 무엇인가요?', 108, 2, NULL, NOW() - INTERVAL 4 MINUTE, NOW(), NULL),
+(20, '팀 규모와 워크플로우에 맞는 툴을 선택하는 것이 중요한 것 같아요.', 108, 3, 19, NOW() - INTERVAL 2 MINUTE, NOW(), NULL),
 
 -- 토론 109번 댓글 (클린 아키텍처 적용기)
-(19, '클린 아키텍처 도입 시 초기 비용이 높지 않았나요?', 109, 1, NULL, DATE_SUB(NOW(), INTERVAL 9 DAY), NOW(), NULL),
-(20, '초기에는 그렇죠. 하지만 장기적으로 보면 유지보수성이 크게 개선됩니다.', 109, 3, 19, DATE_SUB(NOW(), INTERVAL 9 DAY) + INTERVAL 2 HOUR, NOW(), NULL),
-(21, 'DDD와 함께 적용하면 더 효과적인 것 같아요.', 109, 6, NULL, DATE_SUB(NOW(), INTERVAL 9 DAY) + INTERVAL 4 HOUR, NOW(), NULL),
+(21, '클린 아키텍처 도입 시 초기 비용이 높지 않았나요?', 109, 1, NULL, DATE_SUB(NOW(), INTERVAL 9 DAY), NOW(), NULL),
+(22, '초기에는 그렇죠. 하지만 장기적으로 보면 유지보수성이 크게 개선됩니다.', 109, 3, 21, DATE_SUB(NOW(), INTERVAL 9 DAY) + INTERVAL 2 HOUR, NOW(), NULL),
+(23, 'DDD와 함께 적용하면 더 효과적인 것 같아요.', 109, 6, NULL, DATE_SUB(NOW(), INTERVAL 9 DAY) + INTERVAL 4 HOUR, NOW(), NULL),
 
 -- 토론 110번 댓글 (클린 아키텍처 적용기)
-(22, '헥사고날 아키텍처와 비교했을 때 어떤 차이가 있을까요?', 110, 4, NULL, DATE_SUB(NOW(), INTERVAL 14 DAY), NOW(), NULL),
-(23, '둘 다 의존성 역전을 중시하지만, 헥사고날이 포트와 어댑터 개념이 더 명확한 것 같아요.', 110, 8, 22, DATE_SUB(NOW(), INTERVAL 14 DAY) + INTERVAL 1 HOUR, NOW(), NULL),
-(24, '실제 프로젝트에서는 어떤 기준으로 선택하시나요?', 110, 5, NULL, DATE_SUB(NOW(), INTERVAL 14 DAY) + INTERVAL 3 HOUR, NOW(), NULL),
+(24, '헥사고날 아키텍처와 비교했을 때 어떤 차이가 있을까요?', 110, 4, NULL, DATE_SUB(NOW(), INTERVAL 14 DAY), NOW(), NULL),
+(25, '둘 다 의존성 역전을 중시하지만, 헥사고날이 포트와 어댑터 개념이 더 명확한 것 같아요.', 110, 8, 24, DATE_SUB(NOW(), INTERVAL 14 DAY) + INTERVAL 1 HOUR, NOW(), NULL),
+(26, '실제 프로젝트에서는 어떤 기준으로 선택하시나요?', 110, 5, NULL, DATE_SUB(NOW(), INTERVAL 14 DAY) + INTERVAL 3 HOUR, NOW(), NULL),
 
 -- 토론 111번 댓글 (iOS와 Android 비교)
-(25, '플랫폼별 사용자 경험의 차이점이 궁금합니다.', 111, 7, NULL, DATE_ADD(NOW(), INTERVAL 4 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
+(27, '플랫폼별 사용자 경험의 차이점이 궁금합니다.', 111, 7, NULL, DATE_ADD(NOW(), INTERVAL 4 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
 
--- 토론 112번 댓글 (GraphQL 활용기) - 댓글 없음
+-- 토론 112번 댓글 (GraphQL 활용기 - 온라인)
+(28, 'GraphQL 캐싱 전략은 어떻게 구현하셨나요?', 112, 5, NULL, NOW() - INTERVAL 30 MINUTE, NOW(), NULL),
 
 -- 토론 113번 댓글 (대규모 트래픽 처리 전략)
-(26, '마이크로서비스 환경에서의 트래픽 처리 전략은 어떻게 다른가요?', 113, 9, NULL, DATE_ADD(NOW(), INTERVAL 3 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
-(27, '서비스 메시와 API 게이트웨이의 역할이 중요해지죠.', 113, 1, 26, DATE_ADD(NOW(), INTERVAL 3 DAY) + INTERVAL 13 HOUR, NOW(), NULL),
+(29, '마이크로서비스 환경에서의 트래픽 처리 전략은 어떻게 다른가요?', 113, 9, NULL, DATE_ADD(NOW(), INTERVAL 3 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
+(30, '서비스 메시와 API 게이트웨이의 역할이 중요해지죠.', 113, 1, 29, DATE_ADD(NOW(), INTERVAL 3 DAY) + INTERVAL 13 HOUR, NOW(), NULL),
 
 -- 토론 114번 댓글 (GraphQL 활용기)
-(28, 'Apollo Client vs Relay 중 어떤 것을 선호하시나요?', 114, 2, NULL, DATE_ADD(NOW(), INTERVAL 7 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
-(29, 'Apollo Client가 러닝 커브가 낮아서 시작하기 좋은 것 같아요.', 114, 6, 28, DATE_ADD(NOW(), INTERVAL 7 DAY) + INTERVAL 7 HOUR, NOW(), NULL),
+(31, 'Apollo Client vs Relay 중 어떤 것을 선호하시나요?', 114, 2, NULL, DATE_ADD(NOW(), INTERVAL 7 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
+(32, 'Apollo Client가 러닝 커브가 낮아서 시작하기 좋은 것 같아요.', 114, 6, 31, DATE_ADD(NOW(), INTERVAL 7 DAY) + INTERVAL 7 HOUR, NOW(), NULL),
 
--- 토론 115번 댓글 (클린 아키텍처 적용기)
-(30, '테스트 코드 작성 시 클린 아키텍처의 장점이 확실히 드러나는 것 같아요.', 115, 4, NULL, DATE_ADD(NOW(), INTERVAL 5 DAY) + INTERVAL 12 HOUR, NOW(), NULL),
+-- 토론 115번 댓글 (클린 아키텍처 적용기 - 온라인)
+(33, '테스트 코드 작성 시 클린 아키텍처의 장점이 확실히 드러나는 것 같아요.', 115, 4, NULL, NOW() - INTERVAL 1 MINUTE, NOW(), NULL),
 
--- 토론 116번 댓글 (iOS와 Android 비교)
-(31, '크로스 플랫폼 개발 도구들(React Native, Flutter)에 대한 의견도 궁금합니다.', 116, 8, NULL, DATE_ADD(NOW(), INTERVAL 8 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
-(32, 'Flutter의 성능이 생각보다 좋더라고요. 개발 속도도 빠르고요.', 116, 3, 31, DATE_ADD(NOW(), INTERVAL 8 DAY) + INTERVAL 7 HOUR, NOW(), NULL),
+-- 토론 116번 댓글 (iOS와 Android 비교 - 온라인)
+(34, '크로스 플랫폼 개발 도구들(React Native, Flutter)에 대한 의견도 궁금합니다.', 116, 8, NULL, NOW() - INTERVAL 30 SECOND, NOW(), NULL),
+(35, 'Flutter의 성능이 생각보다 좋더라고요. 개발 속도도 빠르고요.', 116, 3, 34, NOW() - INTERVAL 10 SECOND, NOW(), NULL),
 
 -- 토론 117번 댓글 (GraphQL 활용기)
-(33, 'GraphQL 스키마 버전 관리는 어떻게 하고 계신가요?', 117, 5, NULL, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
-(34, '스키마 설계 시 확장성을 미리 고려하는 것이 중요한 것 같아요.', 117, 7, 33, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 8 HOUR, NOW(), NULL),
-(35, 'GraphQL Federation 사용 경험이 있으신가요?', 117, 1, NULL, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 10 HOUR, NOW(), NULL),
+(36, 'GraphQL 스키마 버전 관리는 어떻게 하고 계신가요?', 117, 5, NULL, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
+(37, '스키마 설계 시 확장성을 미리 고려하는 것이 중요한 것 같아요.', 117, 7, 36, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 8 HOUR, NOW(), NULL),
+(38, 'GraphQL Federation 사용 경험이 있으신가요?', 117, 1, NULL, DATE_ADD(NOW(), INTERVAL 9 DAY) + INTERVAL 10 HOUR, NOW(), NULL),
 
--- 토론 118번 댓글 (클린 아키텍처 적용기)
-(36, '레거시 코드를 클린 아키텍처로 리팩토링하는 전략이 있나요?', 118, 9, NULL, DATE_ADD(NOW(), INTERVAL 11 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
-(37, '점진적으로 경계를 만들어가면서 리팩토링하는 것이 안전한 것 같아요.', 118, 2, 36, DATE_ADD(NOW(), INTERVAL 11 DAY) + INTERVAL 8 HOUR, NOW(), NULL),
+-- 토론 118번 댓글 (클린 아키텍처 적용기 - 온라인)
+(39, '레거시 코드를 클린 아키텍처로 리팩토링하는 전략이 있나요?', 118, 9, NULL, NOW() + INTERVAL 1 HOUR, NOW(), NULL),
+(40, '점진적으로 경계를 만들어가면서 리팩토링하는 것이 안전한 것 같아요.', 118, 2, 39, NOW() + INTERVAL 2 HOUR, NOW(), NULL),
 
--- 토론 119번 댓글 (대규모 트래픽 처리 전략)
-(38, '실시간 모니터링 도구는 어떤 것을 사용하시나요?', 119, 6, NULL, DATE_ADD(NOW(), INTERVAL 10 DAY) + INTERVAL 6 HOUR, NOW(), NULL),
-(39, 'Prometheus + Grafana 조합을 많이 사용하는 것 같아요.', 119, 4, 38, DATE_ADD(NOW(), INTERVAL 10 DAY) + INTERVAL 8 HOUR, NOW(), NULL),
-(40, 'ELK 스택도 로그 분석에 유용하죠.', 119, 8, NULL, DATE_ADD(NOW(), INTERVAL 10 DAY) + INTERVAL 10 HOUR, NOW(), NULL),
+-- 토론 119번 댓글 (대규모 트래픽 처리 전략 - 온라인)
+(41, '실시간 모니터링 도구는 어떤 것을 사용하시나요?', 119, 6, NULL, NOW() + INTERVAL 2 MINUTE, NOW(), NULL),
+(42, 'Prometheus + Grafana 조합을 많이 사용하는 것 같아요.', 119, 4, 41, NOW() + INTERVAL 3 MINUTE, NOW(), NULL),
+(43, 'ELK 스택도 로그 분석에 유용하죠.', 119, 8, NULL, NOW() + INTERVAL 4 MINUTE, NOW(), NULL),
 
 -- 토론 120번 댓글 (마이크로서비스 아키텍처 설계)
-(41, '서비스 간 통신에서 동기 vs 비동기 중 어떤 것을 선호하시나요?', 120, 5, NULL, DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW(), NULL),
-(42, '비즈니스 로직에 따라 다르지만, 가능하면 비동기 통신을 선호합니다. 시스템의 복원력이 높아져요.', 120, 3, 41, DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW(), NULL),
-(43, '이벤트 소싱 패턴도 고려해볼 만하네요.', 120, 7, NULL, DATE_SUB(NOW(), INTERVAL 10 MINUTE), NOW(), NULL);
+(44, '서비스 간 통신에서 동기 vs 비동기 중 어떤 것을 선호하시나요?', 120, 5, NULL, DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW(), NULL),
+(45, '비즈니스 로직에 따라 다르지만, 가능하면 비동기 통신을 선호합니다. 시스템의 복원력이 높아져요.', 120, 3, 44, DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW(), NULL),
+(46, '이벤트 소싱 패턴도 고려해볼 만하네요.', 120, 7, NULL, DATE_SUB(NOW(), INTERVAL 10 MINUTE), NOW(), NULL);

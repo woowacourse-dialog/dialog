@@ -11,8 +11,8 @@ import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
-import com.dialog.server.dto.response.DiscussionDetailResponse;
-import com.dialog.server.dto.response.DiscussionPreviewResponse;
+import com.dialog.server.dto.response.DiscussionDetailResponseV2;
+import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.DiscussionService;
 import com.dialog.server.service.NotificationService;
@@ -88,21 +88,21 @@ public class DiscussionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<DiscussionDetailResponse>> getDiscussion(@PathVariable Long id) {
+    public ResponseEntity<ApiSuccessResponse<DiscussionDetailResponseV2>> getDiscussion(@PathVariable Long id) {
         // todo 토론 상세 페이지에서 작성자가 누구인지 알려주는 응답 생성
-        DiscussionDetailResponse response = discussionService.getDiscussionById(id);
+        DiscussionDetailResponseV2 response = discussionService.getDiscussionById(id);
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(response));
     }
 
     @GetMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsWithCursor(
+    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponseV2>>> getDiscussionsWithCursor(
             @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
             @RequestParam(required = false) String cursor,
             @RequestParam int size
     ) {
         DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
-        DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
+        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> pageDiscussions = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
                 request
@@ -111,7 +111,7 @@ public class DiscussionController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> searchDiscussions(
+    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponseV2>>> searchDiscussions(
             @RequestParam int searchBy,
             @RequestParam String query,
             @RequestParam(required = false) List<String> categories,
@@ -119,7 +119,7 @@ public class DiscussionController {
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
                 SearchType.fromValue(searchBy),
                 query,
                 Category.fromValues(categories),
@@ -131,13 +131,13 @@ public class DiscussionController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsByLoginUser(
+    public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponseV2>>> getDiscussionsByLoginUser(
             @RequestParam(required = false) String cursor,
             @RequestParam int size,
             @AuthenticatedUserId Long userId
     ) {
         DiscussionCursorPageRequest request = new DiscussionCursorPageRequest(cursor, size);
-        DiscussionCursorPageResponse<DiscussionPreviewResponse> discussionCursorPageResponse = discussionService.getDiscussionByAuthorId(
+        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> discussionCursorPageResponse = discussionService.getDiscussionByAuthorId(
                 request, userId
         );
         return ResponseEntity.ok(new ApiSuccessResponse<>(discussionCursorPageResponse));

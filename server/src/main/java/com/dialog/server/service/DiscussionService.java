@@ -16,8 +16,8 @@ import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
-import com.dialog.server.dto.response.DiscussionDetailResponse;
-import com.dialog.server.dto.response.DiscussionPreviewResponse;
+import com.dialog.server.dto.response.DiscussionDetailResponseV2;
+import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
@@ -130,30 +130,44 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionDetailResponse getDiscussionById(Long discussionId) {
+    public DiscussionDetailResponseV2 getDiscussionById(Long discussionId) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
         User author = discussion.getAuthor();
         ProfileImage profileImage = profileImageRepository.findByUser(author).orElse(null);
-        List<DiscussionParticipant> discussionParticipants = discussionParticipantRepository.findByDiscussion(
-                discussion
-        );
         long likeCount = likeRepository.countByDiscussion(discussion);
-        return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants, profileImage);
+
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return DiscussionDetailResponseV2.fromOfflineDiscussion(
+                    offlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+            return DiscussionDetailResponseV2.fromOnlineDiscussion(
+                    onlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        }
+
+        throw new DialogException(ErrorCode.BAD_REQUEST);
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
+    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
-            DiscussionCursorPageRequest request) {
+            DiscussionCursorPageRequest request
+    ) {
         int pageSize = request.size();
         String cursor = request.cursor();
 
         List<Discussion> discussions;
 
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findWithFiltersPageable(categories, statuses,
+            discussions = discussionRepository.findWithFiltersPageable(
+                    categories, statuses,
                     PageRequest.of(
                             0,
                             pageSize + 1
@@ -177,12 +191,14 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussionWithFilters(SearchType searchType,
-                                                                                               String query,
-                                                                                               List<Category> categories,
-                                                                                               List<DiscussionStatus> statuses,
-                                                                                               String cursor,
-                                                                                               int size) {
+    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searchDiscussionWithFilters(
+            SearchType searchType,
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            String cursor,
+            int size
+    ) {
         validatePageSize(size);
         List<Discussion> discussions;
         switch (searchType) {
@@ -206,9 +222,10 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionByAuthorId(
+    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> getDiscussionByAuthorId(
             DiscussionCursorPageRequest request,
-            Long authorId) {
+            Long authorId
+    ) {
         int pageSize = request.size();
         String cursor = request.cursor();
 
@@ -219,7 +236,7 @@ public class DiscussionService {
         return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
     }
 
-    private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(
+    private DiscussionCursorPageResponse<DiscussionPreviewResponseV2> createCursorBasedDiscussionsByAuthor(
             String cursor, int pageSize, User author) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
@@ -254,11 +271,13 @@ public class DiscussionService {
         }
     }
 
-    private List<Discussion> searchDiscussionByTitleOrContentWithFilters(String query,
-                                                                         List<Category> categories,
-                                                                         List<DiscussionStatus> statuses,
-                                                                         String cursor,
-                                                                         int size) {
+    private List<Discussion> searchDiscussionByTitleOrContentWithFilters(
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            String cursor,
+            int size
+    ) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findByTitleOrContentContainingWithFiltersPageable(
@@ -284,11 +303,13 @@ public class DiscussionService {
         return discussions;
     }
 
-    private List<Discussion> searchDiscussionByAuthorNicknameWithFilters(String query,
-                                                                         List<Category> categories,
-                                                                         List<DiscussionStatus> statuses,
-                                                                         String cursor,
-                                                                         int size) {
+    private List<Discussion> searchDiscussionByAuthorNicknameWithFilters(
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            String cursor,
+            int size
+    ) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findByAuthorNicknameContainingWithFiltersPageable(
@@ -314,7 +335,7 @@ public class DiscussionService {
         return discussions;
     }
 
-    private DiscussionCursorPageResponse<DiscussionPreviewResponse> buildDateCursorResponse(
+    private DiscussionCursorPageResponse<DiscussionPreviewResponseV2> buildDateCursorResponse(
             List<Discussion> discussions, int pageSize) {
         boolean hasNext = discussions.size() > pageSize;
 
@@ -331,12 +352,23 @@ public class DiscussionService {
         Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
-        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
-                .map(discussion -> DiscussionPreviewResponse.from(
-                                discussion,
-                                userProfileImageMap.get(discussion.getAuthor()),
-                                commentCountMap.getOrDefault(discussion.getId(), 0L)
-                        )
+        List<DiscussionPreviewResponseV2> responses = pagingDiscussions.stream()
+                .map(discussion -> {
+                            if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+                                return DiscussionPreviewResponseV2.fromOfflineDiscussion(
+                                        offlineDiscussion,
+                                        userProfileImageMap.get(offlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(offlineDiscussion.getId(), 0L)
+                                );
+                            } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+                                return DiscussionPreviewResponseV2.fromOnlineDiscussion(
+                                        onlineDiscussion,
+                                        userProfileImageMap.get(onlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(onlineDiscussion.getId(), 0L)
+                                );
+                            }
+                            throw new DialogException(ErrorCode.BAD_REQUEST);
+                        }
                 )
                 .toList();
 
@@ -354,8 +386,8 @@ public class DiscussionService {
         List<Long> discussionIds = discussions.stream().map(Discussion::getId).toList();
         return discussionIds.stream()
                 .collect(Collectors.toMap(
-                    Function.identity(),
-                    discussionCommentRepository::countByDiscussionId
+                        Function.identity(),
+                        discussionCommentRepository::countByDiscussionId
                 ));
     }
 }

@@ -3,10 +3,13 @@ package com.dialog.server.repository;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.QDiscussion;
 import com.dialog.server.domain.QOfflineDiscussion;
+import com.dialog.server.domain.QOnlineDiscussion;
 import com.dialog.server.domain.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,146 +21,152 @@ import org.springframework.stereotype.Repository;
 public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final QDiscussion discussion = QDiscussion.discussion;
     private final QOfflineDiscussion offlineDiscussion = QOfflineDiscussion.offlineDiscussion;
+    private final QOnlineDiscussion onlineDiscussion = QOnlineDiscussion.onlineDiscussion;
     private final QUser user = QUser.user;
 
     @Override
-    public List<Discussion> findWithFiltersPageable(List<Category> categories, List<DiscussionStatus> statuses,
-                                                    Pageable pageable) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
+    public List<Discussion> findWithFiltersPageable(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            Pageable pageable) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
                         statusIn(statuses)
                 )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
+                .fetch();
     }
 
     @Override
-    public List<Discussion> findWithFiltersBeforeDateCursor(List<Category> categories, List<DiscussionStatus> statuses,
-                                                            LocalDateTime cursor, Long id, int limit) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
+    public List<Discussion> findWithFiltersBeforeDateCursor(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            LocalDateTime cursor,
+            Long id,
+            int limit) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
                         statusIn(statuses),
                         cursorBefore(cursor, id)
                 )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .limit(limit)
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
+                .fetch();
     }
 
     @Override
-    public List<Discussion> findByTitleOrContentContainingWithFiltersPageable(String keyword,
-                                                                              List<Category> categories,
-                                                                              List<DiscussionStatus> statuses,
-                                                                              Pageable pageable) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
+    public List<Discussion> findByTitleOrContentContainingWithFiltersPageable(
+            String keyword,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            Pageable pageable) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
                         statusIn(statuses)
                 )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
+                .fetch();
     }
 
     @Override
-    public List<Discussion> findByTitleOrContentContainingWithFiltersBeforeDateCursor(String keyword,
-                                                                                      List<Category> categories,
-                                                                                      List<DiscussionStatus> statuses,
-                                                                                      LocalDateTime cursor,
-                                                                                      Long cursorId,
-                                                                                      int limit) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
+    public List<Discussion> findByTitleOrContentContainingWithFiltersBeforeDateCursor(
+            String keyword,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            LocalDateTime cursor,
+            Long cursorId,
+            int limit) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
                         statusIn(statuses),
                         cursorBefore(cursor, cursorId)
                 )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .limit(limit)
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
+                .fetch();
+    }
+
+    @Override
+    public List<Discussion> findByAuthorNicknameContainingWithFiltersPageable(
+            String nickname,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            Pageable pageable) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
+                .where(
+                        nicknameContains(nickname),
+                        categoryIn(categories),
+                        statusIn(statuses)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Override
+    public List<Discussion> findByAuthorNicknameContainingWithFiltersBeforeDateCursor(
+            String nickname,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            LocalDateTime cursor,
+            Long cursorId,
+            int limit) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(offlineDiscussion.id.eq(discussion.id))
+                .leftJoin(onlineDiscussion).on(onlineDiscussion.id.eq(discussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
+                .where(
+                        nicknameContains(nickname),
+                        categoryIn(categories),
+                        statusIn(statuses),
+                        cursorBefore(cursor, cursorId)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .limit(limit)
+                .fetch();
     }
 
     private BooleanExpression titleOrContentContains(String keyword) {
         if (!hasText(keyword)) {
             return null;
         }
-        final String trimmed = keyword.trim();
-        return offlineDiscussion.title.containsIgnoreCase(trimmed)
-                .or(offlineDiscussion.content.containsIgnoreCase(trimmed));
-    }
-
-    @Override
-    public List<Discussion> findByAuthorNicknameContainingWithFiltersPageable(String nickname,
-                                                                              List<Category> categories,
-                                                                              List<DiscussionStatus> statuses,
-                                                                              Pageable pageable) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
-                .where(
-                        nicknameContains(nickname),
-                        categoryIn(categories),
-                        statusIn(statuses)
-                )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
-    }
-
-    @Override
-    public List<Discussion> findByAuthorNicknameContainingWithFiltersBeforeDateCursor(String nickname,
-                                                                                      List<Category> categories,
-                                                                                      List<DiscussionStatus> statuses,
-                                                                                      LocalDateTime cursor,
-                                                                                      Long cursorId,
-                                                                                      int limit) {
-        return queryFactory.selectFrom(offlineDiscussion)
-                .innerJoin(offlineDiscussion.author, user)
-                .fetchJoin()
-                .where(
-                        nicknameContains(nickname),
-                        categoryIn(categories),
-                        statusIn(statuses),
-                        cursorBefore(cursor, cursorId)
-                )
-                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
-                .limit(limit)
-                .fetch()
-                .stream()
-                .map(d -> (Discussion) d)
-                .toList();
+        String trimmed = keyword.trim();
+        return discussion.title.containsIgnoreCase(trimmed)
+                .or(discussion.content.containsIgnoreCase(trimmed));
     }
 
     private BooleanExpression nicknameContains(String nickname) {
@@ -168,7 +177,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
         if (categories == null || categories.isEmpty()) {
             return null;
         }
-        return offlineDiscussion.category.in(categories);
+        return discussion.category.in(categories);
     }
 
     private BooleanExpression statusIn(List<DiscussionStatus> statuses) {
@@ -178,37 +187,58 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
 
         BooleanExpression condition = null;
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
         for (DiscussionStatus status : statuses) {
-            BooleanExpression statusCondition = createStatusCondition(status, now);
+            BooleanExpression statusCondition = createStatusCondition(status, now, today);
             condition = condition == null ? statusCondition : condition.or(statusCondition);
         }
 
         return condition;
     }
 
-    private BooleanExpression createStatusCondition(DiscussionStatus status, LocalDateTime now) {
-        return switch (status) {
-            case RECRUITING -> offlineDiscussion.startAt.gt(now)
-                    .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
-            case RECRUIT_COMPLETE -> offlineDiscussion.startAt.gt(now)
-                    .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
-            case IN_DISCUSSION -> offlineDiscussion.startAt.loe(now)
-                    .and(offlineDiscussion.endAt.goe(now));
-            case DISCUSSION_COMPLETE -> offlineDiscussion.endAt.lt(now);
-        };
-    }
+    private BooleanExpression createStatusCondition(
+            DiscussionStatus status,
+            LocalDateTime now,
+            LocalDate today) {
 
-    private boolean hasText(String text) {
-        return text != null && !text.isBlank();
+        return switch (status) {
+            case RECRUITING -> offlineDiscussion.isNotNull()
+                    .and(offlineDiscussion.startAt.gt(now))
+                    .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
+
+            case RECRUIT_COMPLETE -> offlineDiscussion.isNotNull()
+                    .and(offlineDiscussion.startAt.gt(now))
+                    .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
+
+            case IN_DISCUSSION ->
+                // Offline: 시작 <= 현재 < 종료
+                    offlineDiscussion.isNotNull()
+                            .and(offlineDiscussion.startAt.loe(now))
+                            .and(offlineDiscussion.endAt.gt(now))
+                            // Online: 현재 <= 종료일
+                            .or(onlineDiscussion.isNotNull()
+                                    .and(onlineDiscussion.endDate.goe(today)));
+
+            case DISCUSSION_COMPLETE ->
+                // Offline: 종료 < 현재
+                    offlineDiscussion.isNotNull()
+                            .and(offlineDiscussion.endAt.lt(now))
+                            // Online: 종료일 < 현재
+                            .or(onlineDiscussion.isNotNull()
+                                    .and(onlineDiscussion.endDate.lt(today)));
+        };
     }
 
     private BooleanExpression cursorBefore(LocalDateTime cursor, Long cursorId) {
         if (cursor == null || cursorId == null) {
             return null;
         }
+        return discussion.createdAt.lt(cursor)
+                .or(discussion.createdAt.eq(cursor).and(discussion.id.lt(cursorId)));
+    }
 
-        return offlineDiscussion.createdAt.loe(cursor)
-                .or(offlineDiscussion.createdAt.eq(cursor).and(offlineDiscussion.id.gt(cursorId)));
+    private boolean hasText(String text) {
+        return text != null && !text.isBlank();
     }
 }

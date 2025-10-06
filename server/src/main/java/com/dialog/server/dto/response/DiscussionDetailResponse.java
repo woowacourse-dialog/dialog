@@ -3,6 +3,7 @@ package com.dialog.server.dto.response;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,7 +21,6 @@ public record DiscussionDetailResponse(
         String summary,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
-        int viewCount,
         long likeCount,
         boolean isBookmarked,
         AuthorResponse author,
@@ -30,25 +30,27 @@ public record DiscussionDetailResponse(
                                               long likeCount,
                                               List<DiscussionParticipant> participants,
                                               ProfileImage profileImage) {
-        return new DiscussionDetailResponse(
-                discussion.getId(),
-                discussion.getTitle(),
-                discussion.getContent(),
-                discussion.getStartAt(),
-                discussion.getEndAt(),
-                discussion.getPlace(),
-                discussion.getCategory(),
-                discussion.getParticipantCount(),
-                discussion.getMaxParticipantCount(),
-                discussion.getSummary(),
-                discussion.getCreatedAt(),
-                discussion.getModifiedAt(),
-                discussion.getViewCount(),
-                likeCount,
-                false,
-                toAuthorResponse(discussion, profileImage),
-                toParticipantResponse(participants)
-        );
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return new DiscussionDetailResponse(
+                    offlineDiscussion.getId(),
+                    offlineDiscussion.getTitle(),
+                    offlineDiscussion.getContent(),
+                    offlineDiscussion.getStartAt(),
+                    offlineDiscussion.getEndAt(),
+                    offlineDiscussion.getPlace(),
+                    offlineDiscussion.getCategory(),
+                    offlineDiscussion.getParticipantCount(),
+                    offlineDiscussion.getMaxParticipantCount(),
+                    offlineDiscussion.getSummary(),
+                    offlineDiscussion.getCreatedAt(),
+                    offlineDiscussion.getModifiedAt(),
+                    likeCount,
+                    false,
+                    toAuthorResponse(offlineDiscussion, profileImage),
+                    toParticipantResponse(participants)
+            );
+        }
+        throw new IllegalArgumentException("Unsupported discussion type");
     }
 
     private static AuthorResponse toAuthorResponse(Discussion discussion, ProfileImage profileImage) {

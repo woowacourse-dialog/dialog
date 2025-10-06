@@ -52,7 +52,6 @@ public abstract class Discussion extends BaseEntity {
     private User author;
     private LocalDateTime deletedAt;
 
-    @Builder
     protected Discussion(
             String title,
             String content,

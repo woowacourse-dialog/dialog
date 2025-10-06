@@ -2,6 +2,7 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -29,7 +30,13 @@ public class DiscussionParticipantService {
                 .participant(participant)
                 .discussion(discussion)
                 .build();
-        discussion.participate(LocalDateTime.now(), discussionParticipant);
+
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
+        } else {
+            throw new DialogException(ErrorCode.BAD_REQUEST);
+        }
+
         discussionParticipantRepository.save(discussionParticipant);
     }
 

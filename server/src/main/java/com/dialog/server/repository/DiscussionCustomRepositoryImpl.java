@@ -3,7 +3,7 @@ package com.dialog.server.repository;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
-import com.dialog.server.domain.QDiscussion;
+import com.dialog.server.domain.QOfflineDiscussion;
 import com.dialog.server.domain.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -18,39 +18,45 @@ import org.springframework.stereotype.Repository;
 public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepository {
 
     private final JPAQueryFactory queryFactory;
-    private final QDiscussion discussion = QDiscussion.discussion;
+    private final QOfflineDiscussion offlineDiscussion = QOfflineDiscussion.offlineDiscussion;
     private final QUser user = QUser.user;
 
     @Override
     public List<Discussion> findWithFiltersPageable(List<Category> categories, List<DiscussionStatus> statuses,
                                                     Pageable pageable) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         categoryIn(categories),
                         statusIn(statuses)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     @Override
     public List<Discussion> findWithFiltersBeforeDateCursor(List<Category> categories, List<DiscussionStatus> statuses,
                                                             LocalDateTime cursor, Long id, int limit) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         categoryIn(categories),
                         statusIn(statuses),
                         cursorBefore(cursor, id)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .limit(limit)
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     @Override
@@ -58,18 +64,21 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                                                                               List<Category> categories,
                                                                               List<DiscussionStatus> statuses,
                                                                               Pageable pageable) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
                         statusIn(statuses)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     @Override
@@ -79,8 +88,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                                                                                       LocalDateTime cursor,
                                                                                       Long cursorId,
                                                                                       int limit) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
@@ -88,9 +97,12 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                         statusIn(statuses),
                         cursorBefore(cursor, cursorId)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .limit(limit)
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     private BooleanExpression titleOrContentContains(String keyword) {
@@ -98,8 +110,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             return null;
         }
         final String trimmed = keyword.trim();
-        return discussion.title.containsIgnoreCase(trimmed)
-                .or(discussion.content.containsIgnoreCase(trimmed));
+        return offlineDiscussion.title.containsIgnoreCase(trimmed)
+                .or(offlineDiscussion.content.containsIgnoreCase(trimmed));
     }
 
     @Override
@@ -107,18 +119,21 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                                                                               List<Category> categories,
                                                                               List<DiscussionStatus> statuses,
                                                                               Pageable pageable) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         nicknameContains(nickname),
                         categoryIn(categories),
                         statusIn(statuses)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     @Override
@@ -128,8 +143,8 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                                                                                       LocalDateTime cursor,
                                                                                       Long cursorId,
                                                                                       int limit) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
+        return queryFactory.selectFrom(offlineDiscussion)
+                .innerJoin(offlineDiscussion.author, user)
                 .fetchJoin()
                 .where(
                         nicknameContains(nickname),
@@ -137,9 +152,12 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
                         statusIn(statuses),
                         cursorBefore(cursor, cursorId)
                 )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .orderBy(offlineDiscussion.createdAt.desc(), offlineDiscussion.id.desc())
                 .limit(limit)
-                .fetch();
+                .fetch()
+                .stream()
+                .map(d -> (Discussion) d)
+                .toList();
     }
 
     private BooleanExpression nicknameContains(String nickname) {
@@ -150,7 +168,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
         if (categories == null || categories.isEmpty()) {
             return null;
         }
-        return discussion.category.in(categories);
+        return offlineDiscussion.category.in(categories);
     }
 
     private BooleanExpression statusIn(List<DiscussionStatus> statuses) {
@@ -171,13 +189,13 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
 
     private BooleanExpression createStatusCondition(DiscussionStatus status, LocalDateTime now) {
         return switch (status) {
-            case RECRUITING -> discussion.startAt.gt(now)
-                    .and(discussion.participantCount.lt(discussion.maxParticipantCount));
-            case RECRUIT_COMPLETE -> discussion.startAt.gt(now)
-                    .and(discussion.participantCount.goe(discussion.maxParticipantCount));
-            case IN_DISCUSSION -> discussion.startAt.loe(now)
-                    .and(discussion.endAt.goe(now));
-            case DISCUSSION_COMPLETE -> discussion.endAt.lt(now);
+            case RECRUITING -> offlineDiscussion.startAt.gt(now)
+                    .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
+            case RECRUIT_COMPLETE -> offlineDiscussion.startAt.gt(now)
+                    .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
+            case IN_DISCUSSION -> offlineDiscussion.startAt.loe(now)
+                    .and(offlineDiscussion.endAt.goe(now));
+            case DISCUSSION_COMPLETE -> offlineDiscussion.endAt.lt(now);
         };
     }
 
@@ -190,7 +208,7 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
             return null;
         }
 
-        return discussion.createdAt.loe(cursor)
-                .or(discussion.createdAt.eq(cursor).and(discussion.id.gt(cursorId)));
+        return offlineDiscussion.createdAt.loe(cursor)
+                .or(offlineDiscussion.createdAt.eq(cursor).and(offlineDiscussion.id.gt(cursorId)));
     }
 }

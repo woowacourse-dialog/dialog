@@ -2,6 +2,7 @@ package com.dialog.server.dto.response;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
@@ -21,27 +22,28 @@ public record DiscussionPreviewResponse(
         int maxParticipantCount,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt,
-        int viewCount,
         long commentCount
 ) {
 
     public static DiscussionPreviewResponse from(Discussion discussion, ProfileImage profileImage, long commentCount) {
-        return new DiscussionPreviewResponse(
-                discussion.getId(),
-                discussion.getTitle(),
-                discussion.getAuthor().getNickname(),
-                profileImage == null ? null : ProfileImageResponse.from(profileImage),
-                discussion.getStartAt(),
-                discussion.getEndAt(),
-                discussion.getPlace(),
-                discussion.getCategory(),
-                discussion.getParticipantCount(),
-                discussion.getMaxParticipantCount(),
-                discussion.getCreatedAt(),
-                discussion.getModifiedAt(),
-                discussion.getViewCount(),
-                commentCount
-        );
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return new DiscussionPreviewResponse(
+                    offlineDiscussion.getId(),
+                    offlineDiscussion.getTitle(),
+                    offlineDiscussion.getAuthor().getNickname(),
+                    profileImage == null ? null : ProfileImageResponse.from(profileImage),
+                    offlineDiscussion.getStartAt(),
+                    offlineDiscussion.getEndAt(),
+                    offlineDiscussion.getPlace(),
+                    offlineDiscussion.getCategory(),
+                    offlineDiscussion.getParticipantCount(),
+                    offlineDiscussion.getMaxParticipantCount(),
+                    offlineDiscussion.getCreatedAt(),
+                    offlineDiscussion.getModifiedAt(),
+                    commentCount
+            );
+        }
+        throw new IllegalArgumentException("Unsupported discussion type");
     }
 
     public record ProfileImageResponse(

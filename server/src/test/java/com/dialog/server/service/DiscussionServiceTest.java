@@ -97,7 +97,7 @@ class DiscussionServiceTest {
                 "test summary"
         );
         // when
-        discussionService.updateDiscussion(response.discussionId(), request);
+        discussionService.updateOfflineDiscussion(response.discussionId(), request);
         DiscussionDetailResponse modifiedDiscussion = discussionService.getDiscussionById(response.discussionId());
         // then
         assertThat(modifiedDiscussion.title()).isEqualTo(request.title());
@@ -112,7 +112,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            OfflineDiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createOfflineDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     "테스트 내용입니다",
                     LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15),
@@ -123,7 +123,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, user.getId());
+            discussionService.createOfflineDiscussion(request, user.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -339,11 +339,11 @@ class DiscussionServiceTest {
         //given
         User user1 = userRepository.save(createUser());
         User user2 = userRepository.save(createUser());
-        Discussion discussion1 = discussionRepository.save(createDiscussion(user1));
-        Discussion discussion2 = discussionRepository.save(createDiscussion(user1));
-        discussionRepository.save(createDiscussion(user2));
-        Discussion discussion4 = discussionRepository.save(createDiscussion(user1));
-        Discussion discussion5 = discussionRepository.save(createDiscussion(user1));
+        Discussion discussion1 = discussionRepository.save(createOfflineDiscussion(user1));
+        Discussion discussion2 = discussionRepository.save(createOfflineDiscussion(user1));
+        discussionRepository.save(createOfflineDiscussion(user2));
+        Discussion discussion4 = discussionRepository.save(createOfflineDiscussion(user1));
+        Discussion discussion5 = discussionRepository.save(createOfflineDiscussion(user1));
 
         //when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result1 = discussionService.getDiscussionByAuthorId(
@@ -583,43 +583,43 @@ class DiscussionServiceTest {
         User user2 = userRepository.save(createUser2());
 
         // BACKEND + RECRUITING (참가자 수 < 최대 참가자 수, 시작 시간이 미래)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 백엔드 1", Category.BACKEND,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 1, 5
         ));
 
         // FRONTEND + RECRUITING
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 프론트엔드 1", Category.FRONTEND,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 2, 5
         ));
 
         // ANDROID + RECRUITING
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 안드로이드 1", Category.ANDROID,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 3, 5
         ));
 
         // COMMON + RECRUIT_COMPLETE (참가자 수 = 최대 참가자 수, 시작 시간이 미래)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 공통 1", Category.COMMON,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 3, 3
         ));
 
         // FRONTEND + IN_DISCUSSION (현재 진행 중)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 프론트엔드 2", Category.FRONTEND,
                 LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 2, 5
         ));
 
         // BACKEND + DISCUSSION_COMPLETE (종료된 토론)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 백엔드 2", Category.BACKEND,
                 LocalDateTime.now().minusHours(3), LocalDateTime.now().minusHours(1), 4, 5
         ));
     }
 
-    private Discussion createDiscussionForFilter(User author, String title, Category category,
+    private Discussion createOfflineDiscussionForFilter(User author, String title, Category category,
                                                  LocalDateTime startAt, LocalDateTime endAt,
                                                  int participantCount, int maxParticipantCount) {
         return Discussion.withNoValidateOf(
@@ -643,7 +643,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            OfflineDiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createOfflineDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     i % 2 == 0 ? "홀수" : "짝수",
                     LocalDateTime.now().plusHours(1),
@@ -654,7 +654,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, i % 2 == 0 ? user1.getId() : user2.getId());
+            discussionService.createOfflineDiscussion(request, i % 2 == 0 ? user1.getId() : user2.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -665,7 +665,7 @@ class DiscussionServiceTest {
         }
     }
 
-    private OfflineDiscussionCreateRequest createDiscussionRequest(
+    private OfflineDiscussionCreateRequest createOfflineDiscussionRequest(
             String title,
             String content,
             LocalDateTime startAt,
@@ -686,7 +686,7 @@ class DiscussionServiceTest {
         );
     }
 
-    private List<OfflineDiscussionCreateRequest> createDiscussionsRequestWithParameters(
+    private List<OfflineDiscussionCreateRequest> createOfflineDiscussionsRequestWithParameters(
             int amount,
             String titlePrefix,
             String content,
@@ -738,7 +738,7 @@ class DiscussionServiceTest {
     }
 
     private DiscussionCreateResponse saveDiscussion(User savedUser) {
-        List<OfflineDiscussionCreateRequest> request = createDiscussionsRequestWithParameters(
+        List<OfflineDiscussionCreateRequest> request = createOfflineDiscussionsRequestWithParameters(
                 1,
                 "modified title",
                 "test content",
@@ -748,10 +748,10 @@ class DiscussionServiceTest {
                 6,
                 Category.BACKEND,
                 "test summary");
-        return discussionService.createDiscussion(request.getFirst(), savedUser.getId());
+        return discussionService.createOfflineDiscussion(request.getFirst(), savedUser.getId());
     }
 
-    private Discussion createDiscussion(User author) {
+    private Discussion createOfflineDiscussion(User author) {
         return Discussion.builder()
                 .title("title")
                 .content("content")

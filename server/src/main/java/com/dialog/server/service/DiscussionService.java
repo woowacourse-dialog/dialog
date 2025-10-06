@@ -53,37 +53,52 @@ public class DiscussionService {
     private final DiscussionCommentRepository discussionCommentRepository;
 
     @Transactional
-    public DiscussionCreateResponse createDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
+    public DiscussionCreateResponse createOfflineDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
         User author = getUser(userId);
-        Discussion discussion = request.toOfflineDiscussion(author);
-        try {
-            Discussion savedDiscussion = discussionRepository.save(discussion);
-            participantDiscussion(author, discussion);
-            return DiscussionCreateResponse.from(savedDiscussion);
-        } catch (IllegalArgumentException ex) {
-            throw new DialogException(ErrorCode.CREATE_DISCUSSION_FAILED);
-        }
+        OfflineDiscussion offlineDiscussion = request.toOfflineDiscussion(author);
+
+        Discussion savedDiscussion = discussionRepository.save(offlineDiscussion);
+        participateOfflineDiscussion(author, offlineDiscussion);
+        return DiscussionCreateResponse.from(savedDiscussion);
+    }
+
+    private void participateOfflineDiscussion(User author, OfflineDiscussion offlineDiscussion) {
+        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
+                .participant(author)
+                .discussion(offlineDiscussion)
+                .build();
+        offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
+        discussionParticipantRepository.save(discussionParticipant);
     }
 
     @Transactional
-    public void updateDiscussion(Long discussionId, OfflineDiscussionUpdateRequest request) {
+    public void updateOfflineDiscussion(Long discussionId, OfflineDiscussionUpdateRequest request) {
         Discussion savedDiscussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
 
-        if (savedDiscussion instanceof OfflineDiscussion offlineDiscussion) {
-            offlineDiscussion.update(
-                    request.title(),
-                    request.content(),
-                    request.category(),
-                    request.summary(),
-                    request.startAt(),
-                    request.endAt(),
-                    request.place(),
-                    request.maxParticipantCount()
-            );
-        } else {
-            throw new DialogException(ErrorCode.BAD_REQUEST); // TODO: 예외 수정
+        if (!(savedDiscussion instanceof OfflineDiscussion offlineDiscussion)) {
+            throw new DialogException(ErrorCode.BAD_REQUEST);
         }
+        offlineDiscussion.update(
+                request.title(),
+                request.content(),
+                request.category(),
+                request.summary(),
+                request.startAt(),
+                request.endAt(),
+                request.place(),
+                request.maxParticipantCount()
+        );
+    }
+
+    @Transactional
+    public void deleteDiscussion(Long discussionId) {
+        Discussion deleteDiscussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+        if (deleteDiscussion.canNotDelete()) {
+            throw new DialogException(ErrorCode.CANNOT_DELETE_DISCUSSION);
+        }
+        discussionRepository.delete(deleteDiscussion);
     }
 
     @Transactional(readOnly = true)
@@ -97,16 +112,6 @@ public class DiscussionService {
         );
         long likeCount = likeRepository.countByDiscussion(discussion);
         return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants, profileImage);
-    }
-
-    @Transactional
-    public void deleteDiscussion(Long discussionId) {
-        Discussion deleteDiscussion = discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-        if (deleteDiscussion.canNotDelete()) {
-            throw new DialogException(ErrorCode.CANNOT_DELETE_DISCUSSION);
-        }
-        discussionRepository.delete(deleteDiscussion);
     }
 
     @Transactional(readOnly = true)
@@ -126,7 +131,6 @@ public class DiscussionService {
                             pageSize + 1
                     )
             );
-//            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
@@ -139,11 +143,6 @@ public class DiscussionService {
                     cursorId,
                     pageSize + 1
             );
-//            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
-//                    cursorTime,
-//                    cursorId,
-//                    PageRequest.of(0, pageSize + 1)
-//            );
         }
 
         return buildDateCursorResponse(discussions, pageSize);
@@ -330,14 +329,5 @@ public class DiscussionService {
                     Function.identity(),
                     discussionCommentRepository::countByDiscussionId
                 ));
-    }
-
-    private void participantDiscussion(User author, Discussion discussion) {
-        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
-                .participant(author)
-                .discussion(discussion)
-                .build();
-        ((OfflineDiscussion) discussion).participate(LocalDateTime.now(), discussionParticipant);
-        discussionParticipantRepository.save(discussionParticipant);
     }
 }

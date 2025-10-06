@@ -37,14 +37,31 @@ public class DiscussionController {
     private final DiscussionService discussionService;
     private final NotificationService notificationService;
 
-    @PostMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(
-            @RequestBody @Valid OfflineDiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
-        DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
+    @PostMapping("/offline")
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postOfflineDiscussion(
+            @RequestBody @Valid OfflineDiscussionCreateRequest request,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionCreateResponse response = discussionService.createOfflineDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
         notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
         return ResponseEntity.created(uri)
                 .body(new ApiSuccessResponse<>(response));
+    }
+
+    @PatchMapping("/offline/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateOfflineDiscussion(
+            @PathVariable Long id,
+            @Valid @RequestBody OfflineDiscussionUpdateRequest request
+    ) {
+        discussionService.updateOfflineDiscussion(id, request);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> deleteDiscussion(@PathVariable Long id) {
+        discussionService.deleteDiscussion(id);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
 
     @GetMapping("/{id}")
@@ -88,19 +105,6 @@ public class DiscussionController {
                 size
         );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(searched));
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id,
-                                                                     @Valid @RequestBody OfflineDiscussionUpdateRequest request) {
-        discussionService.updateDiscussion(id, request);
-        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<Void>> deleteDiscussion(@PathVariable Long id) {
-        discussionService.deleteDiscussion(id);
-        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
 
     @GetMapping("/me")

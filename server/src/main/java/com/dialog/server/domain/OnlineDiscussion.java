@@ -28,7 +28,7 @@ public class OnlineDiscussion extends Discussion {
     ) {
         super(title, content, category, summary, author);
         this.endDate = endDate;
-        validateEndDate(endDate);
+//        validateEndDate(endDate);
     }
 
 //    private void validateEndDate(LocalDate endDate) { // TODO: 이건 서비스 레이어에서 검증하는게 나으려나?

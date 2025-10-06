@@ -32,6 +32,7 @@ const SearchResultPage = () => {
   const query = searchParams.get('query') || '';
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
   const statuses = searchParams.get('statuses')?.split(',').filter(Boolean) || [];
+  const discussionTypes = searchParams.get('discussionTypes')?.split(',').filter(Boolean) || [];
 
   const {
     items,
@@ -41,7 +42,7 @@ const SearchResultPage = () => {
     isFetchingMore,
     loadMore,
   } = useDiscussionList({
-    searchParams: { searchType, query, categories, statuses },
+    searchParams: { searchType, query, categories, statuses, discussionTypes },
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
@@ -65,7 +66,7 @@ const SearchResultPage = () => {
   };
 
   // 필터 적용 핸들러: 기존 검색어는 유지하면서 필터만 변경
-  const handleApplyFilters = ({ categories, statuses }) => {
+  const handleApplyFilters = ({ categories, statuses, discussionTypes }) => {
     const newParams = new URLSearchParams(searchParams);
     if (categories.length > 0) {
       newParams.set('categories', categories.join(','));
@@ -76,6 +77,11 @@ const SearchResultPage = () => {
       newParams.set('statuses', statuses.join(','));
     } else {
       newParams.delete('statuses');
+    }
+    if (discussionTypes.length > 0) {
+      newParams.set('discussionTypes', discussionTypes.join(','));
+    } else {
+      newParams.delete('discussionTypes');
     }
     navigate(`/discussion/search?${newParams.toString()}`);
   };
@@ -132,6 +138,7 @@ const SearchResultPage = () => {
             <DiscussionFilter
               initialCategories={categories}
               initialStatuses={statuses}
+              initialDiscussionTypes={discussionTypes}
               onApply={handleApplyFilters}
               showFilter={showFilter}
               onToggleFilter={handleToggleFilter}

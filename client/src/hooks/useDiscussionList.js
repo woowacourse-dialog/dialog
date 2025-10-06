@@ -3,7 +3,7 @@ import { fetchDiscussions, fetchSearchDiscussions } from '../api/discussion';
 
 /**
  * @param {Object} options
- * @param {Object|null} options.searchParams - { searchType, query, categories, statuses } or null
+ * @param {Object|null} options.searchParams - { searchType, query, categories, statuses, discussionTypes } or null
  * @param {number} [options.pageSize=10]
  */
 export default function useDiscussionList({ searchParams = null, pageSize = 10 } = {}) {
@@ -29,6 +29,7 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
         const commonParams = {
           categories: searchParams?.categories,
           statuses: searchParams?.statuses,
+          discussionTypes: searchParams?.discussionTypes,
           cursor: null,
           size: pageSize,
         };
@@ -60,6 +61,7 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
     searchParams?.query,
     JSON.stringify(searchParams?.categories),
     JSON.stringify(searchParams?.statuses),
+    JSON.stringify(searchParams?.discussionTypes),
     pageSize
   ]);
 
@@ -72,6 +74,7 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
       const commonParams = {
         categories: searchParams?.categories,
         statuses: searchParams?.statuses,
+        discussionTypes: searchParams?.discussionTypes,
         cursor,
         size: pageSize,
       };
@@ -86,7 +89,12 @@ export default function useDiscussionList({ searchParams = null, pageSize = 10 }
       } else {
         result = await fetchDiscussions(commonParams);
       }
-      setItems((prev) => [...prev, ...result.content]);
+      // Deduplicate items by id
+      setItems((prev) => {
+        const existingIds = new Set(prev.map(item => item.id));
+        const newItems = result.content.filter(item => !existingIds.has(item.id));
+        return [...prev, ...newItems];
+      });
       setCursor(result.nextCursor);
       setHasMore(result.hasNext);
     } catch (e) {

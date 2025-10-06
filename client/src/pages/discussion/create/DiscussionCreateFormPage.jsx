@@ -4,7 +4,7 @@ import './DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 import Header from '../../../components/Header/Header';
-import { createDiscussion } from '../../../api/discussion';
+import { createOfflineDiscussion, createOnlineDiscussion } from '../../../api/discussion';
 import { userApi } from '../../../api/userApi';
 
 const TRACKS = [
@@ -18,29 +18,49 @@ const DiscussionCreateFormPage = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [isOffline, setIsOffline] = useState(false);
+
+  // 오프라인 토론 필드
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [participantCount, setParticipantCount] = useState(2);
   const [location, setLocation] = useState('');
+
+  // 온라인 토론 필드
+  const [endDateOffset, setEndDateOffset] = useState(1); // 1, 2, 3일 후
+
   const [track, setTrack] = useState('FRONTEND');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const startDateTime = formatDateTime(date, startTime);
-    const endDateTime = formatDateTime(date, endTime);
-    console.log({ 
-      title, 
-      content, 
-      startDateTime, 
-      endDateTime,
-      participantCount,
-      location,
-      track
-    });
-    
+
     try {
-      const res = await createDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track, summary: ""});
+      let res;
+      if (isOffline) {
+        // 오프라인 토론 생성
+        const startDateTime = formatDateTime(date, startTime);
+        const endDateTime = formatDateTime(date, endTime);
+        res = await createOfflineDiscussion({
+          title,
+          content,
+          startDateTime,
+          endDateTime,
+          participantCount,
+          location,
+          track
+        });
+      } else {
+        // 온라인 토론 생성
+        const endDate = getEndDate(endDateOffset);
+        res = await createOnlineDiscussion({
+          title,
+          content,
+          endDate,
+          track
+        });
+      }
+
       const discussionId = res.data.discussionId;
       const trackName = (TRACKS.find(t => t.id === track)?.name) || track;
       navigate(`/discussion/${discussionId}/complete`, { state: { title, content, trackName } });
@@ -52,6 +72,12 @@ const DiscussionCreateFormPage = () => {
   const formatDateTime = (date, time) => {
     const dt = new Date(`${date}T${time}`);
     return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+  };
+
+  const getEndDate = (daysOffset) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysOffset);
+    return date.toISOString().split('T')[0]; // yyyy-MM-dd 형식
   };
 
   const handleParticipantCountChange = (e) => {
@@ -120,65 +146,106 @@ const DiscussionCreateFormPage = () => {
                   ))}
                 </select>
               </div>
+
               <div className="form-group flex-1">
-                <label htmlFor="location">토론 장소</label>
-                <input
-                  type="text"
-                  id="location"
-                  className="form-input"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
-                />
-              </div>
-              <div className="form-group participant-count">
-                <label htmlFor="participantCount">참여자 수</label>
-                <input
-                  type="number"
-                  id="participantCount"
-                  className="form-input"
-                  value={participantCount}
-                  onChange={handleParticipantCountChange}
-                  min="2"
-                  placeholder="최소 2명"
-                />
+                <label htmlFor="discussionType" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    id="discussionType"
+                    checked={isOffline}
+                    onChange={(e) => setIsOffline(e.target.checked)}
+                    style={{ width: 'auto' }}
+                  />
+                  만나서 토론하기
+                </label>
               </div>
             </div>
 
-            <div className="datetime-container">
-              <div className="date-field">
-                <label htmlFor="date">날짜</label>
-                <input
-                  type="date"
-                  id="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  min={getDefaultDate()}
-                />
-              </div>
-              <div className="time-inputs">
-                <div className="time-field">
-                  <label htmlFor="startTime">시작 시간</label>
-                  <input
-                    type="time"
-                    id="startTime"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    step="1800" // 30분 단위
-                  />
+            {isOffline ? (
+              <>
+                <div className="form-row">
+                  <div className="form-group flex-1">
+                    <label htmlFor="location">토론 장소</label>
+                    <input
+                      type="text"
+                      id="location"
+                      className="form-input"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
+                      required
+                    />
+                  </div>
+                  <div className="form-group participant-count">
+                    <label htmlFor="participantCount">참여자 수</label>
+                    <input
+                      type="number"
+                      id="participantCount"
+                      className="form-input"
+                      value={participantCount}
+                      onChange={handleParticipantCountChange}
+                      min="2"
+                      max="10"
+                      placeholder="최소 2명"
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="time-field">
-                  <label htmlFor="endTime">종료 시간</label>
-                  <input
-                    type="time"
-                    id="endTime"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    step="1800" // 30분 단위
-                  />
+
+                <div className="datetime-container">
+                  <div className="date-field">
+                    <label htmlFor="date">날짜</label>
+                    <input
+                      type="date"
+                      id="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      min={getDefaultDate()}
+                      required
+                    />
+                  </div>
+                  <div className="time-inputs">
+                    <div className="time-field">
+                      <label htmlFor="startTime">시작 시간</label>
+                      <input
+                        type="time"
+                        id="startTime"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        step="1800" // 30분 단위
+                        required
+                      />
+                    </div>
+                    <div className="time-field">
+                      <label htmlFor="endTime">종료 시간</label>
+                      <input
+                        type="time"
+                        id="endTime"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        step="1800" // 30분 단위
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="form-group">
+                <label htmlFor="endDateOffset">토론 종료 날짜</label>
+                <select
+                  id="endDateOffset"
+                  className="form-input"
+                  value={endDateOffset}
+                  onChange={(e) => setEndDateOffset(parseInt(e.target.value))}
+                  required
+                >
+                  <option value={1}>1일 후</option>
+                  <option value={2}>2일 후</option>
+                  <option value={3}>3일 후</option>
+                </select>
               </div>
-            </div>
+            )}
 
             <div className="form-group">
               <MarkdownEditor value={content} onChange={setContent} />

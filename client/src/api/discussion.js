@@ -5,11 +5,12 @@ import api from './axios';
  * @param {Object} params
  * @param {Array<string>} [params.categories] - 카테고리 필터
  * @param {Array<string>} [params.statuses] - 상태 필터
+ * @param {Array<string>} [params.discussionTypes] - 토론 타입 필터 (online, offline)
  * @param {string|null} params.cursor - 커서(처음엔 null)
  * @param {number} params.size - 페이지 크기
  * @returns {Promise<{content: Array, nextCursor: string|null, hasNext: boolean}>}
  */
-export async function fetchDiscussions({ categories, statuses, cursor = null, size = 10 } = {}) {
+export async function fetchDiscussions({ categories, statuses, discussionTypes, cursor = null, size = 10 } = {}) {
   const params = {
     cursor,
     size,
@@ -21,6 +22,9 @@ export async function fetchDiscussions({ categories, statuses, cursor = null, si
   if (statuses && statuses.length > 0) {
     params.statuses = statuses.join(',');
   }
+  if (discussionTypes && discussionTypes.length > 0) {
+    params.discussionTypes = discussionTypes.join(',');
+  }
 
   const res = await api.get('/discussions', { params });
   return {
@@ -31,16 +35,25 @@ export async function fetchDiscussions({ categories, statuses, cursor = null, si
   };
 }
 
-export async function createDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track, summary}) {
-  const res = await api.post('/discussions', {
+export async function createOfflineDiscussion({ title, content, startDateTime, endDateTime, participantCount, location, track}) {
+  const res = await api.post('/discussions/offline', {
     title,
     content,
     startAt: startDateTime,
     endAt: endDateTime,
     maxParticipantCount: participantCount,
     place: location,
-    category: track,
-    summary
+    category: track
+  });
+  return res.data;
+}
+
+export async function createOnlineDiscussion({ title, content, endDate, track }) {
+  const res = await api.post('/discussions/online', {
+    title,
+    content,
+    endDate,
+    category: track
   });
   return res.data;
 }
@@ -55,16 +68,25 @@ export async function participateDiscussion(id) {
   return res.data;
 }
 
-export async function updateDiscussion(id, { title, content, startDateTime, endDateTime, participantCount, location, track, summary}) {
-  const res = await api.patch(`/discussions/${id}`, {
+export async function updateOfflineDiscussion(id, { title, content, startDateTime, endDateTime, participantCount, location, track}) {
+  const res = await api.patch(`/discussions/offline/${id}`, {
     title,
     content,
     startAt: startDateTime,
     endAt: endDateTime,
     place: location,
     maxParticipantCount: participantCount,
-    category: track,
-    summary
+    category: track
+  });
+  return res.data;
+}
+
+export async function updateOnlineDiscussion(id, { title, content, endDate, track }) {
+  const res = await api.patch(`/discussions/online/${id}`, {
+    title,
+    content,
+    endDate,
+    category: track
   });
   return res.data;
 }
@@ -81,11 +103,12 @@ export async function deleteDiscussion(id) {
  * @param {string} params.query - 검색어
  * @param {Array<string>} [params.categories] - 카테고리 필터
  * @param {Array<string>} [params.statuses] - 상태 필터
+ * @param {Array<string>} [params.discussionTypes] - 토론 타입 필터 (online, offline)
  * @param {string|null} params.cursor - 커서(처음엔 null)
  * @param {number} params.size - 페이지 크기
  * @returns {Promise<{content: Array, nextCursor: string|null, hasNext: boolean}>}
  */
-export async function fetchSearchDiscussions({ searchBy, query, categories, statuses, cursor = null, size = 10 }) {
+export async function fetchSearchDiscussions({ searchBy, query, categories, statuses, discussionTypes, cursor = null, size = 10 }) {
   const params = {
     searchBy,
     query,
@@ -98,6 +121,9 @@ export async function fetchSearchDiscussions({ searchBy, query, categories, stat
   }
   if (statuses && statuses.length > 0) {
     params.statuses = statuses.join(',');
+  }
+  if (discussionTypes && discussionTypes.length > 0) {
+    params.discussionTypes = discussionTypes.join(',');
   }
 
   const res = await api.get('/discussions/search', { params });

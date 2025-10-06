@@ -4,7 +4,7 @@ import '../create/DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 import Header from '../../../components/Header/Header';
-import { findDiscussionById, updateDiscussion } from '../../../api/discussion';
+import { findDiscussionById, updateOfflineDiscussion, updateOnlineDiscussion } from '../../../api/discussion';
 
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
@@ -18,11 +18,18 @@ const DiscussionEditFormPage = () => {
   const { id } = useParams();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [discussionType, setDiscussionType] = useState('ONLINE');
+
+  // 오프라인 토론 필드
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [participantCount, setParticipantCount] = useState(2);
   const [location, setLocation] = useState('');
+
+  // 온라인 토론 필드
+  const [endDate, setEndDate] = useState('');
+
   const [track, setTrack] = useState('FRONTEND');
   const [isLoading, setIsLoading] = useState(true);
   
@@ -31,17 +38,25 @@ const DiscussionEditFormPage = () => {
       try {
         const response = await findDiscussionById(id);
         const discussion = response.data;
-        const startDate = new Date(discussion.startAt);
-        const endDate = new Date(discussion.endAt);
-        
-        setTitle(discussion.title);
-        setContent(discussion.content);
-        setDate(startDate.toISOString().split('T')[0]);
-        setStartTime(startDate.toTimeString().slice(0, 5));
-        setEndTime(endDate.toTimeString().slice(0, 5));
-        setParticipantCount(discussion.maxParticipantCount);
-        setLocation(discussion.place);
-        setTrack(discussion.track);
+
+        setTitle(discussion.commonDiscussionInfo.title);
+        setContent(discussion.commonDiscussionInfo.content);
+        setTrack(discussion.commonDiscussionInfo.category);
+        setDiscussionType(discussion.discussionType);
+
+        if (discussion.discussionType === 'OFFLINE' && discussion.offlineDiscussionInfo) {
+          const startDate = new Date(discussion.offlineDiscussionInfo.startAt);
+          const endDate = new Date(discussion.offlineDiscussionInfo.endAt);
+
+          setDate(startDate.toISOString().split('T')[0]);
+          setStartTime(startDate.toTimeString().slice(0, 5));
+          setEndTime(endDate.toTimeString().slice(0, 5));
+          setParticipantCount(discussion.offlineDiscussionInfo.maxParticipantCount);
+          setLocation(discussion.offlineDiscussionInfo.place);
+        } else if (discussion.discussionType === 'ONLINE' && discussion.onlineDiscussionInfo) {
+          setEndDate(discussion.onlineDiscussionInfo.endDate);
+        }
+
         setIsLoading(false);
       } catch (error) {
         alert('토론을 불러오는데 실패했습니다.');
@@ -54,19 +69,27 @@ const DiscussionEditFormPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const startDateTime = formatDateTime(date, startTime);
-    const endDateTime = formatDateTime(date, endTime);
     try {
-      await updateDiscussion(id, { 
-        title, 
-        content, 
-        startDateTime, 
-        endDateTime,
-        participantCount,
-        location,
-        track,
-        summary: ""
-      });
+      if (discussionType === 'OFFLINE') {
+        const startDateTime = formatDateTime(date, startTime);
+        const endDateTime = formatDateTime(date, endTime);
+        await updateOfflineDiscussion(id, {
+          title,
+          content,
+          startDateTime,
+          endDateTime,
+          participantCount,
+          location,
+          track
+        });
+      } else {
+        await updateOnlineDiscussion(id, {
+          title,
+          content,
+          endDate,
+          track
+        });
+      }
       navigate(`/discussion/${id}`);
     } catch (error) {
       alert(error.response.data.message);
@@ -114,72 +137,103 @@ const DiscussionEditFormPage = () => {
                   ))}
                 </select>
               </div>
+
               <div className="form-group flex-1">
-                <label htmlFor="location">토론 장소</label>
-                <input
-                  type="text"
-                  id="location"
-                  className="form-input"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
-                />
-              </div>
-              <div className="form-group participant-count">
-                <label htmlFor="participantCount">참여자 수</label>
-                <input
-                  type="number"
-                  id="participantCount"
-                  className="form-input"
-                  value={participantCount}
-                  onChange={handleParticipantCountChange}
-                  min="2"
-                  placeholder="최소 2명"
-                />
+                <label style={{ color: '#666' }}>
+                  토론 타입: {discussionType === 'OFFLINE' ? '대면 토론' : '비대면 토론'} (변경 불가)
+                </label>
               </div>
             </div>
 
-            <div className="datetime-container">
-              <div className="date-field">
-                <label htmlFor="date">날짜</label>
+            {discussionType === 'OFFLINE' ? (
+              <>
+                <div className="form-row">
+                  <div className="form-group flex-1">
+                    <label htmlFor="location">토론 장소</label>
+                    <input
+                      type="text"
+                      id="location"
+                      className="form-input"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
+                      required
+                    />
+                  </div>
+                  <div className="form-group participant-count">
+                    <label htmlFor="participantCount">참여자 수</label>
+                    <input
+                      type="number"
+                      id="participantCount"
+                      className="form-input"
+                      value={participantCount}
+                      onChange={handleParticipantCountChange}
+                      min="2"
+                      max="10"
+                      placeholder="최소 2명"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="datetime-container">
+                  <div className="date-field">
+                    <label htmlFor="date">날짜</label>
+                    <input
+                      type="date"
+                      id="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="time-inputs">
+                    <div className="time-field">
+                      <label htmlFor="startTime">시작 시간</label>
+                      <input
+                        type="time"
+                        id="startTime"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        step="1800" // 30분 단위
+                        required
+                      />
+                    </div>
+                    <div className="time-field">
+                      <label htmlFor="endTime">종료 시간</label>
+                      <input
+                        type="time"
+                        id="endTime"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        step="1800" // 30분 단위
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="form-group">
+                <label htmlFor="endDate">토론 종료 날짜</label>
                 <input
                   type="date"
-                  id="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  id="endDate"
+                  className="form-input"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
                 />
               </div>
-              <div className="time-inputs">
-                <div className="time-field">
-                  <label htmlFor="startTime">시작 시간</label>
-                  <input
-                    type="time"
-                    id="startTime"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    step="1800" // 30분 단위
-                  />
-                </div>
-                <div className="time-field">
-                  <label htmlFor="endTime">종료 시간</label>
-                  <input
-                    type="time"
-                    id="endTime"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    step="1800" // 30분 단위
-                  />
-                </div>
-              </div>
-            </div>
+            )}
 
             <div className="form-group">
               <MarkdownEditor value={content} onChange={setContent} />
             </div>
 
             <div className="discussion-form-actions">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="discussion-button discussion-button-cancel"
                 onClick={() => navigate(`/discussion/${id}`)}
               >

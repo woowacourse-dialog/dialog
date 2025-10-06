@@ -41,6 +41,7 @@ const Home = () => {
   // URL에서 필터 파라미터 추출
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
   const statuses = searchParams.get('statuses')?.split(',').filter(Boolean) || [];
+  const discussionTypes = searchParams.get('discussionTypes')?.split(',').filter(Boolean) || [];
 
   // useDiscussionList 훅 사용 - URL 파라미터를 직접 전달
   const {
@@ -51,7 +52,7 @@ const Home = () => {
     isFetchingMore,
     loadMore,
   } = useDiscussionList({
-    searchParams: { categories, statuses }, // query, searchType은 홈에서 사용 안 함
+    searchParams: { categories, statuses, discussionTypes }, // query, searchType은 홈에서 사용 안 함
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
@@ -80,13 +81,16 @@ const Home = () => {
   };
 
   // 필터 적용 핸들러: URL 파라미터 변경
-  const handleApplyFilters = ({ categories, statuses }) => {
+  const handleApplyFilters = ({ categories, statuses, discussionTypes }) => {
     const newParams = new URLSearchParams();
     if (categories.length > 0) {
       newParams.set('categories', categories.join(','));
     }
     if (statuses.length > 0) {
       newParams.set('statuses', statuses.join(','));
+    }
+    if (discussionTypes.length > 0) {
+      newParams.set('discussionTypes', discussionTypes.join(','));
     }
     const queryString = newParams.toString();
     // 필터 적용 시 항상 /discussion 경로로 이동
@@ -151,6 +155,7 @@ const Home = () => {
             <DiscussionFilter
               initialCategories={categories}
               initialStatuses={statuses}
+              initialDiscussionTypes={discussionTypes}
               onApply={handleApplyFilters}
               showFilter={showFilter}
               onToggleFilter={handleToggleFilter}

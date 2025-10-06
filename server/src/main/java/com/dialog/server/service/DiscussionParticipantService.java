@@ -32,10 +32,9 @@ public class DiscussionParticipantService {
                 .build();
 
         if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
-            throw new DialogException(ErrorCode.BAD_REQUEST);
+            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
         }
         offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
-        System.out.println("offlineDiscussion.getParticipantCount() = " + offlineDiscussion.getParticipantCount());
 
         discussionParticipantRepository.save(discussionParticipant);
     }

@@ -90,7 +90,7 @@ public class DiscussionService {
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
 
         if (!(savedDiscussion instanceof OfflineDiscussion offlineDiscussion)) {
-            throw new DialogException(ErrorCode.BAD_REQUEST);
+            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
         }
         offlineDiscussion.update(
                 request.title(),
@@ -110,7 +110,7 @@ public class DiscussionService {
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
 
         if (!(savedDiscussion instanceof OnlineDiscussion onlineDiscussion)) {
-            throw new DialogException(ErrorCode.BAD_REQUEST);
+            throw new DialogException(ErrorCode.NOT_ONLINE_DISCUSSION);
         }
         onlineDiscussion.update(
                 request.title(),

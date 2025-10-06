@@ -1,5 +1,7 @@
 package com.dialog.server.domain;
 
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -28,17 +30,17 @@ public class OnlineDiscussion extends Discussion {
     ) {
         super(title, content, category, summary, author);
         this.endDate = endDate;
-//        validateEndDate(endDate);
+        validateEndDate(endDate);
     }
 
-//    private void validateEndDate(LocalDate endDate) { // TODO: 이건 서비스 레이어에서 검증하는게 나으려나?
-//        LocalDate now = LocalDate.now();
-//        LocalDate maxEndDate = now.plusDays(3);
-//
-//        if (endDate.isBefore(now) || endDate.isAfter(maxEndDate)) {
-//            throw new DialogException(ErrorCode.INVALID_DISCUSSION_END_DATE);
-//        }
-//    }
+    private void validateEndDate(LocalDate endDate) {
+        LocalDate now = LocalDate.now();
+        LocalDate maxEndDate = now.plusDays(3);
+
+        if (endDate.isBefore(now) || endDate.isAfter(maxEndDate)) {
+            throw new DialogException(ErrorCode.INVALID_DISCUSSION_END_DATE);
+        }
+    }
 
     @Override
     public boolean canNotDelete() {

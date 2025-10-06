@@ -12,7 +12,7 @@ import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
-import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -128,9 +128,9 @@ class ScrapServiceTest {
         createScrap(user2, discussion5);
 
         //when
-        ScrapCursorPageResponse<DiscussionPreviewResponseV2> result1 = scrapService.getScrapedDiscussions(
+        ScrapCursorPageResponse<DiscussionPreviewResponse> result1 = scrapService.getScrapedDiscussions(
                 new ScrapCursorPageRequest(null, 2), user2.getId());
-        ScrapCursorPageResponse<DiscussionPreviewResponseV2> result2 = scrapService.getScrapedDiscussions(
+        ScrapCursorPageResponse<DiscussionPreviewResponse> result2 = scrapService.getScrapedDiscussions(
                 new ScrapCursorPageRequest(result1.nextCursorId(), 2), user2.getId());
 
         //then

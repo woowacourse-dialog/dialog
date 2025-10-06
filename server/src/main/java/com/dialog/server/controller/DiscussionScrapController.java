@@ -2,7 +2,7 @@ package com.dialog.server.controller;
 
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
-import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.dto.response.ScrapStatusResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
@@ -40,12 +40,12 @@ public class DiscussionScrapController {
     }
 
     @GetMapping("scraps/me")
-    public ResponseEntity<ApiSuccessResponse<ScrapCursorPageResponse<DiscussionPreviewResponseV2>>> getScraps(
+    public ResponseEntity<ApiSuccessResponse<ScrapCursorPageResponse<DiscussionPreviewResponse>>> getScraps(
             @RequestParam(required = false) Long lastCursorId,
             @RequestParam(defaultValue = "10") Integer size,
             @AuthenticatedUserId Long userId) {
         ScrapCursorPageRequest scrapCursorPageRequest = new ScrapCursorPageRequest(lastCursorId, size);
-        ScrapCursorPageResponse<DiscussionPreviewResponseV2> scrapedDiscussions = scrapService.getScrapedDiscussions(
+        ScrapCursorPageResponse<DiscussionPreviewResponse> scrapedDiscussions = scrapService.getScrapedDiscussions(
                 scrapCursorPageRequest, userId
         );
         return ResponseEntity.ok(new ApiSuccessResponse<>(scrapedDiscussions));

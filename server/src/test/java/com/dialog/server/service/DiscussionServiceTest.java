@@ -18,8 +18,8 @@ import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
 import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
-import com.dialog.server.dto.response.DiscussionDetailResponseV2;
-import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
@@ -100,7 +100,7 @@ class DiscussionServiceTest {
         );
         // when
         discussionService.updateOfflineDiscussion(response.discussionId(), request);
-        DiscussionDetailResponseV2 modifiedDiscussion = discussionService.getDiscussionById(response.discussionId());
+        DiscussionDetailResponse modifiedDiscussion = discussionService.getDiscussionById(response.discussionId());
         // then
         assertThat(modifiedDiscussion.commonDiscussionInfo().title()).isEqualTo(request.title());
     }
@@ -138,13 +138,13 @@ class DiscussionServiceTest {
         // when
         // 첫 번째 페이지 조회 (cursor 없음)
         DiscussionCursorPageRequest firstPageRequest = new DiscussionCursorPageRequest(null, pageSize);
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> firstPage =
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> firstPage =
                 discussionService.getDiscussionsPage(null, null, firstPageRequest);
 
         // 다음 페이지 조회 (첫 페이지의 nextCursor 사용)
         DiscussionCursorPageRequest secondPageRequest =
                 new DiscussionCursorPageRequest(firstPage.nextCursor(), pageSize);
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> secondPage =
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> secondPage =
                 discussionService.getDiscussionsPage(null, null, secondPageRequest);
 
         // then
@@ -160,10 +160,10 @@ class DiscussionServiceTest {
 
         // 중복 없이 순서대로 정렬되었는지 확인
         List<Long> firstPageIds = firstPage.content().stream()
-                .map(DiscussionPreviewResponseV2::id)
+                .map(DiscussionPreviewResponse::id)
                 .toList();
         List<Long> secondPageIds = secondPage.content().stream()
-                .map(DiscussionPreviewResponseV2::id)
+                .map(DiscussionPreviewResponse::id)
                 .toList();
 
         // 두 페이지 간에 중복이 없는지 확인
@@ -188,7 +188,7 @@ class DiscussionServiceTest {
         createDummyDiscussions(totalCount);
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
 
@@ -209,12 +209,12 @@ class DiscussionServiceTest {
         int totalCount = 20;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> firstSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
         );
 
@@ -235,15 +235,15 @@ class DiscussionServiceTest {
         int totalCount = 25;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> firstSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
         );
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> secondSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "홀수", null, null, secondSearch.nextCursor(), pageSize
         );
 
@@ -266,7 +266,7 @@ class DiscussionServiceTest {
         createDummyDiscussions(totalCount);
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
 
@@ -287,12 +287,12 @@ class DiscussionServiceTest {
         int totalCount = 20;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> firstSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
         );
 
@@ -313,15 +313,15 @@ class DiscussionServiceTest {
         int totalCount = 25;
         int pageSize = 5;
         createDummyDiscussions(totalCount);
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> firstSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
         );
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> secondSearch = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
-        final DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searched = discussionService.searchDiscussionWithFilters(
+        final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test 2", null, null, secondSearch.nextCursor(), pageSize
         );
 
@@ -348,9 +348,9 @@ class DiscussionServiceTest {
         Discussion discussion5 = discussionRepository.save(createOfflineDiscussion(user1));
 
         //when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result1 = discussionService.getDiscussionByAuthorId(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result1 = discussionService.getDiscussionByAuthorId(
                 new DiscussionCursorPageRequest(null, 2), user1.getId());
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result2 = discussionService.getDiscussionByAuthorId(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result2 = discussionService.getDiscussionByAuthorId(
                 new DiscussionCursorPageRequest(result1.nextCursor(), 2), user1.getId());
 
         //then
@@ -373,7 +373,7 @@ class DiscussionServiceTest {
         List<String> categories = List.of("backend", "frontend");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.getDiscussionsPage(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 Category.fromValues(categories), null, new DiscussionCursorPageRequest(null, 10)
         );
 
@@ -393,7 +393,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruiting");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.getDiscussionsPage(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 null, DiscussionStatus.fromValues(statuses), new DiscussionCursorPageRequest(null, 10)
         );
 
@@ -415,7 +415,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruiting");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.getDiscussionsPage(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
                 new DiscussionCursorPageRequest(null, 10)
@@ -439,7 +439,7 @@ class DiscussionServiceTest {
         List<String> categories = List.of("backend", "frontend");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "테스트", Category.fromValues(categories), null, null, 10
         );
 
@@ -459,7 +459,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruiting");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "테스트", null, DiscussionStatus.fromValues(statuses), null, 10
         );
 
@@ -481,7 +481,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruiting");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 TITLE_OR_CONTENT, "테스트",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
@@ -506,7 +506,7 @@ class DiscussionServiceTest {
         List<String> categories = List.of("android", "common");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test", Category.fromValues(categories), null, null, 10
         );
 
@@ -526,7 +526,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruitComplete");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test", null, DiscussionStatus.fromValues(statuses), null, 10
         );
 
@@ -548,7 +548,7 @@ class DiscussionServiceTest {
         List<String> statuses = List.of("recruitComplete");
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.searchDiscussionWithFilters(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
                 AUTHOR_NICKNAME, "test",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
@@ -572,7 +572,7 @@ class DiscussionServiceTest {
         createFilterTestData();
 
         // when
-        DiscussionCursorPageResponse<DiscussionPreviewResponseV2> result = discussionService.getDiscussionsPage(
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 null, null, new DiscussionCursorPageRequest(null, 10)
         );
 

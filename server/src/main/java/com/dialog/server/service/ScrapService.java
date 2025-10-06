@@ -7,7 +7,7 @@ import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
-import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -61,7 +61,7 @@ public class ScrapService {
     }
 
     @Transactional(readOnly = true)
-    public ScrapCursorPageResponse<DiscussionPreviewResponseV2> getScrapedDiscussions(
+    public ScrapCursorPageResponse<DiscussionPreviewResponse> getScrapedDiscussions(
             ScrapCursorPageRequest scrapCursorPageRequest, Long userId) {
         User user = getUserById(userId);
         List<Discussion> discussions = findScrapDiscussionsByCursor(scrapCursorPageRequest, user);
@@ -98,7 +98,7 @@ public class ScrapService {
         return scrapRepository.existsByUserAndDiscussion(user, discussion);
     }
 
-    private ScrapCursorPageResponse<DiscussionPreviewResponseV2> createCursorResponse(
+    private ScrapCursorPageResponse<DiscussionPreviewResponse> createCursorResponse(
             List<Discussion> discussions, int requestPageSize) {
         boolean hasNext = discussions.size() > requestPageSize;
 
@@ -114,16 +114,16 @@ public class ScrapService {
         Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
-        List<DiscussionPreviewResponseV2> responses = pagingDiscussions.stream()
+        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
                 .map(discussion -> {
                             if (discussion instanceof OfflineDiscussion offlineDiscussion) {
-                                return DiscussionPreviewResponseV2.fromOfflineDiscussion(
+                                return DiscussionPreviewResponse.fromOfflineDiscussion(
                                         offlineDiscussion,
                                         userProfileImageMap.get(offlineDiscussion.getAuthor()),
                                         commentCountMap.getOrDefault(offlineDiscussion.getId(), 0L)
                                 );
                             } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
-                                return DiscussionPreviewResponseV2.fromOnlineDiscussion(
+                                return DiscussionPreviewResponse.fromOnlineDiscussion(
                                         onlineDiscussion,
                                         userProfileImageMap.get(onlineDiscussion.getAuthor()),
                                         commentCountMap.getOrDefault(onlineDiscussion.getId(), 0L)

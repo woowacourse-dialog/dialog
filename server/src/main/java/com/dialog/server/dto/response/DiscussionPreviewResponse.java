@@ -3,47 +3,76 @@ package com.dialog.server.dto.response;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.OfflineDiscussion;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record DiscussionPreviewResponse(
         Long id,
-        String title,
-        String author,
-        ProfileImageResponse profileImage,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-        LocalDateTime startAt,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-        LocalDateTime endAt,
-        String place,
-        Category category,
-        int participantCount,
-        int maxParticipantCount,
-        LocalDateTime createdAt,
-        LocalDateTime modifiedAt,
-        long commentCount
+        DiscussionType discussionType,
+        CommonDiscussionInfo commonDiscussionInfo,
+        OfflineDiscussionInfo offlineDiscussionInfo,
+        OnlineDiscussionInfo onlineDiscussionInfo
 ) {
 
-    public static DiscussionPreviewResponse from(Discussion discussion, ProfileImage profileImage, long commentCount) {
-        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
-            return new DiscussionPreviewResponse(
-                    offlineDiscussion.getId(),
-                    offlineDiscussion.getTitle(),
-                    offlineDiscussion.getAuthor().getNickname(),
+    public static DiscussionPreviewResponse fromOfflineDiscussion(OfflineDiscussion offlineDiscussion, ProfileImage profileImage, long commentCount) {
+        CommonDiscussionInfo commonInfo = CommonDiscussionInfo.from(offlineDiscussion, profileImage, commentCount);
+
+        return new DiscussionPreviewResponse(
+                offlineDiscussion.getId(),
+                DiscussionType.OFFLINE,
+                commonInfo,
+                new OfflineDiscussionInfo(
+                        offlineDiscussion.getStartAt(),
+                        offlineDiscussion.getEndAt(),
+                        offlineDiscussion.getPlace(),
+                        offlineDiscussion.getParticipantCount(),
+                        offlineDiscussion.getMaxParticipantCount()
+                ),
+                null
+        );
+    }
+
+    public static DiscussionPreviewResponse fromOnlineDiscussion(OnlineDiscussion onlineDiscussion, ProfileImage profileImage, long commentCount) {
+        CommonDiscussionInfo commonInfo = CommonDiscussionInfo.from(onlineDiscussion, profileImage, commentCount);
+
+        return new DiscussionPreviewResponse(
+                onlineDiscussion.getId(),
+                DiscussionType.ONLINE,
+                commonInfo,
+                null,
+                new OnlineDiscussionInfo(onlineDiscussion.getEndDate())
+        );
+    }
+
+
+    public enum DiscussionType {
+        ONLINE, OFFLINE;
+    }
+
+    public record CommonDiscussionInfo(
+            String title,
+            String author,
+            ProfileImageResponse profileImage,
+            Category category,
+            LocalDateTime createdAt,
+            LocalDateTime modifiedAt,
+            long commentCount
+    ) {
+
+        private static CommonDiscussionInfo from(Discussion discussion, ProfileImage profileImage, long commentCount) {
+            return new CommonDiscussionInfo(
+                    discussion.getTitle(),
+                    discussion.getAuthor().getNickname(),
                     profileImage == null ? null : ProfileImageResponse.from(profileImage),
-                    offlineDiscussion.getStartAt(),
-                    offlineDiscussion.getEndAt(),
-                    offlineDiscussion.getPlace(),
-                    offlineDiscussion.getCategory(),
-                    offlineDiscussion.getParticipantCount(),
-                    offlineDiscussion.getMaxParticipantCount(),
-                    offlineDiscussion.getCreatedAt(),
-                    offlineDiscussion.getModifiedAt(),
+                    discussion.getCategory(),
+                    discussion.getCreatedAt(),
+                    discussion.getModifiedAt(),
                     commentCount
             );
         }
-        throw new IllegalArgumentException("Unsupported discussion type");
     }
 
     public record ProfileImageResponse(
@@ -56,5 +85,22 @@ public record DiscussionPreviewResponse(
                     profileImage.getCustomImageUri()
             );
         }
+    }
+
+    private record OfflineDiscussionInfo(
+            @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+            LocalDateTime startAt,
+            @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+            LocalDateTime endAt,
+            String place,
+            int participantCount,
+            int maxParticipantCount
+    ) {
+    }
+
+    private record OnlineDiscussionInfo(
+            @JsonFormat(pattern = "yyyy-MM-dd")
+            LocalDate endDate
+    ) {
     }
 }

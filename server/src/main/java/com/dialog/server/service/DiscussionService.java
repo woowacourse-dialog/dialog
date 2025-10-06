@@ -16,8 +16,8 @@ import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
-import com.dialog.server.dto.response.DiscussionDetailResponseV2;
-import com.dialog.server.dto.response.DiscussionPreviewResponseV2;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
+import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
@@ -130,7 +130,7 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionDetailResponseV2 getDiscussionById(Long discussionId) {
+    public DiscussionDetailResponse getDiscussionById(Long discussionId) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
         User author = discussion.getAuthor();
@@ -138,13 +138,13 @@ public class DiscussionService {
         long likeCount = likeRepository.countByDiscussion(discussion);
 
         if (discussion instanceof OfflineDiscussion offlineDiscussion) {
-            return DiscussionDetailResponseV2.fromOfflineDiscussion(
+            return DiscussionDetailResponse.fromOfflineDiscussion(
                     offlineDiscussion,
                     likeCount,
                     profileImage
             );
         } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
-            return DiscussionDetailResponseV2.fromOnlineDiscussion(
+            return DiscussionDetailResponse.fromOnlineDiscussion(
                     onlineDiscussion,
                     likeCount,
                     profileImage
@@ -155,7 +155,7 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> getDiscussionsPage(
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
             DiscussionCursorPageRequest request
@@ -191,7 +191,7 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> searchDiscussionWithFilters(
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussionWithFilters(
             SearchType searchType,
             String query,
             List<Category> categories,
@@ -222,7 +222,7 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponseV2> getDiscussionByAuthorId(
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionByAuthorId(
             DiscussionCursorPageRequest request,
             Long authorId
     ) {
@@ -236,7 +236,7 @@ public class DiscussionService {
         return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
     }
 
-    private DiscussionCursorPageResponse<DiscussionPreviewResponseV2> createCursorBasedDiscussionsByAuthor(
+    private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(
             String cursor, int pageSize, User author) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
@@ -335,7 +335,7 @@ public class DiscussionService {
         return discussions;
     }
 
-    private DiscussionCursorPageResponse<DiscussionPreviewResponseV2> buildDateCursorResponse(
+    private DiscussionCursorPageResponse<DiscussionPreviewResponse> buildDateCursorResponse(
             List<Discussion> discussions, int pageSize) {
         boolean hasNext = discussions.size() > pageSize;
 
@@ -352,16 +352,16 @@ public class DiscussionService {
         Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
-        List<DiscussionPreviewResponseV2> responses = pagingDiscussions.stream()
+        List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
                 .map(discussion -> {
                             if (discussion instanceof OfflineDiscussion offlineDiscussion) {
-                                return DiscussionPreviewResponseV2.fromOfflineDiscussion(
+                                return DiscussionPreviewResponse.fromOfflineDiscussion(
                                         offlineDiscussion,
                                         userProfileImageMap.get(offlineDiscussion.getAuthor()),
                                         commentCountMap.getOrDefault(offlineDiscussion.getId(), 0L)
                                 );
                             } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
-                                return DiscussionPreviewResponseV2.fromOnlineDiscussion(
+                                return DiscussionPreviewResponse.fromOnlineDiscussion(
                                         onlineDiscussion,
                                         userProfileImageMap.get(onlineDiscussion.getAuthor()),
                                         commentCountMap.getOrDefault(onlineDiscussion.getId(), 0L)

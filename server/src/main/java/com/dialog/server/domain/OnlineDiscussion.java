@@ -19,6 +19,24 @@ public class OnlineDiscussion extends Discussion {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    public static Discussion withNoValidateOf(
+            String title,
+            String content,
+            Category category,
+            String summary,
+            User author,
+            LocalDate endDate
+    ) {
+        OnlineDiscussion onlineDiscussion = new OnlineDiscussion();
+        onlineDiscussion.title = title;
+        onlineDiscussion.content = content;
+        onlineDiscussion.category = category;
+        onlineDiscussion.summary = summary;
+        onlineDiscussion.author = author;
+        onlineDiscussion.endDate = endDate;
+        return onlineDiscussion;
+    }
+
     @Builder
     private OnlineDiscussion(
             String title,

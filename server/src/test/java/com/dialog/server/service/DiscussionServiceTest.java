@@ -663,46 +663,50 @@ class DiscussionServiceTest {
 
         // ONLINE + BACKEND + IN_DISCUSSION
         discussionRepository.save(
-                OnlineDiscussion.builder()
-                        .title("테스트")
-                        .content("content")
-                        .author(user2)
-                        .category(Category.BACKEND)
-                        .endDate(LocalDate.now().plusDays(3))
-                        .build()
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.BACKEND,
+                        null,
+                        user2,
+                        LocalDate.now().plusDays(3)
+                )
         );
 
         // ONLINE + BACKEND + DISCUSSION_COMPLETE
         discussionRepository.save(
-                OnlineDiscussion.builder()
-                        .title("테스트")
-                        .content("content")
-                        .author(user2)
-                        .category(Category.BACKEND)
-                        .endDate(LocalDate.now().minusDays(3))
-                        .build()
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.BACKEND,
+                        null,
+                        user2,
+                        LocalDate.now().minusDays(3)
+                )
         );
 
         // ONLINE + FE + IN_DISCUSSION
         discussionRepository.save(
-                OnlineDiscussion.builder()
-                        .title("테스트")
-                        .content("content")
-                        .author(user2)
-                        .category(Category.FRONTEND)
-                        .endDate(LocalDate.now().plusDays(3))
-                        .build()
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.FRONTEND,
+                        null,
+                        user2,
+                        LocalDate.now().plusDays(3)
+                )
         );
 
         // ONLINE + AN + DISCUSSION_COMPLETE
         discussionRepository.save(
-                OnlineDiscussion.builder()
-                        .title("테스트")
-                        .content("content")
-                        .author(user2)
-                        .category(Category.ANDROID)
-                        .endDate(LocalDate.now().minusDays(3))
-                        .build()
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.ANDROID,
+                        null,
+                        user2,
+                        LocalDate.now().minusDays(3)
+                )
         );
     }
 

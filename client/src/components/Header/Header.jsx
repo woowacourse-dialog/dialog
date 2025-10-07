@@ -68,7 +68,8 @@ const Header = () => {
           ) : (
             <button className="nav-button login-button" onClick={handleGithubLogin}>
               <img src={githubLogo} alt="github" width={18} height={18} />
-              Sign in with GitHub
+              <span className="login-text-full">Sign in with GitHub</span>
+              <span className="login-text-short">Sign in</span>
             </button>
           )}
         </div>

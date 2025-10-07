@@ -104,6 +104,14 @@
   background-color: #2f363d;
 }
 
+.login-text-short {
+  display: none;
+}
+
+.login-text-full {
+  display: inline;
+}
+
 .mypage-button, .logout-button {
   background: none;
   border: 1.5px solid #ccc;
@@ -187,7 +195,7 @@
     width: 32px;
     height: 32px;
   }
-  
+
   .header-logo span {
     font-size: 1.1rem;
   }
@@ -203,5 +211,13 @@
 
   .header-nav ul {
     gap: 0.5rem;
+  }
+
+  .login-text-full {
+    display: none;
+  }
+
+  .login-text-short {
+    display: inline;
   }
 }

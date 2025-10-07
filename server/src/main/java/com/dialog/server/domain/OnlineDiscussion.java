@@ -51,20 +51,6 @@ public class OnlineDiscussion extends Discussion {
         validateEndDate(endDate);
     }
 
-    private void validateEndDate(LocalDate endDate) {
-        LocalDate now = LocalDate.now();
-        LocalDate maxEndDate = now.plusDays(3);
-
-        if (endDate.isBefore(now) || endDate.isAfter(maxEndDate)) {
-            throw new DialogException(ErrorCode.INVALID_DISCUSSION_END_DATE);
-        }
-    }
-
-    @Override
-    public boolean canNotDelete() {
-        return false;
-    }
-
     public void update(
             String title,
             String content,
@@ -72,10 +58,25 @@ public class OnlineDiscussion extends Discussion {
             LocalDate endDate
     ) {
         validateDiscussion(title, content);
+        validateEndDate(endDate);
         this.title = title;
         this.content = content;
         this.category = category;
         this.endDate = endDate;
+    }
+
+    private void validateEndDate(LocalDate endDate) {
+        LocalDate now = LocalDate.now();
+        LocalDate maxEndDate = now.plusDays(3);
+
+        if (endDate.isBefore(now) || endDate.isAfter(maxEndDate)) {
+            throw new DialogException(ErrorCode.INVALID_ONLINE_DISCUSSION_END_DATE);
+        }
+    }
+
+    @Override
+    public boolean canNotDelete() {
+        return false;
     }
 
     @Override

@@ -58,7 +58,7 @@ public enum ErrorCode {
 
     NOT_OFFLINE_DISCUSSION("5071", "오프라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
     NOT_ONLINE_DISCUSSION("5072", "온라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
-    INVALID_DISCUSSION_END_DATE("5073", "토론 종료일이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ONLINE_DISCUSSION_END_DATE("5073", "오늘로부터 최대 3일동안 토론을 열 수 있습니다.", HttpStatus.BAD_REQUEST),
     ;
 
     public final String code;

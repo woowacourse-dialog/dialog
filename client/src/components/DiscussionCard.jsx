@@ -6,10 +6,10 @@ import commentIcon from '../assets/comment-icon.svg';
 import styles from './DiscussionCard.module.css';
 
 const TRACKS = [
-  { id: 'FRONTEND', name: '프론트엔드' },
-  { id: 'BACKEND', name: '백엔드' },
-  { id: 'ANDROID', name: '안드로이드' },
-  { id: 'COMMON', name: '공통' }
+  { id: 'FRONTEND', name: 'FE' },
+  { id: 'BACKEND', name: 'BE' },
+  { id: 'ANDROID', name: 'AN' },
+  { id: 'COMMON', name: 'ALL' }
 ];
 
 // 프로필 이미지 URL을 가져오는 함수
@@ -73,9 +73,8 @@ export default function DiscussionCard({
       className={styles.discussionCard}
       onClick={() => navigate(`/discussion/${id}`)}
     >
-      {/* 우측 상단 카테고리/상태 박스 */}
+      {/* 우측 상단 상태 박스 */}
       <div className={styles.categoryStatusContainer}>
-        <span className={styles.categoryBadge}>{getTrackName(commonDiscussionInfo.category)}</span>
         <span
           className={styles.statusBadge}
           style={{
@@ -87,12 +86,21 @@ export default function DiscussionCard({
         </span>
       </div>
 
-      {/* 본문 */}
-      <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-        {commonDiscussionInfo.title}
+      {/* 토론 타입 */}
+      <div className={styles.discussionTypeBadge}>
+        {discussionType === 'OFFLINE' ? '오프라인' : '온라인'}
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+      {/* 제목 영역 */}
+      <div className={styles.titleRow}>
+        <span className={styles.categoryBadge}>{getTrackName(commonDiscussionInfo.category)}</span>
+        <div className={styles.title}>
+          {commonDiscussionInfo.title}
+        </div>
+      </div>
+
+      {/* 작성자 정보 */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
         <img
           src={getProfileImageSrc(commonDiscussionInfo.author?.profileImage)}
           alt="프로필 이미지"
@@ -105,10 +113,8 @@ export default function DiscussionCard({
             border: '2px solid #e0e0e0'
           }}
         />
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 16 }}>
-            {commonDiscussionInfo.author}
-          </div>
+        <div style={{ fontWeight: 600, fontSize: 16 }}>
+          {commonDiscussionInfo.author}
         </div>
       </div>
 
@@ -132,6 +138,7 @@ export default function DiscussionCard({
             <span>종료일: {onlineDiscussionInfo.endDate}</span>
           </div>
           <div className={styles.participantInfo}>
+            <span></span>
             <span className={styles.commentInfo}>
               <img src={commentIcon} alt="댓글" width="14" height="14" style={{ color: '#666' }} />
               <span className={styles.commentCount}>{commonDiscussionInfo.commentCount}</span>

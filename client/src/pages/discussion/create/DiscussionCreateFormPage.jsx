@@ -130,33 +130,32 @@ const DiscussionCreateFormPage = () => {
               <TitleInput value={title} setTitle={setTitle} />
             </div>
 
-            <div className="form-row">
-              <div className="form-group flex-1">
-                <label htmlFor="track">트랙</label>
-                <select
-                  id="track"
-                  className="form-input"
-                  value={track}
-                  onChange={(e) => setTrack(e.target.value)}
-                >
-                  {TRACKS.map(t => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="form-group">
+              <label htmlFor="track">트랙</label>
+              <select
+                id="track"
+                className="form-input"
+                value={track}
+                onChange={(e) => setTrack(e.target.value)}
+              >
+                {TRACKS.map(t => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="form-group flex-1">
-                <label htmlFor="discussionType" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="form-group">
+              <div className="toggle-container">
+                <span className="toggle-label">만나서 토론하기</span>
+                <label className="toggle-switch">
                   <input
                     type="checkbox"
-                    id="discussionType"
                     checked={isOffline}
                     onChange={(e) => setIsOffline(e.target.checked)}
-                    style={{ width: 'auto' }}
                   />
-                  만나서 토론하기
+                  <span className="toggle-slider"></span>
                 </label>
               </div>
             </div>
@@ -172,7 +171,7 @@ const DiscussionCreateFormPage = () => {
                       className="form-input"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
+                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅, 강남역"
                       required
                     />
                   </div>

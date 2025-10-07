@@ -156,7 +156,7 @@ const DiscussionEditFormPage = () => {
                       className="form-input"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
-                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅"
+                      placeholder="예: 굿샷, 나이스샷, 온라인 줌 미팅, 강남역"
                       required
                     />
                   </div>

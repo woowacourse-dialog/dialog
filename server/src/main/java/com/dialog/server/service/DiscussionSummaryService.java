@@ -30,30 +30,8 @@ public class DiscussionSummaryService {
     private final DiscussionRepository discussionRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
 
-    public String generateSummaryByDiscussionId(Long discussionId) {
-
-        // Discussion Id를 이용해서 Discussion 본문을 가져온다.
-        Discussion discussion = discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-
-        // 이미 요약된 내용이 존재하는 경우 요약된 내용을 반환한다.
-        String summary;
-        if (!(summary = discussion.getSummary()).isBlank()) {
-            return summary;
-        }
-
-        // Discussion Id를 이용해서 댓글 - 작성자 - 내용을 가져온다.
-        List<DiscussionComment> allComments = discussionCommentRepository.findByDiscussion(discussion);
-
-        // 최상위 댓글만 필터링 (parentDiscussionComment가 null인 것들)
-        Map<DiscussionComment, List<DiscussionComment>> commentsAndReply = allComments.stream()
-                .filter(comment -> !comment.hasParent())
-                .collect(Collectors.toMap(
-                        comment -> comment,
-                        discussionCommentRepository::findByParentDiscussionComment
-                ));
-
-        // 해당 내용을 프롬프트에 입력하기 위한 폼으로 변경한다.
+    private static String parseToPromptContent(Discussion discussion,
+                                               Map<DiscussionComment, List<DiscussionComment>> commentsAndReply) {
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append("[토론 본문]\n");
         contentBuilder.append("제목: ").append(discussion.getTitle()).append("\n");
@@ -70,8 +48,45 @@ public class DiscussionSummaryService {
             });
         });
 
-        String content = contentBuilder.toString();
+        return contentBuilder.toString();
+    }
 
+    public String generateSummaryByDiscussionId(Long discussionId) {
+
+        Discussion discussion = getDiscussion(discussionId);
+
+        String summary;
+        if (!(summary = discussion.getSummary()).isBlank()) {
+            return summary;
+        }
+
+        Map<DiscussionComment, List<DiscussionComment>> commentsAndReply = getDiscussionCommentAndReply(
+                discussion);
+
+        String content = parseToPromptContent(discussion, commentsAndReply);
+
+        summary = getAiSummary(content);
+
+        return summary;
+    }
+
+    private Discussion getDiscussion(Long discussionId) {
+        return discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+    }
+
+    private Map<DiscussionComment, List<DiscussionComment>> getDiscussionCommentAndReply(Discussion discussion) {
+        List<DiscussionComment> allComments = discussionCommentRepository.findByDiscussion(discussion);
+
+        return allComments.stream()
+                .filter(comment -> !comment.hasParent())
+                .collect(Collectors.toMap(
+                        comment -> comment,
+                        discussionCommentRepository::findByParentDiscussionComment
+                ));
+    }
+
+    private String getAiSummary(String content) {
         try {
             String systemPrompt = loadPrompt(SYSTEM_PROMPT_PATH);
             String userPrompt = loadPrompt(USER_PROMPT_PATH);

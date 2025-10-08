@@ -3,6 +3,7 @@ package com.dialog.server.service;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
@@ -41,7 +42,6 @@ public class AiSummaryServiceTest {
         // AI 요약 생성
         Long discussionId = createTestDiscussion();
         String result = aiSummaryService.generateSummaryByDiscussionId(discussionId);
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         System.out.println(result);
     }
 
@@ -83,22 +83,17 @@ public class AiSummaryServiceTest {
                 .build();
         userRepository.save(kangsan);
 
-        // 테스트용 Discussion 생성
+        // 테스트용 OnlineDiscussion 생성
         LocalDateTime now = LocalDateTime.now();
-        Discussion discussion = Discussion.withNoValidateOf(
+        Discussion discussion = OnlineDiscussion.withNoValidateOf(
                 "admin 기능을 개발하기 위해 멀티 모듈 구조를 도입하는 것에 대한 의견",
                 "admin 기능 개발을 위해 멀티 모듈을 도입하여 core, api, admin 모듈로 분리하는 것이 좋을지에 대한 토론입니다. "
                         + "물리적으로 다른 서버에서 운영하여 트래픽을 독립적으로 관리하고, 고가용성 환경에서 리소스를 절약할 수 있다는 장점이 있지만, "
                         + "현재 단계에서는 오버 엔지니어링일 수 있다는 우려도 있습니다.",
-                now.plusDays(1),
-                now.plusDays(1).plusHours(2),
-                "온라인",
-                0,
-                0,
-                5,
                 Category.BACKEND,
                 "",
-                author
+                author,
+                now.plusDays(1).toLocalDate()
         );
         Discussion savedDiscussion = discussionRepository.save(discussion);
 

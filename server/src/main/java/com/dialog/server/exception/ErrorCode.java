@@ -60,8 +60,8 @@ public enum ErrorCode {
     NOT_ONLINE_DISCUSSION("5072", "온라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
     INVALID_ONLINE_DISCUSSION_END_DATE("5073", "오늘로부터 최대 3일동안 토론을 열 수 있습니다.", HttpStatus.BAD_REQUEST),
 
-    FAIL_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    ;
+    FAILED_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     public final String code;
     public final String message;

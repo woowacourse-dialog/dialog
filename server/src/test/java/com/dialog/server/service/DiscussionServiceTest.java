@@ -9,11 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
+import com.dialog.server.domain.OfflineDiscussion;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
 import com.dialog.server.dto.response.DiscussionDetailResponse;
@@ -86,21 +89,21 @@ class DiscussionServiceTest {
         User savedUser = userRepository.save(createUser());
         profileImageRepository.save(createProfileImage(savedUser));
         DiscussionCreateResponse response = saveDiscussion(savedUser);
-        DiscussionUpdateRequest request = new DiscussionUpdateRequest(
+        OfflineDiscussionUpdateRequest request = new OfflineDiscussionUpdateRequest(
                 "modified title",
                 "test content",
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(30),
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(13,0)),
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14,0)),
                 "test place",
                 6,
                 Category.BACKEND,
                 "test summary"
         );
         // when
-        discussionService.updateDiscussion(response.discussionId(), request);
+        discussionService.updateOfflineDiscussion(response.discussionId(), request);
         DiscussionDetailResponse modifiedDiscussion = discussionService.getDiscussionById(response.discussionId());
         // then
-        assertThat(modifiedDiscussion.title()).isEqualTo(request.title());
+        assertThat(modifiedDiscussion.commonDiscussionInfo().title()).isEqualTo(request.title());
     }
 
     @Test
@@ -112,7 +115,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            DiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createOfflineDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     "테스트 내용입니다",
                     LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)).plusMinutes(15),
@@ -123,7 +126,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, user.getId());
+            discussionService.createOfflineDiscussion(request, user.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -137,13 +140,13 @@ class DiscussionServiceTest {
         // 첫 번째 페이지 조회 (cursor 없음)
         DiscussionCursorPageRequest firstPageRequest = new DiscussionCursorPageRequest(null, pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> firstPage =
-                discussionService.getDiscussionsPage(null, null, firstPageRequest);
+                discussionService.getDiscussionsPage(null, null, null, firstPageRequest);
 
         // 다음 페이지 조회 (첫 페이지의 nextCursor 사용)
         DiscussionCursorPageRequest secondPageRequest =
                 new DiscussionCursorPageRequest(firstPage.nextCursor(), pageSize);
         DiscussionCursorPageResponse<DiscussionPreviewResponse> secondPage =
-                discussionService.getDiscussionsPage(null, null, secondPageRequest);
+                discussionService.getDiscussionsPage(null, null, null, secondPageRequest);
 
         // then
         // 첫 번째 페이지 검증
@@ -187,7 +190,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
 
         // then
@@ -195,8 +198,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(pageSize),
                 () -> assertThat(searched.hasNext()).isTrue(),
                 () -> assertThat(searched.nextCursor()).isNotNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("19"),
-                () -> assertThat(searched.content().getLast().title()).contains("11")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("19"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("11")
         );
     }
 
@@ -208,12 +211,12 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -221,8 +224,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(pageSize),
                 () -> assertThat(searched.hasNext()).isFalse(),
                 () -> assertThat(searched.nextCursor()).isNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("9"),
-                () -> assertThat(searched.content().getLast().title()).contains("1")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("9"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("1")
         );
     }
 
@@ -234,15 +237,15 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, null, pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, null, pageSize
         );
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, firstSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "홀수", null, null, secondSearch.nextCursor(), pageSize
+                TITLE_OR_CONTENT, "홀수", null, null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then
@@ -250,8 +253,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(3),
                 () -> assertThat(searched.hasNext()).isFalse(),
                 () -> assertThat(searched.nextCursor()).isNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("5"),
-                () -> assertThat(searched.content().getLast().title()).contains("1")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("5"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("1")
         );
     }
 
@@ -265,7 +268,7 @@ class DiscussionServiceTest {
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
 
         // then
@@ -273,8 +276,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(pageSize),
                 () -> assertThat(searched.hasNext()).isTrue(),
                 () -> assertThat(searched.nextCursor()).isNotNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("20"),
-                () -> assertThat(searched.content().getLast().title()).contains("12")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("20"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("12")
         );
     }
 
@@ -286,12 +289,12 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // then
@@ -299,8 +302,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(pageSize),
                 () -> assertThat(searched.hasNext()).isFalse(),
                 () -> assertThat(searched.nextCursor()).isNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("10"),
-                () -> assertThat(searched.content().getLast().title()).contains("2")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("10"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("2")
         );
     }
 
@@ -312,15 +315,15 @@ class DiscussionServiceTest {
         int pageSize = 5;
         createDummyDiscussions(totalCount);
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> firstSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, null, pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, null, pageSize
         );
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> secondSearch = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, firstSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, firstSearch.nextCursor(), pageSize
         );
 
         // when
         final DiscussionCursorPageResponse<DiscussionPreviewResponse> searched = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test 2", null, null, secondSearch.nextCursor(), pageSize
+                AUTHOR_NICKNAME, "test 2", null, null, null, secondSearch.nextCursor(), pageSize
         );
 
         // then
@@ -328,8 +331,8 @@ class DiscussionServiceTest {
                 () -> assertThat(searched.content()).hasSize(2),
                 () -> assertThat(searched.hasNext()).isFalse(),
                 () -> assertThat(searched.nextCursor()).isNull(),
-                () -> assertThat(searched.content().getFirst().title()).contains("4"),
-                () -> assertThat(searched.content().getLast().title()).contains("2")
+                () -> assertThat(searched.content().getFirst().commonDiscussionInfo().title()).contains("4"),
+                () -> assertThat(searched.content().getLast().commonDiscussionInfo().title()).contains("2")
         );
     }
 
@@ -339,11 +342,11 @@ class DiscussionServiceTest {
         //given
         User user1 = userRepository.save(createUser());
         User user2 = userRepository.save(createUser());
-        Discussion discussion1 = discussionRepository.save(createDiscussion(user1));
-        Discussion discussion2 = discussionRepository.save(createDiscussion(user1));
-        discussionRepository.save(createDiscussion(user2));
-        Discussion discussion4 = discussionRepository.save(createDiscussion(user1));
-        Discussion discussion5 = discussionRepository.save(createDiscussion(user1));
+        Discussion discussion1 = discussionRepository.save(createOfflineDiscussion(user1));
+        Discussion discussion2 = discussionRepository.save(createOfflineDiscussion(user1));
+        discussionRepository.save(createOfflineDiscussion(user2));
+        Discussion discussion4 = discussionRepository.save(createOfflineDiscussion(user1));
+        Discussion discussion5 = discussionRepository.save(createOfflineDiscussion(user1));
 
         //when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result1 = discussionService.getDiscussionByAuthorId(
@@ -372,15 +375,15 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                Category.fromValues(categories), null, new DiscussionCursorPageRequest(null, 10)
+                Category.fromValues(categories), null, null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(4),
+                () -> assertThat(result.content()).hasSize(7),
                 () -> assertThat(result.content()).allMatch(discussion ->
-                        discussion.category().equals(Category.BACKEND) ||
-                                discussion.category().equals(Category.FRONTEND))
+                        discussion.commonDiscussionInfo().category().equals(Category.BACKEND) ||
+                                discussion.commonDiscussionInfo().category().equals(Category.FRONTEND))
         );
     }
 
@@ -392,7 +395,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                null, DiscussionStatus.fromValues(statuses), new DiscussionCursorPageRequest(null, 10)
+                null, DiscussionStatus.fromValues(statuses), null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
@@ -416,13 +419,14 @@ class DiscussionServiceTest {
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                null,
                 new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
         assertAll(
                 () -> assertThat(result.content()).hasSize(1),
-                () -> assertThat(result.content().getFirst().category()).isEqualTo(Category.BACKEND),
+                () -> assertThat(result.content().getFirst().commonDiscussionInfo().category()).isEqualTo(Category.BACKEND),
                 () -> {
                     Discussion entity = discussionRepository.findById(result.content().getFirst().id()).orElseThrow();
                     assertThat(entity.getDiscussionStatus()).isEqualTo(DiscussionStatus.RECRUITING);
@@ -438,15 +442,15 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트", Category.fromValues(categories), null, null, 10
+                TITLE_OR_CONTENT, "테스트", Category.fromValues(categories), null, null, null, 10
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(4),
+                () -> assertThat(result.content()).hasSize(7),
                 () -> assertThat(result.content()).allMatch(discussion ->
-                        discussion.category().equals(Category.BACKEND) ||
-                                discussion.category().equals(Category.FRONTEND))
+                        discussion.commonDiscussionInfo().category().equals(Category.BACKEND) ||
+                                discussion.commonDiscussionInfo().category().equals(Category.FRONTEND))
         );
     }
 
@@ -458,7 +462,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트", null, DiscussionStatus.fromValues(statuses), null, 10
+                TITLE_OR_CONTENT, "테스트", null, DiscussionStatus.fromValues(statuses), null, null, 10
         );
 
         // then
@@ -480,20 +484,56 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                TITLE_OR_CONTENT, "테스트",
+                TITLE_OR_CONTENT,
+                "테스트",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
-                null, 10
+                null,
+                null,
+                10
         );
 
         // then
         assertAll(
                 () -> assertThat(result.content()).hasSize(1),
-                () -> assertThat(result.content().getFirst().category()).isEqualTo(Category.BACKEND),
+                () -> assertThat(result.content().getFirst().commonDiscussionInfo().category()).isEqualTo(Category.BACKEND),
                 () -> {
                     Discussion entity = discussionRepository.findById(result.content().getFirst().id()).orElseThrow();
                     assertThat(entity.getDiscussionStatus()).isEqualTo(DiscussionStatus.RECRUITING);
                 }
+        );
+    }
+
+    @Test
+    void 제목_또는_본문_검색_시_카테고리와_토론_상태_토론_종류_필터를_동시에_적용할_수_있다() {
+        // given
+        createFilterTestData();
+        List<String> categories = List.of("backend");
+        List<String> statuses = List.of("inDiscussion");
+        List<String> types = List.of("online");
+
+        // when
+        DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
+                TITLE_OR_CONTENT,
+                "테스트",
+                Category.fromValues(categories),
+                DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(types),
+                null,
+                10
+        );
+
+        // then
+        assertAll(
+                () -> assertThat(result.content()).hasSize(1),
+                () -> assertThat(result.content().getFirst().commonDiscussionInfo().category()).isEqualTo(Category.BACKEND),
+                () -> {
+                    Discussion entity = discussionRepository.findById(result.content().getFirst().id()).orElseThrow();
+                    assertThat(entity.getDiscussionStatus()).isEqualTo(DiscussionStatus.IN_DISCUSSION);
+                },
+                () -> assertThat(result.content()).allMatch(discussion ->
+                        discussion.onlineDiscussionInfo() != null && discussion.offlineDiscussionInfo() == null
+                )
         );
     }
 
@@ -505,15 +545,15 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test", Category.fromValues(categories), null, null, 10
+                AUTHOR_NICKNAME, "test", Category.fromValues(categories), null, null, null, 10
         );
 
         // then
         assertAll(
-                () -> assertThat(result.content()).hasSize(2),
+                () -> assertThat(result.content()).hasSize(3),
                 () -> assertThat(result.content()).allMatch(discussion ->
-                        discussion.category().equals(Category.ANDROID) ||
-                                discussion.category().equals(Category.COMMON))
+                        discussion.commonDiscussionInfo().category().equals(Category.ANDROID) ||
+                                discussion.commonDiscussionInfo().category().equals(Category.COMMON))
         );
     }
 
@@ -525,7 +565,7 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test", null, DiscussionStatus.fromValues(statuses), null, 10
+                AUTHOR_NICKNAME, "test", null, DiscussionStatus.fromValues(statuses), null, null, 10
         );
 
         // then
@@ -547,16 +587,19 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.searchDiscussionWithFilters(
-                AUTHOR_NICKNAME, "test",
+                AUTHOR_NICKNAME,
+                "test",
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
-                null, 10
+                null,
+                null,
+                10
         );
 
         // then
         assertAll(
                 () -> assertThat(result.content()).hasSize(1),
-                () -> assertThat(result.content().getFirst().category()).isEqualTo(Category.COMMON),
+                () -> assertThat(result.content().getFirst().commonDiscussionInfo().category()).isEqualTo(Category.COMMON),
                 () -> {
                     Discussion entity = discussionRepository.findById(result.content().getFirst().id()).orElseThrow();
                     assertThat(entity.getDiscussionStatus()).isEqualTo(DiscussionStatus.RECRUIT_COMPLETE);
@@ -571,11 +614,11 @@ class DiscussionServiceTest {
 
         // when
         DiscussionCursorPageResponse<DiscussionPreviewResponse> result = discussionService.getDiscussionsPage(
-                null, null, new DiscussionCursorPageRequest(null, 10)
+                null, null, null, new DiscussionCursorPageRequest(null, 10)
         );
 
         // then
-        assertThat(result.content()).hasSize(6);
+        assertThat(result.content()).hasSize(10);
     }
 
     private void createFilterTestData() {
@@ -583,57 +626,104 @@ class DiscussionServiceTest {
         User user2 = userRepository.save(createUser2());
 
         // BACKEND + RECRUITING (참가자 수 < 최대 참가자 수, 시작 시간이 미래)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 백엔드 1", Category.BACKEND,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 1, 5
         ));
 
         // FRONTEND + RECRUITING
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 프론트엔드 1", Category.FRONTEND,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 2, 5
         ));
 
         // ANDROID + RECRUITING
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 안드로이드 1", Category.ANDROID,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 3, 5
         ));
 
         // COMMON + RECRUIT_COMPLETE (참가자 수 = 최대 참가자 수, 시작 시간이 미래)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 공통 1", Category.COMMON,
                 LocalDateTime.now().plusHours(2), LocalDateTime.now().plusHours(4), 3, 3
         ));
 
         // FRONTEND + IN_DISCUSSION (현재 진행 중)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user1, "테스트 프론트엔드 2", Category.FRONTEND,
                 LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 2, 5
         ));
 
         // BACKEND + DISCUSSION_COMPLETE (종료된 토론)
-        discussionRepository.save(createDiscussionForFilter(
+        discussionRepository.save(createOfflineDiscussionForFilter(
                 user2, "테스트 백엔드 2", Category.BACKEND,
                 LocalDateTime.now().minusHours(3), LocalDateTime.now().minusHours(1), 4, 5
         ));
+
+        // ONLINE + BACKEND + IN_DISCUSSION
+        discussionRepository.save(
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.BACKEND,
+                        null,
+                        user2,
+                        LocalDate.now().plusDays(3)
+                )
+        );
+
+        // ONLINE + BACKEND + DISCUSSION_COMPLETE
+        discussionRepository.save(
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.BACKEND,
+                        null,
+                        user2,
+                        LocalDate.now().minusDays(3)
+                )
+        );
+
+        // ONLINE + FE + IN_DISCUSSION
+        discussionRepository.save(
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.FRONTEND,
+                        null,
+                        user2,
+                        LocalDate.now().plusDays(3)
+                )
+        );
+
+        // ONLINE + AN + DISCUSSION_COMPLETE
+        discussionRepository.save(
+                OnlineDiscussion.withNoValidateOf(
+                        "테스트",
+                        "content",
+                        Category.ANDROID,
+                        null,
+                        user2,
+                        LocalDate.now().minusDays(3)
+                )
+        );
     }
 
-    private Discussion createDiscussionForFilter(User author, String title, Category category,
+    private Discussion createOfflineDiscussionForFilter(User author, String title, Category category,
                                                  LocalDateTime startAt, LocalDateTime endAt,
                                                  int participantCount, int maxParticipantCount) {
-        return Discussion.withNoValidateOf(
+        return OfflineDiscussion.withNoValidateOf(
                 title,
                 "test content",
+                category,
+                "test summary",
+                author,
                 startAt,
                 endAt,
                 "test place",
-                0,
-                participantCount,
                 maxParticipantCount,
-                category,
-                "test summary",
-                author
+                participantCount
         );
     }
 
@@ -643,7 +733,7 @@ class DiscussionServiceTest {
 
         // 여러 토론 게시글 생성 (시간 간격을 두고)
         for (int i = 0; i < totalCount; i++) {
-            DiscussionCreateRequest request = createDiscussionRequest(
+            OfflineDiscussionCreateRequest request = createOfflineDiscussionRequest(
                     "테스트 제목 " + (i + 1),
                     i % 2 == 0 ? "홀수" : "짝수",
                     LocalDateTime.now().plusHours(1),
@@ -654,7 +744,7 @@ class DiscussionServiceTest {
                     "테스트 요약"
             );
 
-            discussionService.createDiscussion(request, i % 2 == 0 ? user1.getId() : user2.getId());
+            discussionService.createOfflineDiscussion(request, i % 2 == 0 ? user1.getId() : user2.getId());
 
             // 생성 시간에 차이를 두기 위해 약간의 지연 추가
             try {
@@ -665,7 +755,7 @@ class DiscussionServiceTest {
         }
     }
 
-    private DiscussionCreateRequest createDiscussionRequest(
+    private OfflineDiscussionCreateRequest createOfflineDiscussionRequest(
             String title,
             String content,
             LocalDateTime startAt,
@@ -674,7 +764,7 @@ class DiscussionServiceTest {
             int maxParticipantCount,
             Category category,
             String summary) {
-        return new DiscussionCreateRequest(
+        return new OfflineDiscussionCreateRequest(
                 title,
                 content,
                 startAt,
@@ -686,7 +776,7 @@ class DiscussionServiceTest {
         );
     }
 
-    private List<DiscussionCreateRequest> createDiscussionsRequestWithParameters(
+    private List<OfflineDiscussionCreateRequest> createOfflineDiscussionsRequestWithParameters(
             int amount,
             String titlePrefix,
             String content,
@@ -698,7 +788,7 @@ class DiscussionServiceTest {
             String summary
     ) {
         return IntStream.range(0, amount)
-                .mapToObj(i -> new DiscussionCreateRequest(
+                .mapToObj(i -> new OfflineDiscussionCreateRequest(
                         titlePrefix + (i + 1),
                         content,
                         startTime,
@@ -738,7 +828,7 @@ class DiscussionServiceTest {
     }
 
     private DiscussionCreateResponse saveDiscussion(User savedUser) {
-        List<DiscussionCreateRequest> request = createDiscussionsRequestWithParameters(
+        List<OfflineDiscussionCreateRequest> request = createOfflineDiscussionsRequestWithParameters(
                 1,
                 "modified title",
                 "test content",
@@ -748,11 +838,11 @@ class DiscussionServiceTest {
                 6,
                 Category.BACKEND,
                 "test summary");
-        return discussionService.createDiscussion(request.getFirst(), savedUser.getId());
+        return discussionService.createOfflineDiscussion(request.getFirst(), savedUser.getId());
     }
 
-    private Discussion createDiscussion(User author) {
-        return Discussion.builder()
+    private Discussion createOfflineDiscussion(User author) {
+        return OfflineDiscussion.builder()
                 .title("title")
                 .content("content")
                 .author(author)
@@ -763,7 +853,6 @@ class DiscussionServiceTest {
                 .maxParticipantCount(4)
                 .participantCount(1)
                 .place("place")
-                .viewCount(2)
                 .build();
     }
 }

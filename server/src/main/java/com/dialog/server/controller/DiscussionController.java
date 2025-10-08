@@ -2,10 +2,13 @@ package com.dialog.server.controller;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.dto.auth.AuthenticatedUserId;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -37,14 +40,52 @@ public class DiscussionController {
     private final DiscussionService discussionService;
     private final NotificationService notificationService;
 
-    @PostMapping
-    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postDiscussion(
-            @RequestBody @Valid DiscussionCreateRequest request, @AuthenticatedUserId Long userId) {
-        DiscussionCreateResponse response = discussionService.createDiscussion(request, userId);
+    @PostMapping("/offline")
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postOfflineDiscussion(
+            @RequestBody @Valid OfflineDiscussionCreateRequest request,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionCreateResponse response = discussionService.createOfflineDiscussion(request, userId);
         final URI uri = URI.create("/api/discussions/" + response.discussionId());
         notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
         return ResponseEntity.created(uri)
                 .body(new ApiSuccessResponse<>(response));
+    }
+
+    @PostMapping("/online")
+    public ResponseEntity<ApiSuccessResponse<DiscussionCreateResponse>> postOfflineDiscussion(
+            @RequestBody @Valid OnlineDiscussionCreateRequest request,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionCreateResponse response = discussionService.createOnlineDiscussion(request, userId);
+        final URI uri = URI.create("/api/discussions/" + response.discussionId());
+        notificationService.sendDiscussionCreatedNotification(userId, uri.getRawPath());
+        return ResponseEntity.created(uri)
+                .body(new ApiSuccessResponse<>(response));
+    }
+
+    @PatchMapping("/offline/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateOfflineDiscussion(
+            @PathVariable Long id,
+            @Valid @RequestBody OfflineDiscussionUpdateRequest request
+    ) {
+        discussionService.updateOfflineDiscussion(id, request);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
+    }
+
+    @PatchMapping("/online/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateOnlineDiscussion(
+            @PathVariable Long id,
+            @Valid @RequestBody OnlineDiscussionUpdateRequest request
+    ) {
+        discussionService.updateOnlineDiscussion(id, request);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiSuccessResponse<Void>> deleteDiscussion(@PathVariable Long id) {
+        discussionService.deleteDiscussion(id);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
 
     @GetMapping("/{id}")
@@ -58,6 +99,7 @@ public class DiscussionController {
     public ResponseEntity<ApiSuccessResponse<DiscussionCursorPageResponse<DiscussionPreviewResponse>>> getDiscussionsWithCursor(
             @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
+            @RequestParam(required = false) List<String> discussionTypes,
             @RequestParam(required = false) String cursor,
             @RequestParam int size
     ) {
@@ -65,6 +107,7 @@ public class DiscussionController {
         DiscussionCursorPageResponse<DiscussionPreviewResponse> pageDiscussions = discussionService.getDiscussionsPage(
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(discussionTypes),
                 request
         );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(pageDiscussions));
@@ -76,6 +119,7 @@ public class DiscussionController {
             @RequestParam String query,
             @RequestParam(required = false) List<String> categories,
             @RequestParam(required = false) List<String> statuses,
+            @RequestParam(required = false) List<String> discussionTypes,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
@@ -84,23 +128,11 @@ public class DiscussionController {
                 query,
                 Category.fromValues(categories),
                 DiscussionStatus.fromValues(statuses),
+                DiscussionType.fromValues(discussionTypes),
                 cursor,
                 size
         );
         return ResponseEntity.ok().body(new ApiSuccessResponse<>(searched));
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<Void>> updateDiscussion(@PathVariable Long id,
-                                                                     @Valid @RequestBody DiscussionUpdateRequest request) {
-        discussionService.updateDiscussion(id, request);
-        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiSuccessResponse<Void>> deleteDiscussion(@PathVariable Long id) {
-        discussionService.deleteDiscussion(id);
-        return ResponseEntity.ok().body(new ApiSuccessResponse<>(null));
     }
 
     @GetMapping("/me")

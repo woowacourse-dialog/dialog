@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
@@ -314,7 +315,7 @@ class DiscussionCommentServiceTest {
     }
 
     private Discussion createDiscussion(User author) {
-        return Discussion.builder()
+        return OfflineDiscussion.builder()
                 .title("테스트 토론")
                 .content("테스트 내용")
                 .author(author)
@@ -325,7 +326,6 @@ class DiscussionCommentServiceTest {
                 .maxParticipantCount(5)
                 .participantCount(1)
                 .place("테스트 장소")
-                .viewCount(0)
                 .build();
     }
 

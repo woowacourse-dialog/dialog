@@ -9,132 +9,70 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Getter
+@Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE discussions SET deleted_at = CURRENT_TIMESTAMP WHERE discussion_id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @Table(name = "discussions")
 @Entity
-public class Discussion extends BaseEntity {
+public abstract class Discussion extends BaseEntity {
 
     private static final int MAX_TITLE_LENGTH = 50;
     private static final int MAX_CONTENT_LENGTH = 10000;
     private static final int MAX_SUMMARY_LENGTH = 300;
-    private static final LocalTime MIN_START_AT = LocalTime.of(8, 0);
-    private static final LocalTime MAX_START_AT = LocalTime.of(23, 0);
-    private static final int MIN_ALLOWED_MAX_PARTICIPANTS = 1;
-    private static final int MAX_ALLOWED_MAX_PARTICIPANTS = 10;
-    @OneToMany(mappedBy = "discussion")
-    private final List<DiscussionParticipant> discussionParticipants = new ArrayList<>();
+
     @Column(name = "discussion_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
     @Column(nullable = false)
-    private String title;
+    protected String title;
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
-    @Column(nullable = false)
-    private LocalDateTime startAt;
-    @Column(nullable = false)
-    private LocalDateTime endAt;
-    @Column(nullable = false)
-    private String place;
-    @Column(nullable = false)
-    private int viewCount;
-    @Column(nullable = false)
-    private int participantCount;
-    @Column(nullable = false)
-    private int maxParticipantCount;
+    protected String content;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Category category;
-    private String summary;
+    protected Category category;
+    protected String summary;
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
-    private User author;
+    protected User author;
     private LocalDateTime deletedAt;
 
-    @Builder
-    private Discussion(String title,
-                       String content,
-                       LocalDateTime startAt,
-                       LocalDateTime endAt,
-                       String place,
-                       int viewCount,
-                       int participantCount,
-                       int maxParticipantCount,
-                       Category category,
-                       String summary,
-                       User author) {
-        validateDiscussion(title, content, startAt, endAt, maxParticipantCount, summary);
+    protected Discussion(
+            String title,
+            String content,
+            Category category,
+            String summary,
+            User author
+    ) {
+        validateDiscussion(title, content);
         this.title = title;
         this.content = content;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.place = place;
-        this.viewCount = viewCount;
-        this.participantCount = participantCount;
-        this.maxParticipantCount = maxParticipantCount;
         this.category = category;
         this.summary = summary;
         this.author = author;
     }
 
-    public static Discussion withNoValidateOf(String title,
-                                              String content,
-                                              LocalDateTime startAt,
-                                              LocalDateTime endAt,
-                                              String place,
-                                              int viewCount,
-                                              int participantCount,
-                                              int maxParticipantCount,
-                                              Category category,
-                                              String summary,
-                                              User author) {
-        Discussion discussion = new Discussion();
-        discussion.title = title;
-        discussion.content = content;
-        discussion.startAt = startAt;
-        discussion.endAt = endAt;
-        discussion.place = place;
-        discussion.viewCount = viewCount;
-        discussion.participantCount = participantCount;
-        discussion.maxParticipantCount = maxParticipantCount;
-        discussion.category = category;
-        discussion.summary = summary;
-        discussion.author = author;
-        return discussion;
-    }
-
-    private void validateDiscussion(
+    protected void validateDiscussion(
             String title,
-            String content,
-            LocalDateTime startAt,
-            LocalDateTime endAt,
-            int maxParticipantCount,
-            String summary
+            String content
     ) {
         validateTitleLength(title);
         validateContentLength(content);
 //        validateSummaryLength(summary);
-        validateTime(startAt, endAt);
-        validateMaxParticipantCount(maxParticipantCount);
     }
 
     private void validateTitleLength(String content) {
@@ -149,89 +87,13 @@ public class Discussion extends BaseEntity {
         }
     }
 
-    private void validateSummaryLength(String summary) {
+    private void validateSummaryLength(String summary) { // TODO: 논의 필요
         if (summary.isBlank() || summary.length() > MAX_SUMMARY_LENGTH) {
             throw new DialogException(ErrorCode.INVALID_DISCUSSION_SUMMARY);
         }
     }
 
-    private void validateTime(LocalDateTime startAt, LocalDateTime endAt) {
-        if (startAt.isBefore(LocalDateTime.now())) {
-            throw new DialogException(ErrorCode.INVALID_DISCUSSION_TIME);
-        }
+    public abstract boolean canNotDelete(); // TODO: 삭제 논의
 
-        if (startAt.isAfter(endAt) || endAt.isBefore(startAt)) {
-            throw new DialogException(ErrorCode.INVALID_DISCUSSION_TIME);
-        }
-
-        LocalTime startTime = startAt.toLocalTime();
-        if (startTime.isBefore(MIN_START_AT) || startTime.isAfter(MAX_START_AT)) {
-            throw new DialogException(ErrorCode.INVALID_DISCUSSION_START_TIME);
-        }
-    }
-
-    private void validateMaxParticipantCount(int maxParticipantCount) {
-        if (maxParticipantCount < MIN_ALLOWED_MAX_PARTICIPANTS || maxParticipantCount > MAX_ALLOWED_MAX_PARTICIPANTS) {
-            throw new DialogException(ErrorCode.INVALID_DISCUSSION_MAX_PARTICIPANTS);
-        }
-    }
-
-    public void update(String title,
-                       String content,
-                       LocalDateTime startAt,
-                       LocalDateTime endAt,
-                       String place,
-                       int maxParticipantCount,
-                       Category category,
-                       String summary) {
-        this.title = title;
-        this.content = content;
-        this.startAt = startAt;
-        this.endAt = endAt;
-        this.place = place;
-        this.maxParticipantCount = maxParticipantCount;
-        this.category = category;
-        this.summary = summary;
-    }
-
-    public boolean canNotDelete() {
-        return LocalDateTime.now().isAfter(startAt);
-    }
-
-    public void participate(LocalDateTime participateAt, DiscussionParticipant discussionParticipant) {
-        validateAlreadyStarted(participateAt);
-        validateExceedMaxParticipantCount();
-        validateAlreadyParticipant(discussionParticipant);
-        discussionParticipants.add(discussionParticipant);
-        participantCount++;
-    }
-
-    private void validateAlreadyStarted(LocalDateTime participateAt) {
-        if (startAt.isBefore(participateAt)) {
-            throw new DialogException(ErrorCode.DISCUSSION_ALREADY_STARTED);
-        }
-    }
-
-    private void validateExceedMaxParticipantCount() {
-        if (discussionParticipants.size() >= maxParticipantCount) {
-            throw new DialogException(ErrorCode.PARTICIPATION_LIMIT_EXCEEDED);
-        }
-    }
-
-    private void validateAlreadyParticipant(DiscussionParticipant discussionParticipant) {
-        for (DiscussionParticipant alreadyDiscussionParticipant : discussionParticipants) {
-            if (alreadyDiscussionParticipant.isSameParticipant(discussionParticipant)) {
-                throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
-            }
-        }
-    }
-
-    public DiscussionStatus getDiscussionStatus() {
-        return DiscussionStatus.decideDiscussionStatus(
-                this.startAt,
-                this.endAt,
-                this.participantCount,
-                this.maxParticipantCount
-        );
-    }
+    public abstract DiscussionStatus getDiscussionStatus();
 }

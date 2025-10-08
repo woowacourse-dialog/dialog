@@ -4,7 +4,6 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
-
 import com.dialog.server.dto.response.ScrapStatusResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.ScrapService;

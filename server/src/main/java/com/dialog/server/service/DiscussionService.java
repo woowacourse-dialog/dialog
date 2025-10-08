@@ -4,11 +4,16 @@ import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
+import com.dialog.server.domain.OfflineDiscussion;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
-import com.dialog.server.dto.request.DiscussionCreateRequest;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
-import com.dialog.server.dto.request.DiscussionUpdateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionCreateRequest;
+import com.dialog.server.dto.request.OnlineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.SearchType;
 import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
@@ -22,6 +27,7 @@ import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,45 +58,66 @@ public class DiscussionService {
     private final DiscussionCommentRepository discussionCommentRepository;
 
     @Transactional
-    public DiscussionCreateResponse createDiscussion(DiscussionCreateRequest request, Long userId) {
+    public DiscussionCreateResponse createOfflineDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
         User author = getUser(userId);
-        Discussion discussion = request.toDiscussion(author);
-        try {
-            Discussion savedDiscussion = discussionRepository.save(discussion);
-            participantDiscussion(author, discussion);
-            return DiscussionCreateResponse.from(savedDiscussion);
-        } catch (IllegalArgumentException ex) {
-            throw new DialogException(ErrorCode.CREATE_DISCUSSION_FAILED);
-        }
+        OfflineDiscussion offlineDiscussion = request.toOfflineDiscussion(author);
+
+        Discussion savedDiscussion = discussionRepository.save(offlineDiscussion);
+        participateOfflineDiscussion(author, offlineDiscussion);
+        return DiscussionCreateResponse.from(savedDiscussion);
+    }
+
+    private void participateOfflineDiscussion(User author, OfflineDiscussion offlineDiscussion) {
+        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
+                .participant(author)
+                .discussion(offlineDiscussion)
+                .build();
+        offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
+        discussionParticipantRepository.save(discussionParticipant);
+    }
+
+    public DiscussionCreateResponse createOnlineDiscussion(
+            final @Valid OnlineDiscussionCreateRequest request, final Long userId) {
+        User author = getUser(userId);
+        OnlineDiscussion onlineDiscussion = request.toOnlineDiscussion(author);
+        Discussion savedDiscussion = discussionRepository.save(onlineDiscussion);
+        return DiscussionCreateResponse.from(savedDiscussion);
     }
 
     @Transactional
-    public void updateDiscussion(Long discussionId, DiscussionUpdateRequest request) {
+    public void updateOfflineDiscussion(Long discussionId, OfflineDiscussionUpdateRequest request) {
         Discussion savedDiscussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-        savedDiscussion.update(
+
+        if (!(savedDiscussion instanceof OfflineDiscussion offlineDiscussion)) {
+            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
+        }
+        offlineDiscussion.update(
                 request.title(),
                 request.content(),
+                request.category(),
+                request.summary(),
                 request.startAt(),
                 request.endAt(),
                 request.place(),
-                request.maxParticipantCount(),
-                request.category(),
-                request.summary()
+                request.maxParticipantCount()
         );
     }
 
-    @Transactional(readOnly = true)
-    public DiscussionDetailResponse getDiscussionById(Long discussionId) {
-        Discussion discussion = discussionRepository.findById(discussionId)
+    @Transactional
+    public void updateOnlineDiscussion(Long discussionId, OnlineDiscussionUpdateRequest request) {
+        Discussion savedDiscussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-        User author = discussion.getAuthor();
-        ProfileImage profileImage = profileImageRepository.findByUser(author).orElse(null);
-        List<DiscussionParticipant> discussionParticipants = discussionParticipantRepository.findByDiscussion(
-                discussion
+
+        if (!(savedDiscussion instanceof OnlineDiscussion onlineDiscussion)) {
+            throw new DialogException(ErrorCode.NOT_ONLINE_DISCUSSION);
+        }
+        onlineDiscussion.update(
+                request.title(),
+                request.content(),
+                request.category(),
+                request.endDate()
         );
-        long likeCount = likeRepository.countByDiscussion(discussion);
-        return DiscussionDetailResponse.of(discussion, likeCount, discussionParticipants, profileImage);
     }
 
     @Transactional
@@ -104,23 +131,50 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
+    public DiscussionDetailResponse getDiscussionById(Long discussionId) {
+        Discussion discussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+        User author = discussion.getAuthor();
+        ProfileImage profileImage = profileImageRepository.findByUser(author).orElse(null);
+        long likeCount = likeRepository.countByDiscussion(discussion);
+
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return DiscussionDetailResponse.fromOfflineDiscussion(
+                    offlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+            return DiscussionDetailResponse.fromOnlineDiscussion(
+                    onlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        }
+
+        throw new DialogException(ErrorCode.BAD_REQUEST);
+    }
+
+    @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
-            DiscussionCursorPageRequest request) {
+            List<DiscussionType> discussionTypes,
+            DiscussionCursorPageRequest request
+    ) {
         int pageSize = request.size();
         String cursor = request.cursor();
 
         List<Discussion> discussions;
 
         if (cursor == null || cursor.isEmpty()) {
-            discussions = discussionRepository.findWithFiltersPageable(categories, statuses,
+            discussions = discussionRepository.findWithFiltersPageable(
+                    categories, statuses, discussionTypes,
                     PageRequest.of(
                             0,
                             pageSize + 1
                     )
             );
-//            discussions = discussionRepository.findFirstPageDiscussionsByDate(PageRequest.of(0, pageSize + 1));
         } else {
             String[] cursorParts = cursor.split(CURSOR_PART_DELIMITER);
             LocalDateTime cursorTime = LocalDateTime.parse(cursorParts[CURSOR_TIME_INDEX]);
@@ -129,27 +183,26 @@ public class DiscussionService {
             discussions = discussionRepository.findWithFiltersBeforeDateCursor(
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     pageSize + 1
             );
-//            discussions = discussionRepository.findDiscussionsBeforeDateCursor(
-//                    cursorTime,
-//                    cursorId,
-//                    PageRequest.of(0, pageSize + 1)
-//            );
         }
 
         return buildDateCursorResponse(discussions, pageSize);
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussionWithFilters(SearchType searchType,
-                                                                                               String query,
-                                                                                               List<Category> categories,
-                                                                                               List<DiscussionStatus> statuses,
-                                                                                               String cursor,
-                                                                                               int size) {
+    public DiscussionCursorPageResponse<DiscussionPreviewResponse> searchDiscussionWithFilters(
+            SearchType searchType,
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            String cursor,
+            int size
+    ) {
         validatePageSize(size);
         List<Discussion> discussions;
         switch (searchType) {
@@ -157,6 +210,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursor,
                     size
             );
@@ -164,6 +218,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursor,
                     size
             );
@@ -175,7 +230,8 @@ public class DiscussionService {
     @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionByAuthorId(
             DiscussionCursorPageRequest request,
-            Long authorId) {
+            Long authorId
+    ) {
         int pageSize = request.size();
         String cursor = request.cursor();
 
@@ -221,17 +277,21 @@ public class DiscussionService {
         }
     }
 
-    private List<Discussion> searchDiscussionByTitleOrContentWithFilters(String query,
-                                                                         List<Category> categories,
-                                                                         List<DiscussionStatus> statuses,
-                                                                         String cursor,
-                                                                         int size) {
+    private List<Discussion> searchDiscussionByTitleOrContentWithFilters(
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            String cursor,
+            int size
+    ) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findByTitleOrContentContainingWithFiltersPageable(
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     PageRequest.of(0, size + 1)
             );
         } else {
@@ -243,6 +303,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     size + 1
@@ -251,17 +312,21 @@ public class DiscussionService {
         return discussions;
     }
 
-    private List<Discussion> searchDiscussionByAuthorNicknameWithFilters(String query,
-                                                                         List<Category> categories,
-                                                                         List<DiscussionStatus> statuses,
-                                                                         String cursor,
-                                                                         int size) {
+    private List<Discussion> searchDiscussionByAuthorNicknameWithFilters(
+            String query,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<com.dialog.server.domain.DiscussionType> discussionTypes,
+            String cursor,
+            int size
+    ) {
         List<Discussion> discussions;
         if (cursor == null || cursor.isEmpty()) {
             discussions = discussionRepository.findByAuthorNicknameContainingWithFiltersPageable(
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     PageRequest.of(0, size + 1)
             );
         } else {
@@ -273,6 +338,7 @@ public class DiscussionService {
                     query,
                     categories,
                     statuses,
+                    discussionTypes,
                     cursorTime,
                     cursorId,
                     size + 1
@@ -299,11 +365,22 @@ public class DiscussionService {
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
         List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
-                .map(discussion -> DiscussionPreviewResponse.from(
-                                discussion,
-                                userProfileImageMap.get(discussion.getAuthor()),
-                                commentCountMap.getOrDefault(discussion.getId(), 0L)
-                        )
+                .map(discussion -> {
+                            if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+                                return DiscussionPreviewResponse.fromOfflineDiscussion(
+                                        offlineDiscussion,
+                                        userProfileImageMap.get(offlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(offlineDiscussion.getId(), 0L)
+                                );
+                            } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+                                return DiscussionPreviewResponse.fromOnlineDiscussion(
+                                        onlineDiscussion,
+                                        userProfileImageMap.get(onlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(onlineDiscussion.getId(), 0L)
+                                );
+                            }
+                            throw new DialogException(ErrorCode.BAD_REQUEST);
+                        }
                 )
                 .toList();
 
@@ -321,17 +398,8 @@ public class DiscussionService {
         List<Long> discussionIds = discussions.stream().map(Discussion::getId).toList();
         return discussionIds.stream()
                 .collect(Collectors.toMap(
-                    Function.identity(),
-                    discussionCommentRepository::countByDiscussionId
+                        Function.identity(),
+                        discussionCommentRepository::countByDiscussionId
                 ));
-    }
-
-    private void participantDiscussion(User author, Discussion discussion) {
-        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
-                .participant(author)
-                .discussion(discussion)
-                .build();
-        discussion.participate(LocalDateTime.now(), discussionParticipant);
-        discussionParticipantRepository.save(discussionParticipant);
     }
 }

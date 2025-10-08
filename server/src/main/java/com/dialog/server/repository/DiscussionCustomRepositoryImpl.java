@@ -3,10 +3,14 @@ package com.dialog.server.repository;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionStatus;
+import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.domain.QDiscussion;
+import com.dialog.server.domain.QOfflineDiscussion;
+import com.dialog.server.domain.QOnlineDiscussion;
 import com.dialog.server.domain.QUser;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -19,17 +23,25 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
 
     private final JPAQueryFactory queryFactory;
     private final QDiscussion discussion = QDiscussion.discussion;
+    private final QOfflineDiscussion offlineDiscussion = QOfflineDiscussion.offlineDiscussion;
+    private final QOnlineDiscussion onlineDiscussion = QOnlineDiscussion.onlineDiscussion;
     private final QUser user = QUser.user;
 
     @Override
-    public List<Discussion> findWithFiltersPageable(List<Category> categories, List<DiscussionStatus> statuses,
-                                                    Pageable pageable) {
+    public List<Discussion> findWithFiltersPageable(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            Pageable pageable) {
+
         return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
-                        statusIn(statuses)
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
@@ -38,14 +50,22 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     }
 
     @Override
-    public List<Discussion> findWithFiltersBeforeDateCursor(List<Category> categories, List<DiscussionStatus> statuses,
-                                                            LocalDateTime cursor, Long id, int limit) {
+    public List<Discussion> findWithFiltersBeforeDateCursor(
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            LocalDateTime cursor,
+            Long id,
+            int limit) {
+
         return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         categoryIn(categories),
                         statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
                         cursorBefore(cursor, id)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
@@ -54,17 +74,22 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     }
 
     @Override
-    public List<Discussion> findByTitleOrContentContainingWithFiltersPageable(String keyword,
-                                                                              List<Category> categories,
-                                                                              List<DiscussionStatus> statuses,
-                                                                              Pageable pageable) {
+    public List<Discussion> findByTitleOrContentContainingWithFiltersPageable(
+            String keyword,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            Pageable pageable) {
+
         return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
-                        statusIn(statuses)
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
                 .offset(pageable.getOffset())
@@ -73,19 +98,74 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
     }
 
     @Override
-    public List<Discussion> findByTitleOrContentContainingWithFiltersBeforeDateCursor(String keyword,
-                                                                                      List<Category> categories,
-                                                                                      List<DiscussionStatus> statuses,
-                                                                                      LocalDateTime cursor,
-                                                                                      Long cursorId,
-                                                                                      int limit) {
+    public List<Discussion> findByTitleOrContentContainingWithFiltersBeforeDateCursor(
+            String keyword,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            LocalDateTime cursor,
+            Long cursorId,
+            int limit) {
+
         return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
                 .where(
                         titleOrContentContains(keyword),
                         categoryIn(categories),
                         statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
+                        cursorBefore(cursor, cursorId)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public List<Discussion> findByAuthorNicknameContainingWithFiltersPageable(
+            String nickname,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            Pageable pageable) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
+                .where(
+                        nicknameContains(nickname),
+                        categoryIn(categories),
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes)
+                )
+                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Override
+    public List<Discussion> findByAuthorNicknameContainingWithFiltersBeforeDateCursor(
+            String nickname,
+            List<Category> categories,
+            List<DiscussionStatus> statuses,
+            List<DiscussionType> discussionTypes,
+            LocalDateTime cursor,
+            Long cursorId,
+            int limit) {
+
+        return queryFactory.selectFrom(discussion)
+                .leftJoin(offlineDiscussion).on(discussion.id.eq(offlineDiscussion.id))
+                .leftJoin(onlineDiscussion).on(discussion.id.eq(onlineDiscussion.id))
+                .innerJoin(discussion.author, user).fetchJoin()
+                .where(
+                        nicknameContains(nickname),
+                        categoryIn(categories),
+                        statusIn(statuses),
+                        discussionTypeIn(discussionTypes),
                         cursorBefore(cursor, cursorId)
                 )
                 .orderBy(discussion.createdAt.desc(), discussion.id.desc())
@@ -97,49 +177,9 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
         if (!hasText(keyword)) {
             return null;
         }
-        final String trimmed = keyword.trim();
+        String trimmed = keyword.trim();
         return discussion.title.containsIgnoreCase(trimmed)
                 .or(discussion.content.containsIgnoreCase(trimmed));
-    }
-
-    @Override
-    public List<Discussion> findByAuthorNicknameContainingWithFiltersPageable(String nickname,
-                                                                              List<Category> categories,
-                                                                              List<DiscussionStatus> statuses,
-                                                                              Pageable pageable) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
-                .where(
-                        nicknameContains(nickname),
-                        categoryIn(categories),
-                        statusIn(statuses)
-                )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-    }
-
-    @Override
-    public List<Discussion> findByAuthorNicknameContainingWithFiltersBeforeDateCursor(String nickname,
-                                                                                      List<Category> categories,
-                                                                                      List<DiscussionStatus> statuses,
-                                                                                      LocalDateTime cursor,
-                                                                                      Long cursorId,
-                                                                                      int limit) {
-        return queryFactory.selectFrom(discussion)
-                .innerJoin(discussion.author, user)
-                .fetchJoin()
-                .where(
-                        nicknameContains(nickname),
-                        categoryIn(categories),
-                        statusIn(statuses),
-                        cursorBefore(cursor, cursorId)
-                )
-                .orderBy(discussion.createdAt.desc(), discussion.id.desc())
-                .limit(limit)
-                .fetch();
     }
 
     private BooleanExpression nicknameContains(String nickname) {
@@ -169,28 +209,71 @@ public class DiscussionCustomRepositoryImpl implements DiscussionCustomRepositor
         return condition;
     }
 
-    private BooleanExpression createStatusCondition(DiscussionStatus status, LocalDateTime now) {
-        return switch (status) {
-            case RECRUITING -> discussion.startAt.gt(now)
-                    .and(discussion.participantCount.lt(discussion.maxParticipantCount));
-            case RECRUIT_COMPLETE -> discussion.startAt.gt(now)
-                    .and(discussion.participantCount.goe(discussion.maxParticipantCount));
-            case IN_DISCUSSION -> discussion.startAt.loe(now)
-                    .and(discussion.endAt.goe(now));
-            case DISCUSSION_COMPLETE -> discussion.endAt.lt(now);
-        };
-    }
+    private BooleanExpression createStatusCondition(
+            DiscussionStatus status,
+            final LocalDateTime now) {
 
-    private boolean hasText(String text) {
-        return text != null && !text.isBlank();
+        BooleanExpression onlineCondition = onlineDiscussion.id.isNotNull().and(
+                switch (status) {
+                    case IN_DISCUSSION -> onlineDiscussion.endDate.gt(LocalDate.from(now));
+
+                    case DISCUSSION_COMPLETE -> onlineDiscussion.endDate.loe(LocalDate.from(now));
+
+                    case RECRUITING, RECRUIT_COMPLETE -> null;
+                }
+        );
+
+        BooleanExpression recruitingCondition = offlineDiscussion.startAt.gt(now)
+                .and(offlineDiscussion.participantCount.lt(offlineDiscussion.maxParticipantCount));
+
+        BooleanExpression recruitCompleteCondition = offlineDiscussion.startAt.gt(now)
+                .and(offlineDiscussion.participantCount.goe(offlineDiscussion.maxParticipantCount));
+
+        BooleanExpression inDiscussionCondition = offlineDiscussion.startAt.loe(now)
+                .and(offlineDiscussion.endAt.goe(now));
+
+        BooleanExpression discussionCompleteCondition = offlineDiscussion.endAt.lt(now);
+
+        BooleanExpression offlineCondition = offlineDiscussion.id.isNotNull().and(
+                switch (status) {
+                    case RECRUITING -> recruitingCondition;
+                    case RECRUIT_COMPLETE -> recruitCompleteCondition;
+                    case IN_DISCUSSION -> inDiscussionCondition;
+                    case DISCUSSION_COMPLETE -> discussionCompleteCondition;
+                }
+        );
+
+        return switch (status) {
+            case RECRUITING, RECRUIT_COMPLETE -> offlineCondition;
+            case IN_DISCUSSION, DISCUSSION_COMPLETE -> onlineCondition.or(offlineCondition);
+        };
     }
 
     private BooleanExpression cursorBefore(LocalDateTime cursor, Long cursorId) {
         if (cursor == null || cursorId == null) {
             return null;
         }
+        return discussion.createdAt.lt(cursor)
+                .or(discussion.createdAt.eq(cursor).and(discussion.id.lt(cursorId)));
+    }
 
-        return discussion.createdAt.loe(cursor)
-                .or(discussion.createdAt.eq(cursor).and(discussion.id.gt(cursorId)));
+    private BooleanExpression discussionTypeIn(List<DiscussionType> discussionTypes) {
+        if (discussionTypes == null || discussionTypes.isEmpty()) {
+            return null;
+        }
+
+        BooleanExpression condition = null;
+        for (DiscussionType type : discussionTypes) {
+            BooleanExpression typeCondition = switch (type) {
+                case OFFLINE -> offlineDiscussion.id.isNotNull();
+                case ONLINE -> onlineDiscussion.id.isNotNull();
+            };
+            condition = condition == null ? typeCondition : condition.or(typeCondition);
+        }
+        return condition;
+    }
+
+    private boolean hasText(String text) {
+        return text != null && !text.isBlank();
     }
 }

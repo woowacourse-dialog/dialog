@@ -7,6 +7,7 @@ import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.Like;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -48,7 +49,7 @@ class LikeServiceTest {
     void 사용자는_토론에_좋아요를_할_수_있다() {
         //given
         User user = createUser();
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
 
         //when
         likeService.create(user.getId(), discussion.getId());
@@ -64,7 +65,7 @@ class LikeServiceTest {
     void 좋아요를_할때_사용자가_토론에_이미_좋아요를_했다면_예외가_발생한다() {
         //given
         User user = createUser();
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
         createLike(user, discussion);
 
         //when
@@ -78,7 +79,7 @@ class LikeServiceTest {
     void 사용자는_토론에_대해_좋아요를_취소할_수_있다() {
         //given
         User user = createUser();
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
         createLike(user, discussion);
 
         //when
@@ -93,7 +94,7 @@ class LikeServiceTest {
     void 좋아요를_삭제할때_사용자가_토론에_대해_좋아요를_하지_않은_상태라면_예외가_발생한다() {
         //given
         User user = createUser();
-        Discussion discussion = createDiscussion(user);
+        Discussion discussion = createOfflineDiscussion(user);
 
         //when
         //then
@@ -110,8 +111,8 @@ class LikeServiceTest {
         return userRepository.save(user);
     }
 
-    private Discussion createDiscussion(User user) {
-        Discussion discussion = Discussion.builder()
+    private OfflineDiscussion createOfflineDiscussion(User user) {
+        Discussion discussion = OfflineDiscussion.builder()
                 .author(user)
                 .category(Category.ANDROID)
                 .content("content")
@@ -121,10 +122,9 @@ class LikeServiceTest {
                 .maxParticipantCount(3)
                 .participantCount(3)
                 .place("place")
-                .viewCount(3)
                 .summary("summary")
                 .build();
-        return discussionRepository.save(discussion);
+        return (OfflineDiscussion) discussionRepository.save(discussion);
     }
 
     private Like createLike(User user, Discussion discussion) {

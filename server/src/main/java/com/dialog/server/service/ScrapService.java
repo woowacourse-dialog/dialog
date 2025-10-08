@@ -1,6 +1,8 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
@@ -113,11 +115,22 @@ public class ScrapService {
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
 
         List<DiscussionPreviewResponse> responses = pagingDiscussions.stream()
-                .map(discussion -> DiscussionPreviewResponse.from(
-                                discussion,
-                                userProfileImageMap.get(discussion.getAuthor()),
-                                commentCountMap.getOrDefault(discussion.getId(), 0L)
-                        )
+                .map(discussion -> {
+                            if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+                                return DiscussionPreviewResponse.fromOfflineDiscussion(
+                                        offlineDiscussion,
+                                        userProfileImageMap.get(offlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(offlineDiscussion.getId(), 0L)
+                                );
+                            } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+                                return DiscussionPreviewResponse.fromOnlineDiscussion(
+                                        onlineDiscussion,
+                                        userProfileImageMap.get(onlineDiscussion.getAuthor()),
+                                        commentCountMap.getOrDefault(onlineDiscussion.getId(), 0L)
+                                );
+                            }
+                            throw new DialogException(ErrorCode.BAD_REQUEST);
+                        }
                 )
                 .toList();
 

@@ -1,6 +1,7 @@
 package com.dialog.server.repository;
 
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
@@ -57,6 +58,6 @@ public interface DiscussionRepository extends JpaRepository<Discussion, Long>, D
     );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT d FROM Discussion d WHERE d.id = :id")
-    Optional<Discussion> findByIdForUpdate(@Param("id") Long id);
+    @Query("SELECT d FROM OfflineDiscussion d WHERE d.id = :id")
+    Optional<OfflineDiscussion> findByIdForUpdate(@Param("id") Long id);
 }

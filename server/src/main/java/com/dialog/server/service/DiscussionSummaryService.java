@@ -2,24 +2,17 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
-import com.dialog.server.exception.DialogException;
-import com.dialog.server.exception.ErrorCode;
-import com.dialog.server.repository.DiscussionCommentRepository;
-import com.dialog.server.repository.DiscussionRepository;
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DiscussionSummaryService {
 
     private static final String SYSTEM_PROMPT_PATH = "prompts/discussion-summary-system.st";
@@ -27,8 +20,8 @@ public class DiscussionSummaryService {
     private static final String COMMENT_REPLY_CONTENT_KEY = "content";
     private final AiClient aiClient;
     private final AiPromptLoader aiPromptLoader;
-    private final DiscussionRepository discussionRepository;
-    private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionService discussionService;
+    private final DiscussionCommentService discussionCommentService;
     private String systemPrompt;
     private String userPrompt;
 
@@ -40,14 +33,14 @@ public class DiscussionSummaryService {
 
     public String generateSummaryByDiscussionId(Long discussionId) {
 
-        Discussion discussion = getDiscussion(discussionId);
+        Discussion discussion = discussionService.getDiscussionEntityById(discussionId);
 
         String summary;
         if (!(summary = discussion.getSummary()).isBlank()) {
             return summary;
         }
 
-        Map<DiscussionComment, List<DiscussionComment>> commentsAndReply = getDiscussionCommentAndReply(
+        Map<DiscussionComment, List<DiscussionComment>> commentsAndReply = discussionCommentService.getDiscussionCommentAndReply(
                 discussion);
 
         Map<String, String> promptContents = new HashMap<>();
@@ -61,22 +54,6 @@ public class DiscussionSummaryService {
         );
 
         return summary;
-    }
-
-    private Discussion getDiscussion(Long discussionId) {
-        return discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-    }
-
-    private Map<DiscussionComment, List<DiscussionComment>> getDiscussionCommentAndReply(Discussion discussion) {
-        List<DiscussionComment> allComments = discussionCommentRepository.findByDiscussion(discussion);
-
-        return allComments.stream()
-                .filter(comment -> !comment.hasParent())
-                .collect(Collectors.toMap(
-                        comment -> comment,
-                        discussionCommentRepository::findByParentDiscussionComment
-                ));
     }
 
     private String parseToPromptContent(Discussion discussion,

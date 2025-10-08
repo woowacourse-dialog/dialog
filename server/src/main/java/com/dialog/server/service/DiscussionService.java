@@ -155,6 +155,13 @@ public class DiscussionService {
         throw new DialogException(ErrorCode.BAD_REQUEST);
     }
 
+    // Todo Discussion Entity 만 DiscussionService에서 얻고 싶은 경우 위 getDiscussionById를 사용할 수가 없음... 이와 관련한 논의 필요
+    @Transactional(readOnly = true)
+    public Discussion getDiscussionEntityById(Long discussionId) {
+        return discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+    }
+
     @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,

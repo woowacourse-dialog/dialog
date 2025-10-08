@@ -27,17 +27,10 @@ const DiscussionList = ({
         <DiscussionCard
           key={item.id}
           id={item.id}
-          nickname={item.author}
-          participants={item.participantCount}
-          maxParticipants={item.maxParticipantCount}
-          category={item.category}
-          place={item.place}
-          startAt={item.startAt}
-          endAt={item.endAt}
-          title={item.title}
-          summary={item.summary}
-          profileImage={item.profileImage}
-          commentCount={item.commentCount || 0}
+          discussionType={item.discussionType}
+          commonDiscussionInfo={item.commonDiscussionInfo}
+          offlineDiscussionInfo={item.offlineDiscussionInfo}
+          onlineDiscussionInfo={item.onlineDiscussionInfo}
         />
       ))}
       {hasMore && (

@@ -17,30 +17,45 @@ const STATUS_OPTIONS = [
   { label: '토론 완료', value: 'discussionComplete' },
 ];
 
+const DISCUSSION_TYPE_OPTIONS = [
+  { label: '온라인', value: 'online' },
+  { label: '오프라인', value: 'offline' },
+];
+
 const DiscussionFilter = ({
   initialCategories = [],
   initialStatuses = [],
+  initialDiscussionTypes = [],
   onApply,
   showFilter = true,
   onToggleFilter,
 }) => {
   const [categories, setCategories] = useState(initialCategories);
   const [statuses, setStatuses] = useState(initialStatuses);
+  const [discussionTypes, setDiscussionTypes] = useState(initialDiscussionTypes);
 
   const handleCategoryToggle = (value) => {
-    const newCategories = categories.includes(value) 
-      ? categories.filter((v) => v !== value) 
+    const newCategories = categories.includes(value)
+      ? categories.filter((v) => v !== value)
       : [...categories, value];
     setCategories(newCategories);
-    onApply({ categories: newCategories, statuses });
+    onApply({ categories: newCategories, statuses, discussionTypes });
   };
 
   const handleStatusToggle = (value) => {
-    const newStatuses = statuses.includes(value) 
-      ? statuses.filter((v) => v !== value) 
+    const newStatuses = statuses.includes(value)
+      ? statuses.filter((v) => v !== value)
       : [...statuses, value];
     setStatuses(newStatuses);
-    onApply({ categories, statuses: newStatuses });
+    onApply({ categories, statuses: newStatuses, discussionTypes });
+  };
+
+  const handleDiscussionTypeToggle = (value) => {
+    const newDiscussionTypes = discussionTypes.includes(value)
+      ? discussionTypes.filter((v) => v !== value)
+      : [...discussionTypes, value];
+    setDiscussionTypes(newDiscussionTypes);
+    onApply({ categories, statuses, discussionTypes: newDiscussionTypes });
   };
 
   return (
@@ -86,9 +101,23 @@ const DiscussionFilter = ({
               </label>
             ))}
           </div>
+          <div className={styles.filterGroup}>
+            <strong className={styles.groupTitle}>토론 타입</strong>
+            {DISCUSSION_TYPE_OPTIONS.map((type) => (
+              <label key={type.value} className={`${styles.optionItem} ${discussionTypes.includes(type.value) ? styles.selected : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={discussionTypes.includes(type.value)}
+                  onChange={() => handleDiscussionTypeToggle(type.value)}
+                  className={styles.hiddenCheckbox}
+                />
+                {type.label}
+              </label>
+            ))}
+          </div>
           {/* 모바일에서 필터 닫기 버튼 */}
           <div className={styles.mobileCloseButton}>
-            <button 
+            <button
               onClick={onToggleFilter}
               className={styles.closeButton}
             >

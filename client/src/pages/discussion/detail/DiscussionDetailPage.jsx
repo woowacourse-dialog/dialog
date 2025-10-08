@@ -27,20 +27,31 @@ const stateStyle = {
 };
 
 
-const getDiscussionStatus = (startAt, endAt, discussion) => {
-  const now = new Date();
-  const start = new Date(startAt);
-  const end = new Date(endAt);
-
-  if (now < start) {
-    if(discussion.participantCount >= discussion.maxParticipantCount) {
-      return { status: '모집 완료', label: '모집 완료' };  
+const getDiscussionStatus = (discussion) => {
+  if (discussion.discussionType === 'ONLINE') {
+    const now = new Date();
+    const end = new Date(discussion.onlineDiscussionInfo.endDate);
+    if (now > end) {
+      return { status: '토론 완료', label: '토론 완료' };
+    } else {
+      return { status: '토론 중', label: '토론 중' };
     }
-    return { status: '모집 중', label: '모집 중' };
-  } else if (now > end) {
-    return { status: '토론 완료', label: '토론 완료' };
   } else {
-    return { status: '토론 중', label: '토론 중' };
+    // OFFLINE
+    const now = new Date();
+    const start = new Date(discussion.offlineDiscussionInfo.startAt);
+    const end = new Date(discussion.offlineDiscussionInfo.endAt);
+
+    if (now < start) {
+      if(discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount) {
+        return { status: '모집 완료', label: '모집 완료' };
+      }
+      return { status: '모집 중', label: '모집 중' };
+    } else if (now > end) {
+      return { status: '토론 완료', label: '토론 완료' };
+    } else {
+      return { status: '토론 중', label: '토론 중' };
+    }
   }
 };
 
@@ -123,6 +134,11 @@ const DiscussionDetailPage = () => {
   }, [id, me]);
 
   const handleJoin = async () => {
+    if (discussion.discussionType === 'ONLINE') {
+      alert('온라인 토론은 참여 기능이 없습니다. 댓글로 자유롭게 토론하세요!');
+      return;
+    }
+
     setJoining(true);
     try {
       await participateDiscussion(discussion.id);
@@ -191,8 +207,9 @@ const DiscussionDetailPage = () => {
     return <div className="discussion-detail-error">토론을 찾을 수 없습니다.</div>;
   }
 
-  const { status, label } = getDiscussionStatus(discussion.startAt, discussion.endAt, discussion);
-  const isAuthor = me?.id === discussion.author.id;
+  const { status, label } = getDiscussionStatus(discussion);
+  const isAuthor = me?.id === discussion.commonDiscussionInfo.author.id;
+  const isOffline = discussion.discussionType === 'OFFLINE';
 
   const formatDateTime = (dateTimeStr) => {
     const date = new Date(dateTimeStr);
@@ -213,25 +230,25 @@ const DiscussionDetailPage = () => {
         <div className="discussion-detail-wrapper">
           <div className="discussion-detail-header">
             <div className="discussion-header-top">
-              <div className="discussion-track">{TRACKS.find(track => track.id === discussion.track).name}</div>
-              <div 
-                className="discussion-status" 
+              <div className="discussion-track">{TRACKS.find(track => track.id === discussion.commonDiscussionInfo.category).name}</div>
+              <div
+                className="discussion-status"
                 style={{
                   background: stateStyle[status].background,
                   color: stateStyle[status].color
                 }}>{label}</div>
             </div>
             <div className="discussion-title-row">
-              <h1>{discussion.title}</h1>
+              <h1>{discussion.commonDiscussionInfo.title}</h1>
               <div className="discussion-actions">
-                <button 
+                <button
                   className={`action-button ${isLiked ? 'liked' : ''}`}
                   onClick={handleLike}
                 >
                   {isLiked ? <FaHeart /> : <FaRegHeart />}
                   <span>{likeCount}</span>
                 </button>
-                <button 
+                <button
                   className={`action-button ${isBookmarked ? 'bookmarked' : ''}`}
                   onClick={handleBookmark}
                 >
@@ -240,51 +257,63 @@ const DiscussionDetailPage = () => {
               </div>
             </div>
             <div className="discussion-creator">
-              <img src={getAuthorProfileImageSrc(discussion.author)} alt={discussion.author.name} className="creator-image" />
-              <span className="creator-name">{discussion.author.name}</span>
+              <img src={getAuthorProfileImageSrc(discussion.commonDiscussionInfo.author)} alt={discussion.commonDiscussionInfo.author.name} className="creator-image" />
+              <span className="creator-name">{discussion.commonDiscussionInfo.author.name}</span>
               <span className="creator-created-at">님이 개설한 토론</span>
             </div>
-            <div className="discussion-meta">
-              <div className="meta-item">
-                <span className="meta-label">장소</span>
-                <span className="meta-value">{discussion.place}</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">인원</span>
-                <span className="meta-value">{discussion.participantCount}/{discussion.maxParticipantCount}명</span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">일시</span>
-                <span className="meta-value">
-                  {formatDateTime(discussion.startAt)}
-                </span>
-              </div>
-              <div className="meta-item">
-                <span className="meta-label">시간</span>
-                <span className="meta-value">
-                  {new Date(discussion.startAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })} ~ {new Date(discussion.endAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                </span>
-              </div>
-            </div>
-            <div className="discussion-participants">
-              <h3>
-                참여자 
-                <span className="participant-count">
-                  {discussion.participants.length}/{discussion.maxParticipantCount}명
-                </span>
-              </h3>
-              <div className="participants-list">
-                {discussion.participants.map(participant => (
-                  <div key={participant.id} className="participant-item">
-                    <span className="participant-name">{participant.name}</span>
+
+            {isOffline ? (
+              <>
+                <div className="discussion-meta">
+                  <div className="meta-item">
+                    <span className="meta-label">장소</span>
+                    <span className="meta-value">{discussion.offlineDiscussionInfo.place}</span>
                   </div>
-                ))}
+                  <div className="meta-item">
+                    <span className="meta-label">인원</span>
+                    <span className="meta-value">{discussion.offlineDiscussionInfo.participantCount}/{discussion.offlineDiscussionInfo.maxParticipantCount}명</span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">일시</span>
+                    <span className="meta-value">
+                      {formatDateTime(discussion.offlineDiscussionInfo.startAt)}
+                    </span>
+                  </div>
+                  <div className="meta-item">
+                    <span className="meta-label">시간</span>
+                    <span className="meta-value">
+                      {new Date(discussion.offlineDiscussionInfo.startAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })} ~ {new Date(discussion.offlineDiscussionInfo.endAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                    </span>
+                  </div>
+                </div>
+                <div className="discussion-participants">
+                  <h3>
+                    참여자
+                    <span className="participant-count">
+                      {discussion.offlineDiscussionInfo.participants.length}/{discussion.offlineDiscussionInfo.maxParticipantCount}명
+                    </span>
+                  </h3>
+                  <div className="participants-list">
+                    {discussion.offlineDiscussionInfo.participants.map(participant => (
+                      <div key={participant.id} className="participant-item">
+                        <span className="participant-name">{participant.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="discussion-meta">
+                <div className="meta-item">
+                  <span className="meta-label">종료일</span>
+                  <span className="meta-value">{discussion.onlineDiscussionInfo.endDate}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-          
+
           <div className="discussion-detail-content">
-            <MarkdownRender content={discussion.content} />
+            <MarkdownRender content={discussion.commonDiscussionInfo.content} />
           </div>
 
           <div className="discussion-join-section">
@@ -303,17 +332,17 @@ const DiscussionDetailPage = () => {
                   삭제
                 </button>
               </div>
-            ) : (
+            ) : isOffline ? (
               <button
                 className="join-button"
                 onClick={handleJoin}
-                disabled={joining || discussion.participantCount >= discussion.maxParticipantCount}
+                disabled={joining || discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount}
               >
                 {joining ? '참여 중...' :
-                 discussion.participantCount >= discussion.maxParticipantCount ? '인원 마감' :
+                 discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount ? '인원 마감' :
                  '참여하기'}
               </button>
-            )}
+            ) : null}
           </div>
           <CommentList discussionId={id} />
         </div>

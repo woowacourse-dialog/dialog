@@ -437,6 +437,72 @@ select.form-input:focus {
   }
 }
 
+/* 토글 스위치 스타일 */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 0;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  margin: 0 !important;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #303e4f;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
 /* 터치 인터페이스 개선 */
 @media (hover: none) and (pointer: coarse) {
   .discussion-create-form {

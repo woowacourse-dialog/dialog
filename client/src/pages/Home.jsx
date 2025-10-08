@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../hooks/useNotification';
 import NotificationGuideModal from '../components/NotificationGuideModal/NotificationGuideModal';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import DiscussionFilter from '../components/DiscussionFilter';
+import DiscussionFilterBar from '../components/DiscussionFilterBar';
 import pageStyles from './discussion/search/SearchResultPage.module.css';
 import useMe from '../hooks/useMe';
 
@@ -19,28 +19,16 @@ const Home = () => {
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const [searchParams] = useSearchParams();
-  // 데스크톱에서는 필터가 기본적으로 열려있고, 모바일에서는 닫혀있음
-  const [showFilter, setShowFilter] = useState(window.innerWidth > 768);
 
   useEffect(() => {
     checkLoginStatus();
     // eslint-disable-next-line
   }, []);
 
-  // 화면 크기 변경 시 필터 상태 조정
-  useEffect(() => {
-    const handleResize = () => {
-      const isDesktop = window.innerWidth > 768;
-      setShowFilter(isDesktop);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // URL에서 필터 파라미터 추출
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];
   const statuses = searchParams.get('statuses')?.split(',').filter(Boolean) || [];
+  const discussionTypes = searchParams.get('discussionTypes')?.split(',').filter(Boolean) || [];
 
   // useDiscussionList 훅 사용 - URL 파라미터를 직접 전달
   const {
@@ -51,7 +39,7 @@ const Home = () => {
     isFetchingMore,
     loadMore,
   } = useDiscussionList({
-    searchParams: { categories, statuses }, // query, searchType은 홈에서 사용 안 함
+    searchParams: { categories, statuses, discussionTypes }, // query, searchType은 홈에서 사용 안 함
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
@@ -79,30 +67,35 @@ const Home = () => {
     navigate(`/discussion/search?${params.toString()}`);
   };
 
-  // 필터 적용 핸들러: URL 파라미터 변경
-  const handleApplyFilters = ({ categories, statuses }) => {
-    const newParams = new URLSearchParams();
-    if (categories.length > 0) {
-      newParams.set('categories', categories.join(','));
+  // 필터 변경 핸들러
+  const handleCategoryChange = (newCategories) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newCategories.length > 0) {
+      newParams.set('categories', newCategories.join(','));
+    } else {
+      newParams.delete('categories');
     }
-    if (statuses.length > 0) {
-      newParams.set('statuses', statuses.join(','));
-    }
-    const queryString = newParams.toString();
-    // 필터 적용 시 항상 /discussion 경로로 이동
-    navigate(`/discussion${queryString ? `?${queryString}` : ''}`);
+    navigate(`/discussion?${newParams.toString()}`);
   };
 
-  // 필터 토글 핸들러
-  const handleToggleFilter = () => {
-    setShowFilter(prev => !prev);
+  const handleStatusChange = (newStatuses) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newStatuses.length > 0) {
+      newParams.set('statuses', newStatuses.join(','));
+    } else {
+      newParams.delete('statuses');
+    }
+    navigate(`/discussion?${newParams.toString()}`);
   };
 
-  // 페이지 컨테이너 클래스명 생성
-  const getPageContainerClassName = () => {
-    const baseClass = pageStyles.pageContainer;
-    const centeredClass = showFilter ? '' : pageStyles.centered;
-    return `${baseClass} ${centeredClass}`.trim();
+  const handleDiscussionTypeChange = (newTypes) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (newTypes.length > 0) {
+      newParams.set('discussionTypes', newTypes.join(','));
+    } else {
+      newParams.delete('discussionTypes');
+    }
+    navigate(`/discussion?${newParams.toString()}`);
   };
 
   // 플로팅 액션 버튼 스타일
@@ -142,41 +135,27 @@ const Home = () => {
   return (
     <>
       <Header />
-      <div
-        className={getPageContainerClassName()}
-        style={{ marginTop: 64, position: 'relative' }}
-      >
-        {showFilter && (
-          <aside className={pageStyles.sidebar}>
-            <DiscussionFilter
-              initialCategories={categories}
-              initialStatuses={statuses}
-              onApply={handleApplyFilters}
-              showFilter={showFilter}
-              onToggleFilter={handleToggleFilter}
-            />
-          </aside>
-        )}
-        <main className={pageStyles.mainContent} style={{ position: 'relative' }}>
-          {!showFilter && (
-            <DiscussionFilter
-              showFilter={showFilter}
-              onToggleFilter={handleToggleFilter}
-            />
-          )}
-          <SearchBar onSearch={handleSearch} />
-          <h2 style={{ marginTop: 24, textAlign: 'center', padding: '16px' }}>토론 목록</h2>
-          <DiscussionList
-            items={items}
-            loading={loading}
-            error={error}
-            hasMore={hasMore}
-            isFetchingMore={isFetchingMore}
-            loaderRef={loaderRef}
-            emptyMessage={'게시글이 없습니다.'}
-            endMessage={'모든 게시물을 불러왔습니다.'}
-          />
-        </main>
+      <div style={{ marginTop: 64, maxWidth: 1200, margin: '64px auto 0', padding: '0 20px' }}>
+        <SearchBar onSearch={handleSearch} />
+        <DiscussionFilterBar
+          selectedCategories={categories}
+          selectedStatuses={statuses}
+          selectedDiscussionTypes={discussionTypes}
+          onCategoryChange={handleCategoryChange}
+          onStatusChange={handleStatusChange}
+          onDiscussionTypeChange={handleDiscussionTypeChange}
+        />
+        <h2 style={{ textAlign: 'center', padding: '16px' }}>토론 목록</h2>
+        <DiscussionList
+          items={items}
+          loading={loading}
+          error={error}
+          hasMore={hasMore}
+          isFetchingMore={isFetchingMore}
+          loaderRef={loaderRef}
+          emptyMessage={'게시글이 없습니다.'}
+          endMessage={'모든 게시물을 불러왔습니다.'}
+        />
         {showGuideModal && (
           <NotificationGuideModal onClose={() => setShowGuideModal(false)} />
         )}

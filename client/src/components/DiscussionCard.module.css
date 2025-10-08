@@ -2,7 +2,7 @@
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(60,64,67,0.08);
-  padding: 24px;
+  padding: 24px 16px;
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
@@ -25,13 +25,26 @@
   flex-wrap: wrap;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding-right: 80px; /* 우측 상단 상태 뱃지 공간 확보 */
+}
+
 .categoryBadge {
   background: #303e4f;
   color: #fff;
-  border-radius: 8px;
-  padding: 4px 12px;
-  font-weight: 500;
-  font-size: 13px;
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: x-small;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .statusBadge {
@@ -44,7 +57,18 @@
 .title {
   font-size: 20px;
   font-weight: 700;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discussionTypeBadge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #666;
   margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
 .authorSection {
@@ -120,7 +144,18 @@
     gap: 6px;
   }
 
-  .categoryBadge,
+  .titleRow {
+    gap: 5px;
+    margin-bottom: 10px;
+    padding-right: 70px;
+  }
+
+  .categoryBadge {
+    font-size: x-small;
+    padding: 3px 6px;
+    width: 32px;
+  }
+
   .statusBadge {
     font-size: 11px;
     padding: 3px 8px;
@@ -128,6 +163,10 @@
 
   .title {
     font-size: 18px;
+  }
+
+  .discussionTypeBadge {
+    font-size: 10px;
     margin-bottom: 6px;
   }
 
@@ -178,7 +217,18 @@
     gap: 4px;
   }
 
-  .categoryBadge,
+  .titleRow {
+    gap: 5px;
+    margin-bottom: 8px;
+    padding-right: 60px;
+  }
+
+  .categoryBadge {
+    font-size: x-small;
+    padding: 2px 4px;
+    width: 28px;
+  }
+
   .statusBadge {
     font-size: 10px;
     padding: 2px 6px;
@@ -186,7 +236,11 @@
 
   .title {
     font-size: 16px;
-    margin-bottom: 4px;
+  }
+
+  .discussionTypeBadge {
+    font-size: 10px;
+    margin-bottom: 6px;
   }
 
   .profileImage {
@@ -242,7 +296,19 @@
     gap: 8px;
   }
 
-  .categoryBadge,
+  .titleRow {
+    gap: 5px;
+    margin-bottom: 10px;
+    padding-right: 75px;
+  }
+
+  .categoryBadge {
+    font-size: x-small;
+    padding: 4px 8px;
+    min-height: 28px;
+    width: 34px;
+  }
+
   .statusBadge {
     font-size: 12px;
     padding: 4px 10px;
@@ -254,6 +320,11 @@
   .title {
     font-size: 17px;
     line-height: 1.4;
+  }
+
+  .discussionTypeBadge {
+    font-size: 10px;
+    margin-bottom: 6px;
   }
 
   .profileImage {

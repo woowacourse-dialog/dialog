@@ -33,11 +33,6 @@ public abstract class Discussion extends BaseEntity {
     private static final int MAX_TITLE_LENGTH = 50;
     private static final int MAX_CONTENT_LENGTH = 10000;
     private static final int MAX_SUMMARY_LENGTH = 300;
-
-    @Column(name = "discussion_id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    private Long id;
     @Column(nullable = false)
     protected String title;
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -49,6 +44,10 @@ public abstract class Discussion extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     protected User author;
+    @Column(name = "discussion_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private Long id;
     private LocalDateTime deletedAt;
 
     protected Discussion(
@@ -91,6 +90,10 @@ public abstract class Discussion extends BaseEntity {
         if (summary.isBlank() || summary.length() > MAX_SUMMARY_LENGTH) {
             throw new DialogException(ErrorCode.INVALID_DISCUSSION_SUMMARY);
         }
+    }
+
+    public boolean hasNotSummary() {
+        return summary.isBlank();
     }
 
     public abstract boolean canNotDelete(); // TODO: 삭제 논의

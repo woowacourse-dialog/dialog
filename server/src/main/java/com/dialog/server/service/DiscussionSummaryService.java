@@ -2,6 +2,7 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.DiscussionWithComment;
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,6 @@ public class DiscussionSummaryService {
     private final AiClient aiClient;
     private final AiPromptLoader aiPromptLoader;
     private final DiscussionService discussionService;
-    private final DiscussionCommentService discussionCommentService;
     private String systemPrompt;
     private String userPrompt;
 
@@ -32,28 +32,23 @@ public class DiscussionSummaryService {
     }
 
     public String generateSummaryByDiscussionId(Long discussionId) {
+        // Todo: Discussion & DiscussionComment & Reply 모두 한번에 조회 가능한 서비스가 필요함.. 일단 DiscussionService에서 처리했음.. 그래서 반환 타입이나 로직이 지저분함
+        DiscussionWithComment discussionWithComment = discussionService.getDiscussionWithComment(discussionId);
 
-        Discussion discussion = discussionService.getDiscussionEntityById(discussionId);
-
-        String summary;
-        if (!(summary = discussion.getSummary()).isBlank()) {
-            return summary;
+        if (discussionWithComment.hasSummary()) {
+            return discussionWithComment.getSummary();
         }
 
-        Map<DiscussionComment, List<DiscussionComment>> commentsAndReply = discussionCommentService.getDiscussionCommentAndReply(
-                discussion);
-
         Map<String, String> promptContents = new HashMap<>();
-        String content = parseToPromptContent(discussion, commentsAndReply);
+        String content = parseToPromptContent(discussionWithComment.discussion(),
+                discussionWithComment.commentAndReply());
         promptContents.put(COMMENT_REPLY_CONTENT_KEY, content);
 
-        summary = aiClient.execute(
+        return aiClient.execute(
                 systemPrompt,
                 userPrompt,
                 promptContents
         );
-
-        return summary;
     }
 
     private String parseToPromptContent(Discussion discussion,
@@ -73,7 +68,6 @@ public class DiscussionSummaryService {
                         .append(": ").append(reply.getContent()).append("\n");
             });
         });
-
         return contentBuilder.toString();
     }
 }

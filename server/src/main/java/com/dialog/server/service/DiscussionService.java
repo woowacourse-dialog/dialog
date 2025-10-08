@@ -2,9 +2,11 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.DiscussionComment;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.DiscussionType;
+import com.dialog.server.domain.DiscussionWithComment;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
@@ -56,6 +58,7 @@ public class DiscussionService {
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionCommentService discussionCommentService;
 
     @Transactional
     public DiscussionCreateResponse createOfflineDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
@@ -155,11 +158,15 @@ public class DiscussionService {
         throw new DialogException(ErrorCode.BAD_REQUEST);
     }
 
-    // Todo Discussion Entity 만 DiscussionService에서 얻고 싶은 경우 위 getDiscussionById를 사용할 수가 없음... 이와 관련한 논의 필요
     @Transactional(readOnly = true)
-    public Discussion getDiscussionEntityById(Long discussionId) {
-        return discussionRepository.findById(discussionId)
+    public DiscussionWithComment getDiscussionWithComment(Long discussionId) {
+        Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+
+        Map<DiscussionComment, List<DiscussionComment>> discussionCommentAndReply = discussionCommentService.getDiscussionCommentAndReply(
+                discussion);
+
+        return new DiscussionWithComment(discussion, discussionCommentAndReply);
     }
 
     @Transactional(readOnly = true)

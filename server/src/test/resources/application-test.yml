@@ -30,7 +30,7 @@ spring:
 
   ai:
     openai:
-      api-key: sk-dummy-key-for-testing-only
+      api-key: test-api-key
       chat:
         options:
           model: gpt-4o-mini

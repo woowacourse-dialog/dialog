@@ -1,29 +1,40 @@
 package com.dialog.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.response.DiscussionSummaryCreateResponse;
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
-@Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-public class DiscussionSummaryServiceTest {
+@Transactional
+class DiscussionSummaryServiceTest {
 
     @Autowired
     private DiscussionSummaryService discussionSummaryService;
@@ -37,12 +48,43 @@ public class DiscussionSummaryServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Test
-    public void test() {
-        // AI 요약 생성
-        Discussion discussion = createTestDiscussion();
-        discussionSummaryService.generateAndUpdateSummary(discussion);
-        System.out.println(discussion.getSummary());
+    @MockitoBean
+    private AiClient aiClient;
+
+    @BeforeEach
+    void setUp() {
+        // AiClient 모킹 - 실제 AI API 호출 대신 테스트용 요약 반환
+        when(aiClient.execute(anyString(), anyString(), anyMap()))
+                .thenReturn("멀티 모듈 구조 도입에 대한 토론 요약입니다. "
+                        + "팀원의 경험과 관심도를 고려해 결정하는 것이 중요하며, "
+                        + "모놀리식으로 시작하여 필요시 멀티 모듈로 발전시키는 점진적 접근이 권장됩니다.");
+    }
+
+    private User createUser(String oauthId, String nickname) {
+        User user = User.builder()
+                .oauthId(oauthId)
+                .nickname(nickname)
+                .track(Track.BACKEND)
+                .webPushNotification(true)
+                .role(Role.USER)
+                .build();
+        return userRepository.save(user);
+    }
+
+    private Discussion createOfflineDiscussion(User author) {
+        LocalDateTime now = LocalDateTime.now();
+        return OfflineDiscussion.withNoValidateOf(
+                "오프라인 토론 제목",
+                "오프라인 토론 내용입니다.",
+                Category.BACKEND,
+                "",
+                author,
+                now.plusDays(1),
+                now.plusDays(1).plusHours(2),
+                "서울시 강남구",
+                5,
+                1
+        );
     }
 
     private Discussion createTestDiscussion() {
@@ -165,5 +207,144 @@ public class DiscussionSummaryServiceTest {
         discussionCommentRepository.save(kangsanComment);
 
         return savedDiscussion;
+    }
+
+    @Nested
+    @DisplayName("generateAndUpdateSummaryBy(Long discussionId, Long userId) 테스트")
+    class GenerateAndUpdateSummaryByIdTest {
+
+        @Test
+        @DisplayName("성공: 작성자가 온라인 토론 요약 생성")
+        void generateSummary_Success_WhenAuthorRequestsOnlineDiscussion() {
+            // given
+            Discussion discussion = createTestDiscussion();
+            User author = discussion.getAuthor();
+
+            // when
+            DiscussionSummaryCreateResponse response = discussionSummaryService
+                    .generateAndUpdateSummaryBy(discussion.getId(), author.getId());
+
+            // then
+            assertThat(response).isNotNull();
+            assertThat(response.summary()).isNotBlank();
+            assertThat(discussion.hasSummary()).isTrue();
+            System.out.println("생성된 요약: " + response.summary());
+        }
+
+        @Test
+        @DisplayName("실패: 다른 사용자가 토론 요약 생성 시도")
+        void generateSummary_Fail_WhenUnauthorizedUser() {
+            // given
+            Discussion discussion = createTestDiscussion();
+            User otherUser = createUser("other-oauth-id", "다른사용자");
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(discussion.getId(), otherUser.getId())
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.UNAUTHORIZED_DISCUSSION_SUMMARY);
+        }
+
+        @Test
+        @DisplayName("실패: 이미 요약이 존재하는 토론")
+        void generateSummary_Fail_WhenSummaryAlreadyExists() {
+            // given
+            Discussion discussion = createTestDiscussion();
+            User author = discussion.getAuthor();
+
+            // 첫 번째 요약 생성
+            discussionSummaryService.generateAndUpdateSummaryBy(discussion.getId(), author.getId());
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(discussion.getId(), author.getId())
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_DISCUSSION_SUMMARY);
+        }
+
+        @Test
+        @DisplayName("실패: 오프라인 토론 요약 시도")
+        void generateSummary_Fail_WhenOfflineDiscussion() {
+            // given
+            User author = createUser("author-oauth-id", "작성자");
+            Discussion offlineDiscussion = createOfflineDiscussion(author);
+            discussionRepository.save(offlineDiscussion);
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(offlineDiscussion.getId(), author.getId())
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CANNOT_SUMMARIZE_OFFLINE_DISCUSSION);
+        }
+
+        @Test
+        @DisplayName("실패: 존재하지 않는 토론")
+        void generateSummary_Fail_WhenDiscussionNotFound() {
+            // given
+            Long nonExistentDiscussionId = 99999L;
+            Long userId = 1L;
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(nonExistentDiscussionId, userId)
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOT_FOUND_DISCUSSION);
+        }
+    }
+
+    @Nested
+    @DisplayName("generateAndUpdateSummaryBy(Discussion) 테스트 - 스케줄러용")
+    class GenerateAndUpdateSummaryByEntityTest {
+
+        @Test
+        @DisplayName("성공: 온라인 토론 요약 생성")
+        void generateSummary_Success_ForScheduler() {
+            // given
+            Discussion discussion = createTestDiscussion();
+
+            // when
+            discussionSummaryService.generateAndUpdateSummaryBy(discussion);
+
+            // then
+            assertThat(discussion.hasSummary()).isTrue();
+            assertThat(discussion.getSummary()).isNotBlank();
+            System.out.println("생성된 요약: " + discussion.getSummary());
+        }
+
+        @Test
+        @DisplayName("실패: 이미 요약이 존재하는 토론")
+        void generateSummary_Fail_WhenSummaryAlreadyExists() {
+            // given
+            Discussion discussion = createTestDiscussion();
+
+            // 첫 번째 요약 생성
+            discussionSummaryService.generateAndUpdateSummaryBy(discussion);
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(discussion)
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ALREADY_DISCUSSION_SUMMARY);
+        }
+
+        @Test
+        @DisplayName("실패: 오프라인 토론 요약 시도")
+        void generateSummary_Fail_WhenOfflineDiscussion() {
+            // given
+            User author = createUser("author-oauth-id", "작성자");
+            Discussion offlineDiscussion = createOfflineDiscussion(author);
+
+            // when & then
+            assertThatThrownBy(() ->
+                    discussionSummaryService.generateAndUpdateSummaryBy(offlineDiscussion)
+            )
+                    .isInstanceOf(DialogException.class)
+                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CANNOT_SUMMARIZE_OFFLINE_DISCUSSION);
+        }
     }
 }

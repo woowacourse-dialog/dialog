@@ -92,8 +92,8 @@ public abstract class Discussion extends BaseEntity {
         }
     }
 
-    public boolean hasNotSummary() {
-        return summary.isBlank();
+    public void updateSummary(String summary) {
+        this.summary = summary;
     }
 
     public abstract boolean canNotDelete(); // TODO: 삭제 논의

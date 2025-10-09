@@ -23,10 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @ActiveProfiles("test")
 @SpringBootTest
-public class AiSummaryServiceTest {
+public class DiscussionSummaryServiceTest {
 
     @Autowired
-    private DiscussionSummaryService aiSummaryService;
+    private DiscussionSummaryService discussionSummaryService;
 
     @Autowired
     private DiscussionRepository discussionRepository;
@@ -40,12 +40,12 @@ public class AiSummaryServiceTest {
     @Test
     public void test() {
         // AI 요약 생성
-        Long discussionId = createTestDiscussion();
-        String result = aiSummaryService.generateSummaryByDiscussionId(discussionId);
-        System.out.println(result);
+        Discussion discussion = createTestDiscussion();
+        discussionSummaryService.generateAndUpdateSummary(discussion);
+        System.out.println(discussion.getSummary());
     }
 
-    private Long createTestDiscussion() {
+    private Discussion createTestDiscussion() {
         // 테스트용 User 생성
         User author = User.builder()
                 .oauthId("hippo-oauth-id")
@@ -164,6 +164,6 @@ public class AiSummaryServiceTest {
                 .build();
         discussionCommentRepository.save(kangsanComment);
 
-        return savedDiscussion.getId();
+        return savedDiscussion;
     }
 }

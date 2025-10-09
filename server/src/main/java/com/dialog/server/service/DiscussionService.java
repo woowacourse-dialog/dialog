@@ -2,11 +2,9 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.DiscussionComment;
 import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.DiscussionType;
-import com.dialog.server.domain.DiscussionWithComment;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.ProfileImage;
@@ -27,9 +25,11 @@ import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
+import com.dialog.server.repository.OnlineDiscussionRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +54,7 @@ public class DiscussionService {
 
     private final DiscussionRepository discussionRepository;
     private final DiscussionParticipantRepository discussionParticipantRepository;
+    private final OnlineDiscussionRepository onlineDiscussionRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
@@ -159,17 +160,6 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionWithComment getDiscussionWithComment(Long discussionId) {
-        Discussion discussion = discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
-
-        Map<DiscussionComment, List<DiscussionComment>> discussionCommentAndReply = discussionCommentService.getDiscussionCommentAndReply(
-                discussion);
-
-        return new DiscussionWithComment(discussion, discussionCommentAndReply);
-    }
-
-    @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
@@ -254,6 +244,20 @@ public class DiscussionService {
         User author = getUser(authorId);
 
         return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OnlineDiscussion> getEndedAndBlankSummaryOnlineDiscussions() {
+        LocalDate date = LocalDate.now();
+        return onlineDiscussionRepository.findAllBySummaryIsNullAndEndDateBefore(date);
+    }
+
+    @Transactional
+    public void updateSummary(Discussion discussion, String summary) {
+        if (summary == null || summary.isEmpty()) {
+            throw new DialogException(ErrorCode.FAILED_AI_SUMMARY);
+        }
+        discussion.updateSummary(summary);
     }
 
     private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(

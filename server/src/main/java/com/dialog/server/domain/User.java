@@ -82,4 +82,9 @@ public class User extends BaseEntity {
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
+
+    public String updateNickname(String nickname) {
+        this.nickname = nickname;
+        return nickname;
+    }
 }

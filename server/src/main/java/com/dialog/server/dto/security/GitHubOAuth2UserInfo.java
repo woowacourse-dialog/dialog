@@ -30,4 +30,8 @@ public class GitHubOAuth2UserInfo {
         Object url = attributes.get(IMAGE_URL_PARAM);
         return url == null ? null : url.toString();
     }
+
+    public String getNickname() {
+        return (String) attributes.get("login");
+    }
 }

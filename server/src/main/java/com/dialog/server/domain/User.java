@@ -65,6 +65,10 @@ public class User extends BaseEntity {
         return !role.equals(Role.TEMP_USER);
     }
 
+    public boolean isNotSameId(Long id) {
+        return !this.id.equals(id);
+    }
+
     public void updateNotificationSetting(boolean settingValue) {
         webPushNotification = settingValue;
     }

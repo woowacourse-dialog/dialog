@@ -99,4 +99,8 @@ public abstract class Discussion extends BaseEntity {
     public abstract boolean canNotDelete(); // TODO: 삭제 논의
 
     public abstract DiscussionStatus getDiscussionStatus();
+
+    public boolean hasSummary() {
+        return !this.summary.isBlank();
+    }
 }

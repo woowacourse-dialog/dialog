@@ -5,6 +5,7 @@ import com.dialog.server.domain.DiscussionStatus;
 import com.dialog.server.domain.DiscussionType;
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.DiscussionCursorPageRequest;
+import com.dialog.server.dto.request.DiscussionSummaryCreateRequest;
 import com.dialog.server.dto.request.OfflineDiscussionCreateRequest;
 import com.dialog.server.dto.request.OfflineDiscussionUpdateRequest;
 import com.dialog.server.dto.request.OnlineDiscussionCreateRequest;
@@ -14,8 +15,10 @@ import com.dialog.server.dto.response.DiscussionCreateResponse;
 import com.dialog.server.dto.response.DiscussionCursorPageResponse;
 import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
+import com.dialog.server.dto.response.DiscussionSummaryCreateResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.DiscussionService;
+import com.dialog.server.service.DiscussionSummaryService;
 import com.dialog.server.service.NotificationService;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -38,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DiscussionController {
 
     private final DiscussionService discussionService;
+    private final DiscussionSummaryService discussionSummaryService;
     private final NotificationService notificationService;
 
     @PostMapping("/offline")
@@ -146,5 +150,15 @@ public class DiscussionController {
                 request, userId
         );
         return ResponseEntity.ok(new ApiSuccessResponse<>(discussionCursorPageResponse));
+    }
+
+    @PostMapping("/summary")
+    public ResponseEntity<ApiSuccessResponse<DiscussionSummaryCreateResponse>> postDiscussionSummary(
+            @RequestBody @Valid DiscussionSummaryCreateRequest request,
+            @AuthenticatedUserId Long userId
+    ) {
+        DiscussionSummaryCreateResponse discussionSummaryCreateResponse =
+                discussionSummaryService.generateAndUpdateSummaryBy(request.discussionId(), userId);
+        return ResponseEntity.ok().body(new ApiSuccessResponse<>(discussionSummaryCreateResponse));
     }
 }

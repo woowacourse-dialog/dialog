@@ -2,6 +2,11 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.OnlineDiscussion;
+import com.dialog.server.domain.User;
+import com.dialog.server.dto.response.DiscussionSummaryCreateResponse;
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +36,33 @@ public class DiscussionSummaryService {
         userPrompt = aiPromptLoader.loadPrompt(USER_PROMPT_PATH);
     }
 
-    public void generateAndUpdateSummary(Discussion discussion) {
-        String summary = generateSummary(discussion);
-        discussionService.updateSummary(discussion, summary);
+    public DiscussionSummaryCreateResponse generateAndUpdateSummaryBy(Long discussionId, Long userId) {
+        Discussion discussion = discussionService.getDiscussionEntityById(discussionId);
+
+        User author = discussion.getAuthor();
+        if (author.isNotSameId(userId)) {
+            throw new DialogException(ErrorCode.UNAUTHORIZED_DISCUSSION_SUMMARY);
+        }
+
+        Discussion updatedDiscussion = generateAndUpdateSummary(discussion);
+        return DiscussionSummaryCreateResponse.of(updatedDiscussion);
+    }
+
+    public void generateAndUpdateSummaryBy(Discussion discussion) {
+        generateAndUpdateSummary(discussion);
+    }
+
+    private Discussion generateAndUpdateSummary(Discussion discussion) {
+        if (discussion.hasSummary()) {
+            throw new DialogException(ErrorCode.ALREADY_DISCUSSION_SUMMARY);
+        }
+
+        if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+            String summary = generateSummary(onlineDiscussion);
+            discussionService.updateSummary(onlineDiscussion, summary);
+            return discussion;
+        }
+        throw new DialogException(ErrorCode.CANNOT_SUMMARIZE_OFFLINE_DISCUSSION);
     }
 
     private String generateSummary(Discussion discussion) {

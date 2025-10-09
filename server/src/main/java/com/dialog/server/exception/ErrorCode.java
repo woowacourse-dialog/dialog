@@ -32,6 +32,9 @@ public enum ErrorCode {
     CANNOT_DELETE_DISCUSSION("5027", "삭제할 수 없는 토론입니다.", HttpStatus.BAD_REQUEST),
     INVALID_SEARCH_TYPE("5028", "유효하지 않은 검색 조건입니다.", HttpStatus.BAD_REQUEST),
     PAGE_SIZE_TOO_LARGE("5029", "페이지의 크기는 50개가 최대입니다.", HttpStatus.BAD_REQUEST),
+    CANNOT_SUMMARIZE_OFFLINE_DISCUSSION("5030", "오프라인 토론은 요약할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_DISCUSSION_SUMMARY("5031", "토론 작성자만 요약을 생성할 수 있습니다", HttpStatus.FORBIDDEN),
+    ALREADY_DISCUSSION_SUMMARY("5032", "토론 요약이 이미 존재합니다.", HttpStatus.BAD_REQUEST),
 
     USER_NOT_FOUND("5031", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EXIST_USER_EMAIL("5032", "이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),

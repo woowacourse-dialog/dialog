@@ -1,8 +1,7 @@
-package com.dialog.server.domain;
+package com.dialog.server.service;
 
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.exception.DialogException;
-import com.dialog.server.service.DiscussionService;
-import com.dialog.server.service.DiscussionSummaryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,7 @@ class DiscussionSummaryScheduler {
 
         for (OnlineDiscussion onlineDiscussion : onlineDiscussions) {
             try {
-                discussionSummaryService.generateAndUpdateSummary(onlineDiscussion);
+                discussionSummaryService.generateAndUpdateSummaryBy(onlineDiscussion);
             } catch (DialogException e) {
                 log.error("토론 ID {}에 대한 요약 생성/업데이트 실패: {}", onlineDiscussion.getId(), e.getMessage());
             }

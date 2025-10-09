@@ -53,7 +53,6 @@ class DiscussionSummaryServiceTest {
 
     @BeforeEach
     void setUp() {
-        // AiClient 모킹 - 실제 AI API 호출 대신 테스트용 요약 반환
         when(aiClient.execute(anyString(), anyString(), anyMap()))
                 .thenReturn("멀티 모듈 구조 도입에 대한 토론 요약입니다. "
                         + "팀원의 경험과 관심도를 고려해 결정하는 것이 중요하며, "

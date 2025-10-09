@@ -40,6 +40,7 @@ public abstract class Discussion extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     protected Category category;
+    @Column(columnDefinition = "TEXT")
     protected String summary;
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
@@ -101,6 +102,6 @@ public abstract class Discussion extends BaseEntity {
     public abstract DiscussionStatus getDiscussionStatus();
 
     public boolean hasSummary() {
-        return !this.summary.isBlank();
+        return !(this.summary == null || this.summary.isBlank());
     }
 }

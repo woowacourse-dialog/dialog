@@ -59,6 +59,7 @@ public class DiscussionSummaryService {
 
         if (discussion instanceof OnlineDiscussion onlineDiscussion) {
             String summary = generateSummary(onlineDiscussion);
+            System.out.println(summary);
             discussionService.updateSummary(onlineDiscussion, summary);
             return discussion;
         }
@@ -80,6 +81,7 @@ public class DiscussionSummaryService {
 
         Map<String, String> promptContents = new HashMap<>();
         String content = parseToPromptContent(discussion, discussionCommentAndReply);
+        System.out.println(content);
         promptContents.put(COMMENT_REPLY_CONTENT_KEY, content);
         return promptContents;
     }

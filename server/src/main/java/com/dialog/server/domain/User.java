@@ -51,11 +51,9 @@ public class User extends BaseEntity {
         this.role = role;
     }
 
-    public void register(String nickname,
-                         Track track,
+    public void register(Track track,
                          boolean webPushNotification,
                          Role role) {
-        this.nickname = nickname;
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;

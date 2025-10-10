@@ -114,7 +114,7 @@ export default function DiscussionCard({
       {/* 작성자 정보 */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
         <img
-          src={getProfileImageSrc(commonDiscussionInfo.author?.profileImage)}
+          src={getProfileImageSrc(commonDiscussionInfo.profileImage)}
           alt="프로필 이미지"
           style={{
             width: '32px',

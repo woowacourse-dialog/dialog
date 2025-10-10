@@ -49,7 +49,8 @@ public class UserService {
     private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
         final User tempUser = User.builder()
                 .oauthId(oAuth2UserInfo.getOAuthUserId())
-                .nickname(oAuth2UserInfo.getNickname())
+                .nickname(oAuth2UserInfo.getUserId())
+                .githubId(oAuth2UserInfo.getUserId())
                 .role(Role.TEMP_USER)
                 .build();
         final ProfileImage profileImage = ProfileImage.builder()

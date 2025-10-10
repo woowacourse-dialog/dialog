@@ -28,6 +28,8 @@ public class User extends BaseEntity {
 
     private String nickname;
 
+    private String githubId;
+
     @Enumerated(EnumType.STRING)
     private Track track;
 
@@ -41,11 +43,13 @@ public class User extends BaseEntity {
     @Builder
     private User(String oauthId,
                  String nickname,
+                 String githubId,
                  Track track,
                  boolean webPushNotification,
                  Role role) {
         this.oauthId = oauthId;
         this.nickname = nickname;
+        this.githubId = githubId;
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;

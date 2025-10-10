@@ -31,7 +31,7 @@ public class GitHubOAuth2UserInfo {
         return url == null ? null : url.toString();
     }
 
-    public String getNickname() {
+    public String getUserId() {
         return (String) attributes.get("login");
     }
 }

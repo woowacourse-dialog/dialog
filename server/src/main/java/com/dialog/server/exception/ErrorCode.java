@@ -32,6 +32,9 @@ public enum ErrorCode {
     CANNOT_DELETE_DISCUSSION("5027", "삭제할 수 없는 토론입니다.", HttpStatus.BAD_REQUEST),
     INVALID_SEARCH_TYPE("5028", "유효하지 않은 검색 조건입니다.", HttpStatus.BAD_REQUEST),
     PAGE_SIZE_TOO_LARGE("5029", "페이지의 크기는 50개가 최대입니다.", HttpStatus.BAD_REQUEST),
+    CANNOT_SUMMARIZE_OFFLINE_DISCUSSION("5030", "오프라인 토론은 요약할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_DISCUSSION_SUMMARY("5031", "토론 작성자만 요약을 생성할 수 있습니다", HttpStatus.FORBIDDEN),
+    ALREADY_DISCUSSION_SUMMARY("5032", "토론 요약이 이미 존재합니다.", HttpStatus.BAD_REQUEST),
 
     USER_NOT_FOUND("5031", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     EXIST_USER_EMAIL("5032", "이미 존재하는 이메일입니다.", HttpStatus.BAD_REQUEST),
@@ -59,6 +62,10 @@ public enum ErrorCode {
     NOT_OFFLINE_DISCUSSION("5071", "오프라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
     NOT_ONLINE_DISCUSSION("5072", "온라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
     INVALID_ONLINE_DISCUSSION_END_DATE("5073", "오늘로부터 최대 3일동안 토론을 열 수 있습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_NICKNAME_LENGTH("5074", "닉네임은 2글자 이상 15자 이내여야 합니다.", HttpStatus.BAD_REQUEST),
+
+    FAILED_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
 
     public final String code;

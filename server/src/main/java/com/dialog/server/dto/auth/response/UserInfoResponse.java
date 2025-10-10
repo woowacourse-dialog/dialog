@@ -6,6 +6,7 @@ import com.dialog.server.domain.User;
 public record UserInfoResponse(
         Long id,
         String nickname,
+        String githubId,
         Track track,
         boolean isNotificationEnabled
 ) {
@@ -13,6 +14,7 @@ public record UserInfoResponse(
         return new UserInfoResponse(
                 user.getId(),
                 user.getNickname(),
+                user.getGithubId(),
                 user.getTrack(),
                 user.isWebPushNotification()
         );

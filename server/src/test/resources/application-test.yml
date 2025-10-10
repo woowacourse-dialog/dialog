@@ -28,6 +28,15 @@ spring:
             client-id: test-client-id
             client-secret: test-client-secret
 
+  ai:
+    openai:
+      api-key: sk-dummy-key-for-testing-only
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
+          max_completion_tokens: 2000
+
   h2:
     console:
       enabled: true

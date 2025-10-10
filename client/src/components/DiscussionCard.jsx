@@ -99,6 +99,18 @@ export default function DiscussionCard({
         </div>
       </div>
 
+      {/* 요약 미리보기 - 온라인 토론이고 토론 완료 상태일 때만 표시 */}
+      {commonDiscussionInfo.summary && discussionType === 'ONLINE' && (
+        <div className={styles.summaryPreview}>
+          <div className={styles.summaryText}>
+            {commonDiscussionInfo.summary.length > 100 
+              ? `${commonDiscussionInfo.summary.substring(0, 100)}...`
+              : commonDiscussionInfo.summary
+            }
+          </div>
+        </div>
+      )}
+
       {/* 작성자 정보 */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
         <img

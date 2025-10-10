@@ -4,6 +4,7 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
@@ -33,6 +34,15 @@ public class UserController {
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
+    @PatchMapping("/mine")
+    public ResponseEntity<ApiSuccessResponse<Void>> patchNickname(
+            @AuthenticatedUserId Long userId,
+            @RequestBody UserMypageUpdateRequest userMypageUpdateRequest
+    ) {
+        userService.modifyUserInfo(userId, userMypageUpdateRequest);
+        return ResponseEntity.ok().build();
+    }
+
     @PatchMapping("/mine/notifications")
     public ResponseEntity<ApiSuccessResponse<NotificationSettingResponse>> patchNotification(
             @RequestBody @Valid NotificationSettingRequest request, @AuthenticatedUserId Long userId) {
@@ -42,7 +52,8 @@ public class UserController {
 
     @GetMapping("/mine/profile-image")
     public ResponseEntity<ApiSuccessResponse<ProfileImageGetResponse>> getProfileImage(
-            @AuthenticatedUserId Long userId) {
+            @AuthenticatedUserId Long userId
+    ) {
         ProfileImageGetResponse response = userService.getProfileImage(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }

@@ -7,7 +7,7 @@ export const userApi = {
   },
   
   getTrack: () => {
-    return api.get('/users/mine/track');
+    return api.get('/user/mine/track');
   },
 };
 

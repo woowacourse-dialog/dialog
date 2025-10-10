@@ -33,11 +33,6 @@ public abstract class Discussion extends BaseEntity {
     private static final int MAX_TITLE_LENGTH = 50;
     private static final int MAX_CONTENT_LENGTH = 10000;
     private static final int MAX_SUMMARY_LENGTH = 300;
-
-    @Column(name = "discussion_id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    private Long id;
     @Column(nullable = false)
     protected String title;
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -45,10 +40,15 @@ public abstract class Discussion extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     protected Category category;
+    @Column(columnDefinition = "TEXT")
     protected String summary;
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     protected User author;
+    @Column(name = "discussion_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private Long id;
     private LocalDateTime deletedAt;
 
     protected Discussion(
@@ -93,7 +93,15 @@ public abstract class Discussion extends BaseEntity {
         }
     }
 
+    public void updateSummary(String summary) {
+        this.summary = summary;
+    }
+
     public abstract boolean canNotDelete(); // TODO: 삭제 논의
 
     public abstract DiscussionStatus getDiscussionStatus();
+
+    public boolean hasSummary() {
+        return !(this.summary == null || this.summary.isBlank());
+    }
 }

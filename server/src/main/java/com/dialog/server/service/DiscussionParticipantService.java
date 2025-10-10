@@ -10,10 +10,10 @@ import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class DiscussionParticipantService {
         discussionParticipantRepository.save(discussionParticipant);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ParticipationStatusResponse isParticipating(Long userId, Long discussionId) {
         User participant = getUserById(userId);
         Discussion discussion = getDiscussionById(discussionId);

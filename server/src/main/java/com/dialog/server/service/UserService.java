@@ -90,6 +90,13 @@ public class UserService {
         return ProfileImageUpdateResponse.from(updateProfile);
     }
 
+    @Transactional
+    public UserNicknameUpdateResponse modifyNickname(Long userId, UserNicknameUpdateRequest userNicknameUpdateRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        final String updatedNickname = user.updateNickname(userNicknameUpdateRequest.nickname());
+        return new UserNicknameUpdateResponse(updatedNickname);
+    }
+
     @Transactional(readOnly = true)
     public ProfileImageGetResponse getProfileImage(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
@@ -130,10 +137,5 @@ public class UserService {
     public MyTrackGetTrackResponse getTrack(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         return MyTrackGetTrackResponse.from(user);
-    }
-
-    public UserNicknameUpdateResponse modifyNickname(Long userId, UserNicknameUpdateRequest userNicknameUpdateRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        return new UserNicknameUpdateResponse(user.updateNickname(userNicknameUpdateRequest.nickname()));
     }
 }

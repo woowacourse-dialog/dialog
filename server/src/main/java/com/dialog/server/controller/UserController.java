@@ -68,7 +68,7 @@ public class UserController {
     @PatchMapping("/mine/nickname")
     public ResponseEntity<ApiSuccessResponse<UserNicknameUpdateResponse>> patchNickname(
             @AuthenticatedUserId Long userId,
-            UserNicknameUpdateRequest userNicknameUpdateRequest
+            @RequestBody UserNicknameUpdateRequest userNicknameUpdateRequest
     ) {
         UserNicknameUpdateResponse userNicknameUpdateResponse = userService.modifyNickname(userId, userNicknameUpdateRequest);
         return ResponseEntity.ok(new ApiSuccessResponse<>(userNicknameUpdateResponse));

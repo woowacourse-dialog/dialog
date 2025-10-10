@@ -230,3 +230,8 @@ export async function deleteComment(commentId) {
   const res = await api.delete(`/discussions/comments/${commentId}`);
   return res.data;
 }
+
+export async function isParticipating(id) {
+  const res = await api.get(`/discussions/${id}/participants/status`);
+  return res.data;
+}

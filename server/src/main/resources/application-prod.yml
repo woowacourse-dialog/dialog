@@ -59,3 +59,9 @@ firebase:
 
 server:
   forward-headers-strategy: native
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"

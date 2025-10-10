@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
             MissingServletRequestParameterException exception
     ) {
+        log.info(exception.getMessage());
         String defaultErrorMessage = exception.getMessage();
 
         return ResponseEntity.badRequest()
@@ -32,6 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException exception
     ) {
+        log.info(exception.getMessage());
         String errorMessage = exception.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + "은(는) " + fieldError.getDefaultMessage())
                 .findFirst()
@@ -43,7 +45,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DialogException.class)
     public ResponseEntity<ApiErrorResponse> handleUnExpectedException(DialogException ex) {
-        log.warn("경고: ", ex);
+        log.info(ex.getMessage());
         return ResponseEntity.status(ex.getStatus()).body(ApiErrorResponse.from(ex));
     }
 }

@@ -1,5 +1,7 @@
 package com.dialog.server.domain;
 
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -88,6 +90,9 @@ public class User extends BaseEntity {
     }
 
     public void updateUser(String nickname, Track track) {
+        if (nickname.length() < 2 || nickname.length() > 15) {
+            throw new DialogException(ErrorCode.INVALID_NICKNAME_LENGTH);
+        }
         this.nickname = nickname;
         this.track = track;
     }

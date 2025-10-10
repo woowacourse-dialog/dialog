@@ -157,8 +157,15 @@ const MyPage = () => {
   };
 
   const handleInfoUpdate = async () => {
-    if (!editedNickname.trim()) {
+    const trimmedNickname = editedNickname.trim();
+
+    if (!trimmedNickname) {
       setEditError('닉네임을 입력해주세요');
+      return;
+    }
+
+    if (trimmedNickname.length < 2 || trimmedNickname.length > 15) {
+      setEditError('닉네임은 2글자 이상 15자 이내여야 합니다.');
       return;
     }
 
@@ -171,13 +178,18 @@ const MyPage = () => {
     setEditError('');
     try {
       await api.patch('/api/user/mine', {
-        nickname: editedNickname,
+        nickname: trimmedNickname,
         track: editedTrack
       });
       await fetchUserInfo();
       closeEditModal();
     } catch (e) {
-      setEditError('정보 수정에 실패했습니다.');
+      // 백엔드에서 온 에러 메시지 사용
+      if (e.response && e.response.data && e.response.data.message) {
+        setEditError(e.response.data.message);
+      } else {
+        setEditError('정보 수정에 실패했습니다.');
+      }
     } finally {
       setUpdating(false);
     }

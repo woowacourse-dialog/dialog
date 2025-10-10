@@ -104,7 +104,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
       return {
         icon: <FaLock />,
         title: '오프라인 토론',
-        message: '토론 요약은 온라인 토론에서만 확인할 수 있습니다.',
+        message: '오프라인 토론은 요약 기능을 제공하지 않습니다.',
         type: 'restriction'
       };
     }
@@ -130,11 +130,78 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
 
   // 비생성자를 위한 요약 표시 UI
   const renderNonAuthorSummary = () => {
-    if (!discussion || !me) return null;
+    if (!discussion) return null;
     
     const isOnline = discussion.discussionType === 'ONLINE';
-    const isAuthor = me.id === discussion.commonDiscussionInfo.author.id;
+    const isAuthor = me && me.id === discussion.commonDiscussionInfo.author.id;
     
+    // 로그인하지 않은 경우
+    if (!me) {
+      if (!isOnline) {
+        // 오프라인 토론 + 비로그인: 오프라인 토론 안내
+        return (
+          <div className="discussion-summary-container">
+            <div className="summary-header">
+              <FaFileAlt className="summary-icon" />
+              <h3>토론 요약</h3>
+            </div>
+            <div className="summary-restriction">
+              <div className="restriction-icon"><FaLock /></div>
+              <h4>오프라인 토론</h4>
+              <p>오프라인 토론은 요약 기능을 제공하지 않습니다.</p>
+            </div>
+          </div>
+        );
+      } else {
+        // 온라인 토론 + 비로그인
+        if (summary) {
+          // 요약이 있으면 표시
+          return (
+            <div className="discussion-summary-container">
+              <div className="summary-header">
+                <FaFileAlt className="summary-icon" />
+                <h3>토론 요약</h3>
+              </div>
+              
+              <div className="summary-content">
+                <div className={`summary-text ${isExpanded ? 'expanded' : 'collapsed'}`}>
+                  <MarkdownRender content={summary} />
+                </div>
+                
+                {summary.length > 200 && (
+                  <button 
+                    className="toggle-summary-btn"
+                    onClick={toggleExpanded}
+                  >
+                    {isExpanded ? '요약 접기' : '요약 더보기'}
+                  </button>
+                )}
+              </div>
+              
+              <div className="summary-footer">
+                <FaCheck className="success-icon" />
+                <span>AI가 생성한 요약입니다</span>
+              </div>
+            </div>
+          );
+        } else {
+          // 요약이 없으면 단순히 존재하지 않는다고 표시
+          return (
+            <div className="discussion-summary-container">
+              <div className="summary-header">
+                <FaFileAlt className="summary-icon" />
+                <h3>토론 요약</h3>
+              </div>
+              <div className="summary-empty">
+                <p>아직 토론 요약이 존재하지 않습니다.</p>
+              </div>
+            </div>
+          );
+        }
+      }
+    }
+    
+    // 로그인한 사용자의 경우 (기존 로직)
     // 온라인 토론이 아니면 표시하지 않음
     if (!isOnline) return null;
     

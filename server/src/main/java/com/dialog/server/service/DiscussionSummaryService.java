@@ -59,7 +59,6 @@ public class DiscussionSummaryService {
 
         if (discussion instanceof OnlineDiscussion onlineDiscussion) {
             String summary = generateSummary(onlineDiscussion);
-            System.out.println(summary);
             discussionService.updateSummary(onlineDiscussion, summary);
             return discussion;
         }
@@ -81,7 +80,6 @@ public class DiscussionSummaryService {
 
         Map<String, String> promptContents = new HashMap<>();
         String content = parseToPromptContent(discussion, discussionCommentAndReply);
-        System.out.println(content);
         promptContents.put(COMMENT_REPLY_CONTENT_KEY, content);
         return promptContents;
     }
@@ -90,6 +88,7 @@ public class DiscussionSummaryService {
                                         Map<DiscussionComment, List<DiscussionComment>> commentsAndReply) {
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append("[토론 본문]\n");
+        contentBuilder.append("작성자: ").append(discussion.getAuthor().getNickname()).append("\n");
         contentBuilder.append("제목: ").append(discussion.getTitle()).append("\n");
         contentBuilder.append("내용: ").append(discussion.getContent()).append("\n\n");
         contentBuilder.append("[댓글 및 답글]\n");

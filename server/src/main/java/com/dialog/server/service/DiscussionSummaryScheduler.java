@@ -29,6 +29,5 @@ class DiscussionSummaryScheduler {
                 log.error("토론 ID {}에 대한 요약 생성/업데이트 실패: {}", onlineDiscussion.getId(), e.getMessage());
             }
         }
-
     }
 }

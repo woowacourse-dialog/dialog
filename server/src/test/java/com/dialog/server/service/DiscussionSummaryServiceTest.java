@@ -227,7 +227,6 @@ class DiscussionSummaryServiceTest {
             assertThat(response).isNotNull();
             assertThat(response.summary()).isNotBlank();
             assertThat(discussion.hasSummary()).isTrue();
-            System.out.println("생성된 요약: " + response.summary());
         }
 
         @Test
@@ -311,7 +310,6 @@ class DiscussionSummaryServiceTest {
             // then
             assertThat(discussion.hasSummary()).isTrue();
             assertThat(discussion.getSummary()).isNotBlank();
-            System.out.println("생성된 요약: " + discussion.getSummary());
         }
 
         @Test

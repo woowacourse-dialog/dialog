@@ -6,7 +6,7 @@ import Header from '../../../components/Header/Header';
 import CommentList from '../../../components/Comment/CommentList';
 import DiscussionSummary from '../../../components/DiscussionSummary/DiscussionSummary';
 import './DiscussionDetailPage.css';
-import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
+import { findDiscussionById, participateDiscussion, deleteDiscussion, isParticipating as checkIsParticipating } from '../../../api/discussion';
 
 import { scrapDiscussion, deleteScrapDiscussion, getScrapStatus } from '../../../api/scrap';
 import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
@@ -77,7 +77,7 @@ const DiscussionDetailPage = () => {
   const { me } = useMe();
   const [discussion, setDiscussion] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [joining, setJoining] = useState(false);
+  const [isParticipating, setIsParticipating] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
@@ -91,7 +91,7 @@ const DiscussionDetailPage = () => {
       try {
         const res = await findDiscussionById(id);
         setDiscussion(res.data);
-        setLikeCount(res.data.likeCount);
+        setLikeCount(Number(res.data.commonDiscussionInfo?.likeCount) || 0);
         setIsBookmarked(res.data.isBookmarked);
         setSummary(res.data.commonDiscussionInfo.summary || '');
         setLoading(false);
@@ -108,6 +108,7 @@ const DiscussionDetailPage = () => {
     if (!me) {
       setIsLiked(false)
       setIsBookmarked(false);
+      setIsParticipating(false);
       return;
     }
     
@@ -134,7 +135,26 @@ const DiscussionDetailPage = () => {
     };
 
     fetchLikeStatus();
+
+    const fetchIsParticipating = async () => {
+      if (!me) {
+        setIsParticipating(false);
+        return;
+      }
+      
+      try {
+        const participationRes = await checkIsParticipating(id);
+        const participationStatus = participationRes.data?.isParticipation ?? false;
+        setIsParticipating(participationStatus);
+      } catch (error) {
+        console.error('Failed to fetch participation status:', error);
+        setIsParticipating(false);
+      }
+    };
+
+    fetchIsParticipating();
   }, [id, me]);
+
 
   const handleJoin = async () => {
     if (discussion.discussionType === 'ONLINE') {
@@ -142,17 +162,16 @@ const DiscussionDetailPage = () => {
       return;
     }
 
-    setJoining(true);
     try {
       await participateDiscussion(discussion.id);
       alert('토론 참여가 완료되었습니다!');
+      setIsParticipating(true);
       // 페이지 새로고침하여 참여자 목록 업데이트
       window.location.reload();
     } catch (error) {
       console.error('Failed to join discussion:', error);
       alert(error.response.data.message);
     }
-    setJoining(false);
   };
 
   const handleEdit = () => {
@@ -176,10 +195,10 @@ const DiscussionDetailPage = () => {
     try {
       if (isLiked) {
         await deleteLikeDiscussion(discussion.id);
-        setLikeCount(prevCount => prevCount - 1);
+        setLikeCount(prevCount => (Number(prevCount) || 0) - 1);
       } else {
         await likeDiscussion(discussion.id);
-        setLikeCount(prevCount => prevCount + 1);
+        setLikeCount(prevCount => (Number(prevCount) || 0) + 1);
       }
       setIsLiked(!isLiked);
     } catch (error) {
@@ -359,11 +378,11 @@ const DiscussionDetailPage = () => {
               </div>
             ) : isOffline ? (
               <button
-                className="join-button"
+                className={`join-button ${isParticipating ? 'participated' : ''}`}
                 onClick={handleJoin}
-                disabled={joining || discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount}
+                disabled={isParticipating || discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount}
               >
-                {joining ? '참여 중...' :
+                {isParticipating ? '참여 완료' :
                  discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount ? '인원 마감' :
                  '참여하기'}
               </button>

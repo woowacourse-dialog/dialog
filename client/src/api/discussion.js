@@ -231,6 +231,9 @@ export async function deleteComment(commentId) {
   return res.data;
 }
 
+export async function isParticipating(id) {
+  const res = await api.get(`/discussions/${id}/participants/status`);
+  return res.data;
 /**
  * 토론 요약을 생성한다.
  * @param {number} discussionId - 토론 ID

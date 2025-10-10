@@ -199,6 +199,18 @@
   opacity: 0.8;
 }
 
+.join-button.participated {
+  background-color: var(--primary-color);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.join-button.participated:hover {
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
 .author-actions {
   display: flex;
   gap: 1rem;

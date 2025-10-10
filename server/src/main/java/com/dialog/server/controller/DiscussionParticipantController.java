@@ -1,9 +1,12 @@
 package com.dialog.server.controller;
 
 import com.dialog.server.dto.auth.AuthenticatedUserId;
+import com.dialog.server.dto.request.ParticipationStatusResponse;
+import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.DiscussionParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +20,21 @@ public class DiscussionParticipantController {
     private final DiscussionParticipantService discussionParticipantService;
 
     @PostMapping
-    public ResponseEntity<Void> participate(@PathVariable("discussionId") Long discussionId, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<Void> participate(@PathVariable("discussionId") Long discussionId,
+                                            @AuthenticatedUserId Long userId) {
         discussionParticipantService.participate(userId, discussionId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<ApiSuccessResponse<ParticipationStatusResponse>> isParticipating(
+            @PathVariable("discussionId") Long discussionId,
+            @AuthenticatedUserId Long userId
+    ) {
+        ParticipationStatusResponse participationStatusResponse = discussionParticipantService.isParticipating(
+                userId,
+                discussionId
+        );
+        return ResponseEntity.ok(new ApiSuccessResponse<>(participationStatusResponse));
     }
 }

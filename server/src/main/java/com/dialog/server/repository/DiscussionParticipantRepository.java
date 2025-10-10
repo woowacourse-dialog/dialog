@@ -2,6 +2,7 @@ package com.dialog.server.repository;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionParticipant;
+import com.dialog.server.domain.User;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,4 +11,6 @@ public interface DiscussionParticipantRepository extends JpaRepository<Discussio
 
     @EntityGraph(attributePaths = {"participant"})
     List<DiscussionParticipant> findByDiscussion(Discussion discussion);
+
+    boolean existsByDiscussionAndParticipant(Discussion discussion, User participant);
 }

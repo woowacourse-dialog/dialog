@@ -234,10 +234,12 @@ export async function deleteComment(commentId) {
 export async function isParticipating(id) {
   const res = await api.get(`/discussions/${id}/participants/status`);
   return res.data;
+}
+
 /**
  * 토론 요약을 생성한다.
  * @param {number} discussionId - 토론 ID
- * @param {number} timeout - 타임아웃 시간 (밀리초, 기본값: 20초)
+ * @param {number} timeout - 타임아웃 시간 (밀리초, 기본값: 30초)
  * @returns {Promise<Object>} 생성된 요약 정보
  */
 export async function generateDiscussionSummary(discussionId, timeout = 30000) {

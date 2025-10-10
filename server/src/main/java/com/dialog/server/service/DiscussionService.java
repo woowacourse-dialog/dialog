@@ -25,9 +25,11 @@ import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionParticipantRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.LikeRepository;
+import com.dialog.server.repository.OnlineDiscussionRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +54,12 @@ public class DiscussionService {
 
     private final DiscussionRepository discussionRepository;
     private final DiscussionParticipantRepository discussionParticipantRepository;
+    private final OnlineDiscussionRepository onlineDiscussionRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final DiscussionCommentService discussionCommentService;
 
     @Transactional
     public DiscussionCreateResponse createOfflineDiscussion(OfflineDiscussionCreateRequest request, Long userId) {
@@ -156,6 +160,12 @@ public class DiscussionService {
     }
 
     @Transactional(readOnly = true)
+    public Discussion getDiscussionEntityById(Long discussionId) {
+        return discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
+    }
+
+    @Transactional(readOnly = true)
     public DiscussionCursorPageResponse<DiscussionPreviewResponse> getDiscussionsPage(
             List<Category> categories,
             List<DiscussionStatus> statuses,
@@ -240,6 +250,21 @@ public class DiscussionService {
         User author = getUser(authorId);
 
         return createCursorBasedDiscussionsByAuthor(cursor, pageSize, author);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OnlineDiscussion> getEndedAndBlankSummaryOnlineDiscussions() {
+        LocalDate date = LocalDate.now();
+        return onlineDiscussionRepository.findAllNeedingSummaryByEndDateBefore(date);
+    }
+
+    @Transactional
+    public Discussion updateSummary(Discussion discussion, String summary) {
+        if (summary == null || summary.isEmpty()) {
+            throw new DialogException(ErrorCode.FAILED_AI_SUMMARY);
+        }
+        discussion.updateSummary(summary);
+        return discussion;
     }
 
     private DiscussionCursorPageResponse<DiscussionPreviewResponse> createCursorBasedDiscussionsByAuthor(

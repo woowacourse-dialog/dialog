@@ -101,6 +101,21 @@
   margin-bottom: 8px;
 }
 
+.summaryPreview {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.summaryText {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  font-style: italic;
+}
+
 .detailsRow {
   display: flex;
   gap: 24px;

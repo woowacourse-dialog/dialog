@@ -230,3 +230,29 @@ export async function deleteComment(commentId) {
   const res = await api.delete(`/discussions/comments/${commentId}`);
   return res.data;
 }
+
+/**
+ * 토론 요약을 생성한다.
+ * @param {number} discussionId - 토론 ID
+ * @param {number} timeout - 타임아웃 시간 (밀리초, 기본값: 20초)
+ * @returns {Promise<Object>} 생성된 요약 정보
+ */
+export async function generateDiscussionSummary(discussionId, timeout = 30000) {
+  // 타임아웃 설정
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const res = await api.post('/discussions/summary', {
+      discussionId
+    }, {
+      signal: controller.signal,
+      timeout: timeout
+    });
+    clearTimeout(timeoutId);
+    return res.data;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}

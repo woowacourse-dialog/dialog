@@ -4,6 +4,7 @@ import MarkdownRender from '../../../components/Markdown/MarkdownRender';
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import CommentList from '../../../components/Comment/CommentList';
+import DiscussionSummary from '../../../components/DiscussionSummary/DiscussionSummary';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion } from '../../../api/discussion';
 
@@ -80,6 +81,7 @@ const DiscussionDetailPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [summary, setSummary] = useState('');
 
   useEffect(() => {
     if (hasFetched.current) return;
@@ -91,6 +93,7 @@ const DiscussionDetailPage = () => {
         setDiscussion(res.data);
         setLikeCount(res.data.likeCount);
         setIsBookmarked(res.data.isBookmarked);
+        setSummary(res.data.commonDiscussionInfo.summary || '');
         setLoading(false);
       } catch (error) {
         console.error('Failed to fetch discussion:', error);
@@ -196,6 +199,20 @@ const DiscussionDetailPage = () => {
     } catch (error) {
       console.error('Failed to update bookmark:', error);
       alert(error.response.data.message);
+    }
+  };
+
+  const handleSummaryUpdate = (newSummary) => {
+    setSummary(newSummary);
+    // discussion 객체의 summary도 업데이트
+    if (discussion) {
+      setDiscussion(prev => ({
+        ...prev,
+        commonDiscussionInfo: {
+          ...prev.commonDiscussionInfo,
+          summary: newSummary
+        }
+      }));
     }
   };
 
@@ -315,6 +332,14 @@ const DiscussionDetailPage = () => {
           <div className="discussion-detail-content">
             <MarkdownRender content={discussion.commonDiscussionInfo.content} />
           </div>
+
+          <DiscussionSummary 
+            discussionId={id}
+            discussion={discussion}
+            me={me}
+            initialSummary={summary}
+            onSummaryUpdate={handleSummaryUpdate}
+          />
 
           <div className="discussion-join-section">
             {isAuthor ? (

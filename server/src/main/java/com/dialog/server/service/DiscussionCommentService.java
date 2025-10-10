@@ -96,9 +96,22 @@ public class DiscussionCommentService {
 
     private Map<User, ProfileImage> getAuthorProfileImages(List<DiscussionComment> discussionComments) {
         List<User> discussionAuthors = discussionComments.stream().map(DiscussionComment::getAuthor).toList();
-        List<ProfileImage> discussionCommentAuthorProfileImages = profileImageRepository.findAllByUserIn(discussionAuthors);
+        List<ProfileImage> discussionCommentAuthorProfileImages = profileImageRepository.findAllByUserIn(
+                discussionAuthors);
         return discussionCommentAuthorProfileImages.stream()
                 .collect(Collectors.toMap(ProfileImage::getUser, Function.identity()));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<DiscussionComment, List<DiscussionComment>> getDiscussionCommentAndReply(Discussion discussion) {
+        List<DiscussionComment> allComments = discussionCommentRepository.findByDiscussion(discussion);
+
+        return allComments.stream()
+                .filter(comment -> !comment.hasParent())
+                .collect(Collectors.toMap(
+                        comment -> comment,
+                        discussionCommentRepository::findByParentDiscussionComment
+                ));
     }
 
     @Transactional
@@ -122,7 +135,7 @@ public class DiscussionCommentService {
             throw new DialogException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        List<DiscussionComment> replies = discussionCommentRepository.findByParentDiscussionComment(comment);;
+        List<DiscussionComment> replies = discussionCommentRepository.findByParentDiscussionComment(comment);
 
         discussionCommentRepository.deleteAll(replies);
         discussionCommentRepository.delete(comment);

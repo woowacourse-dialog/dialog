@@ -1,0 +1,392 @@
+.discussion-summary-container {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.summary-icon {
+  color: #6c757d;
+  font-size: 18px;
+}
+
+.summary-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212529;
+  flex: 1;
+}
+
+
+.summary-empty {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.summary-empty p {
+  color: #6c757d;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.summary-empty p:only-child {
+  margin-bottom: 0;
+}
+
+.summary-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.notice-icon {
+  color: #856404;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.summary-notice p {
+  color: #856404;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-notice small {
+  color: #6c757d;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* 비생성자용 스타일 - 요약이 없을 때만 메시지 표시 */
+.summary-empty:has(p:only-child) {
+  padding: 20px;
+}
+
+.generate-summary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+}
+
+.generate-summary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.generate-summary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.summary-generating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 30px 20px;
+  color: #6c757d;
+  text-align: center;
+}
+
+.summary-generating p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.summary-generating small {
+  color: #adb5bd;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.summary-restriction {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.restriction-icon {
+  font-size: 24px;
+  color: #6c757d;
+  margin-bottom: 12px;
+}
+
+.summary-restriction h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.summary-restriction p {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.summary-no-content {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.retry-summary-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.retry-summary-btn:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+.retry-summary-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.summary-content {
+  margin-bottom: 16px;
+}
+
+.summary-text {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+/* 마크다운 내용 스타일링 */
+.summary-text .markdown-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.summary-text .markdown-content h1,
+.summary-text .markdown-content h2,
+.summary-text .markdown-content h3,
+.summary-text .markdown-content h4,
+.summary-text .markdown-content h5,
+.summary-text .markdown-content h6 {
+  color: #212529;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.summary-text .markdown-content h1 { font-size: 20px; }
+.summary-text .markdown-content h2 { font-size: 18px; }
+.summary-text .markdown-content h3 { font-size: 16px; }
+.summary-text .markdown-content h4 { font-size: 15px; }
+
+.summary-text .markdown-content p {
+  margin-bottom: 12px;
+}
+
+.summary-text .markdown-content ul,
+.summary-text .markdown-content ol {
+  margin-bottom: 12px;
+  padding-left: 20px;
+}
+
+.summary-text .markdown-content li {
+  margin-bottom: 4px;
+}
+
+.summary-text .markdown-content blockquote {
+  border-left: 4px solid #e9ecef;
+  padding-left: 16px;
+  margin: 16px 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.summary-text .markdown-content code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #e83e8c;
+}
+
+.summary-text .markdown-content pre {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.summary-text .markdown-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.summary-text.collapsed {
+  max-height: 120px;
+  overflow: hidden;
+  position: relative;
+}
+
+.summary-text.collapsed::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(transparent, white);
+  pointer-events: none;
+}
+
+.summary-text.expanded {
+  max-height: none;
+}
+
+.toggle-summary-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 8px;
+  text-decoration: underline;
+}
+
+.toggle-summary-btn:hover {
+  color: #5a6fd8;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+}
+
+.summary-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #28a745;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.success-icon {
+  font-size: 12px;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .discussion-summary-container {
+    padding: 16px;
+    margin: 16px 0;
+  }
+  
+  .summary-header h3 {
+    font-size: 16px;
+  }
+  
+  .generate-summary-btn {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .summary-text {
+    padding: 12px;
+    font-size: 13px;
+  }
+  
+  .summary-empty {
+    padding: 20px 16px;
+  }
+  
+  .summary-generating {
+    padding: 20px 16px;
+  }
+  
+  .summary-notice {
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .summary-notice p {
+    font-size: 13px;
+  }
+  
+  .summary-notice small {
+    font-size: 11px;
+  }
+  
+  .summary-text .markdown-content {
+    font-size: 13px;
+  }
+  
+  .summary-text .markdown-content h1 { font-size: 18px; }
+  .summary-text .markdown-content h2 { font-size: 16px; }
+  .summary-text .markdown-content h3 { font-size: 15px; }
+  .summary-text .markdown-content h4 { font-size: 14px; }
+  
+  .summary-text .markdown-content code {
+    font-size: 12px;
+  }
+}

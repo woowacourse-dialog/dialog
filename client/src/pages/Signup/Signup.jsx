@@ -4,6 +4,9 @@ import axios from 'axios';
 import './Signup.css';
 import Header from '../../components/Header/Header';
 
+// 슬랙 안내 페이지 활성화 여부 (나중에 다시 활성화하려면 true로 변경)
+const ENABLE_SLACK_GUIDE_PAGE = false;
+
 const Signup = () => {
   const navigate = useNavigate();
   const checkUserCalled = useRef(false);
@@ -58,7 +61,13 @@ const Signup = () => {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, submitData, {
         withCredentials: true
       });
-      navigate('/signup/complete');
+      
+      // 슬랙 안내 페이지 활성화 여부에 따라 라우팅
+      if (ENABLE_SLACK_GUIDE_PAGE) {
+        navigate('/signup/complete');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       console.error('Signup error:', error);
       alert('회원가입 중 오류가 발생했습니다.');

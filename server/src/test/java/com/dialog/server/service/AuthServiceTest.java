@@ -34,7 +34,6 @@ class AuthServiceTest {
     private User user; // 등록된 사용자
     private User tempUser; // 등록되지 않은 사용자 (OAuth 로그인만 수행, 회원가입 하지 않음)
 
-    private String newNickname = "new-nickname";
     private String newOAuthId = "new-oauth-id";
 
     @BeforeEach
@@ -60,7 +59,6 @@ class AuthServiceTest {
     void registerUserTest() {
         // given
         SignupRequest signupRequest = new SignupRequest(
-                newNickname,
                 Track.BACKEND,
                 false
         );
@@ -73,8 +71,7 @@ class AuthServiceTest {
 
         assertThat(user).isPresent();
         assertAll(
-                () -> assertThat(user.get().getOauthId()).isEqualTo(tempUser.getOauthId()),
-                () -> assertThat(user.get().getNickname()).isEqualTo(newNickname)
+                () -> assertThat(user.get().getOauthId()).isEqualTo(tempUser.getOauthId())
         );
     }
 
@@ -83,7 +80,6 @@ class AuthServiceTest {
     void alreadyRegisteredUserTest() {
         // given
         SignupRequest signupRequest = new SignupRequest(
-                newNickname,
                 Track.BACKEND,
                 false
         );
@@ -98,7 +94,6 @@ class AuthServiceTest {
     void notOAuthUserTest() {
         // given
         SignupRequest signupRequest = new SignupRequest(
-                newNickname,
                 Track.BACKEND,
                 false
         );

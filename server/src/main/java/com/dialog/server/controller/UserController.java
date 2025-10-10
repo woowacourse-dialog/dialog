@@ -4,11 +4,10 @@ import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
-import com.dialog.server.dto.request.UserNicknameUpdateRequest;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
-import com.dialog.server.dto.response.UserNicknameUpdateResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.UserService;
 import jakarta.validation.Valid;
@@ -33,6 +32,15 @@ public class UserController {
     public ResponseEntity<ApiSuccessResponse<UserInfoResponse>> getUserInfo(@AuthenticatedUserId Long userId) {
         UserInfoResponse response = userService.getUserInfo(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+    @PatchMapping("/mine")
+    public ResponseEntity<ApiSuccessResponse<Void>> patchNickname(
+            @AuthenticatedUserId Long userId,
+            @RequestBody UserMypageUpdateRequest userMypageUpdateRequest
+    ) {
+        userService.modifyUserInfo(userId, userMypageUpdateRequest);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/mine/notifications")
@@ -63,14 +71,5 @@ public class UserController {
     public ResponseEntity<ApiSuccessResponse<MyTrackGetTrackResponse>> getTrack(@AuthenticatedUserId Long userId) {
         MyTrackGetTrackResponse response = userService.getTrack(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
-    }
-
-    @PatchMapping("/mine/nickname")
-    public ResponseEntity<ApiSuccessResponse<UserNicknameUpdateResponse>> patchNickname(
-            @AuthenticatedUserId Long userId,
-            @RequestBody UserNicknameUpdateRequest userNicknameUpdateRequest
-    ) {
-        UserNicknameUpdateResponse userNicknameUpdateResponse = userService.modifyNickname(userId, userNicknameUpdateRequest);
-        return ResponseEntity.ok(new ApiSuccessResponse<>(userNicknameUpdateResponse));
     }
 }

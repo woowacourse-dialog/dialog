@@ -13,11 +13,10 @@ import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
-import com.dialog.server.dto.request.UserNicknameUpdateRequest;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
-import com.dialog.server.dto.response.UserNicknameUpdateResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.UserRepository;
@@ -164,17 +163,20 @@ public class UserServiceTest {
     }
 
     @Test
-    void 닉네임_수정_확인() {
+    void 사용자_정보_수정_확인() {
         // given
         final String newNickname = "newNickname";
+        final Track newTrack = Track.FRONTEND;
 
         // when
-        final UserNicknameUpdateResponse response = userService.modifyNickname(
-                user.getId(), new UserNicknameUpdateRequest(newNickname));
+        userService.modifyUserInfo(
+                user.getId(), new UserMypageUpdateRequest(newNickname, newTrack)
+        );
 
         // then
         final UserInfoResponse userInfo = userService.getUserInfo(user.getId());
         assertThat(userInfo.nickname()).isEqualTo(newNickname);
+        assertThat(userInfo.track()).isEqualTo(Track.FRONTEND);
     }
 
 

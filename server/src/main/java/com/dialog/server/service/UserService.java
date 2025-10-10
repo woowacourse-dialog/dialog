@@ -6,12 +6,11 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
-import com.dialog.server.dto.request.UserNicknameUpdateRequest;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
-import com.dialog.server.dto.response.UserNicknameUpdateResponse;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
@@ -91,10 +90,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserNicknameUpdateResponse modifyNickname(Long userId, UserNicknameUpdateRequest userNicknameUpdateRequest) {
+    public void modifyUserInfo(Long userId, UserMypageUpdateRequest userMypageUpdateRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-        final String updatedNickname = user.updateNickname(userNicknameUpdateRequest.nickname());
-        return new UserNicknameUpdateResponse(updatedNickname);
+        user.updateUser(userMypageUpdateRequest.nickname(), userMypageUpdateRequest.track());
     }
 
     @Transactional(readOnly = true)

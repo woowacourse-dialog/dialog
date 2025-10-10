@@ -83,8 +83,8 @@ public class User extends BaseEntity {
         return id != null ? id.hashCode() : 0;
     }
 
-    public String updateNickname(String nickname) {
+    public void updateUser(String nickname, Track track) {
         this.nickname = nickname;
-        return nickname;
+        this.track = track;
     }
 }

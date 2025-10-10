@@ -13,6 +13,7 @@ import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
@@ -159,6 +160,23 @@ public class UserServiceTest {
                 () -> assertThat(savedResponse.basicImageUri()).isEqualTo(updateResponse.basicImageUri()),
                 () -> assertThat(savedResponse.customImageUri()).isNotEqualTo(updateResponse.customImageUri())
         );
+    }
+
+    @Test
+    void 사용자_정보_수정_확인() {
+        // given
+        final String newNickname = "newNickname";
+        final Track newTrack = Track.FRONTEND;
+
+        // when
+        userService.modifyUserInfo(
+                user.getId(), new UserMypageUpdateRequest(newNickname, newTrack)
+        );
+
+        // then
+        final UserInfoResponse userInfo = userService.getUserInfo(user.getId());
+        assertThat(userInfo.nickname()).isEqualTo(newNickname);
+        assertThat(userInfo.track()).isEqualTo(Track.FRONTEND);
     }
 
 

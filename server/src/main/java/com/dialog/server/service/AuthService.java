@@ -27,7 +27,6 @@ public class AuthService {
         }
 
         user.register(
-                signupRequest.nickname(),
                 signupRequest.track(),
                 signupRequest.webPushNotification(),
                 Role.USER

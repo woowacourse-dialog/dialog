@@ -1,5 +1,7 @@
 package com.dialog.server.domain;
 
+import com.dialog.server.exception.DialogException;
+import com.dialog.server.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,6 +30,8 @@ public class User extends BaseEntity {
 
     private String nickname;
 
+    private String githubId;
+
     @Enumerated(EnumType.STRING)
     private Track track;
 
@@ -41,21 +45,21 @@ public class User extends BaseEntity {
     @Builder
     private User(String oauthId,
                  String nickname,
+                 String githubId,
                  Track track,
                  boolean webPushNotification,
                  Role role) {
         this.oauthId = oauthId;
         this.nickname = nickname;
+        this.githubId = githubId;
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;
     }
 
-    public void register(String nickname,
-                         Track track,
+    public void register(Track track,
                          boolean webPushNotification,
                          Role role) {
-        this.nickname = nickname;
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;
@@ -83,5 +87,13 @@ public class User extends BaseEntity {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public void updateUser(String nickname, Track track) {
+        if (nickname.length() < 2 || nickname.length() > 15) {
+            throw new DialogException(ErrorCode.INVALID_NICKNAME_LENGTH);
+        }
+        this.nickname = nickname;
+        this.track = track;
     }
 }

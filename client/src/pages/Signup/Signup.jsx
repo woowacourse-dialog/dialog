@@ -9,7 +9,6 @@ const Signup = () => {
   const checkUserCalled = useRef(false);
 
   const [formData, setFormData] = useState({
-    nickname: '',
     track: '',
     webPushNotification: false,
   });
@@ -26,10 +25,6 @@ const Signup = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.nickname.trim()) {
-      newErrors.nickname = '닉네임을 입력해주세요';
-    }
 
     if (!formData.track) {
       newErrors.track = '트랙을 선택해주세요';
@@ -86,23 +81,6 @@ const Signup = () => {
       <div className="signup-container">
         <h1>회원가입</h1>
         <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="nickname">
-              닉네임
-              <span className="required-mark">*</span>
-              </label>
-            <input
-              type="text"
-              id="nickname"
-              name="nickname"
-              value={formData.nickname}
-              onChange={handleChange}
-              placeholder="닉네임을 입력하세요"
-              className="input-field"
-            />
-            {errors.nickname && <span className="error-message">{errors.nickname}</span>}
-          </div>
-
           <div className="input-group">
             <label htmlFor="track">
               트랙

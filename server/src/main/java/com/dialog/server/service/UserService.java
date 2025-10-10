@@ -6,6 +6,7 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
 import com.dialog.server.dto.auth.response.UserInfoResponse;
+import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
@@ -48,6 +49,8 @@ public class UserService {
     private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
         final User tempUser = User.builder()
                 .oauthId(oAuth2UserInfo.getOAuthUserId())
+                .nickname(oAuth2UserInfo.getUserId())
+                .githubId(oAuth2UserInfo.getUserId())
                 .role(Role.TEMP_USER)
                 .build();
         final ProfileImage profileImage = ProfileImage.builder()
@@ -85,6 +88,12 @@ public class UserService {
                 .orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         ProfileImage updateProfile = uploadAndSaveProfileImage(imageFile, savedProfileImage);
         return ProfileImageUpdateResponse.from(updateProfile);
+    }
+
+    @Transactional
+    public void modifyUserInfo(Long userId, UserMypageUpdateRequest userMypageUpdateRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        user.updateUser(userMypageUpdateRequest.nickname(), userMypageUpdateRequest.track());
     }
 
     @Transactional(readOnly = true)

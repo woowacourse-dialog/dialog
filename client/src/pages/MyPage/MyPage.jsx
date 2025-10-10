@@ -467,6 +467,15 @@ const MyPage = () => {
                   수정
                 </button>
               </div>
+              {userInfo.githubId && (
+                <div style={{
+                  fontSize: '0.85rem',
+                  color: '#888',
+                  marginBottom: '0.8rem'
+                }}>
+                  Github Id: {userInfo.githubId}
+                </div>
+              )}
               <div className="mypage-info-row" style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '1rem' }}>
                 <span className="mypage-label" style={{ color: '#888', fontSize: '1rem' }}>웹 푸시 알림</span>
                 <label className="switch">

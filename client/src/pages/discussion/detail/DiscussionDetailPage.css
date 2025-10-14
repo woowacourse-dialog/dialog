@@ -256,10 +256,12 @@
 
 .author-actions .edit-button:hover {
   text-decoration: underline;
-  background: none;
-  color: #656d76;
+  background-color: #f6f8fa;
+  color: #303e4f;
   transform: none;
   box-shadow: none;
+  border-radius: 4px;
+  padding: 4px 8px;
 }
 
 .author-actions .edit-button:active {
@@ -283,10 +285,12 @@
 
 .author-actions .delete-button:hover {
   text-decoration: underline;
-  background: none;
-  color: #d1242f;
+  background-color: #fff5f5;
+  color: #b91c1c;
   transform: none;
   box-shadow: none;
+  border-radius: 4px;
+  padding: 4px 8px;
 }
 
 .author-actions .delete-button:active {

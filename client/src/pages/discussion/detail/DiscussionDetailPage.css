@@ -242,35 +242,35 @@
   box-shadow: none;
 }
 
-.edit-button {
+.author-actions .edit-button {
   background-color: var(--primary-color);
   color: white;
 }
 
-.edit-button:hover {
+.author-actions .edit-button:hover {
   background-color: #1976d2;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 }
 
-.edit-button:active {
+.author-actions .edit-button:active {
   transform: translateY(0);
   box-shadow: none;
   background-color: #1565c0;
 }
 
-.delete-button {
+.author-actions .delete-button {
   background-color: #dc3545;
   color: white;
 }
 
-.delete-button:hover {
+.author-actions .delete-button:hover {
   background-color: #c82333;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(220, 53, 69, 0.15);
 }
 
-.delete-button:active {
+.author-actions .delete-button:active {
   transform: translateY(0);
   box-shadow: none;
   background-color: #bd2130;

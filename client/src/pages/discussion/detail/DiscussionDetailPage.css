@@ -239,15 +239,14 @@
 }
 
 .edit-button:hover {
-  background-color: #1976d2;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.15);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
 }
 
 .edit-button:active {
   transform: translateY(0);
   box-shadow: none;
-  background-color: #1565c0;
+  filter: brightness(0.9);
 }
 
 .delete-button {

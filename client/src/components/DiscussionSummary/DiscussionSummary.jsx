@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaFileAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaLock, FaClock } from 'react-icons/fa';
+import { FaFileAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaLock, FaClock, FaCopy } from 'react-icons/fa';
 import { generateDiscussionSummary } from '../../api/discussion';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import { getDiscussionStatus as getDiscussionStatusUtil } from '../../utils/discussionStatus';
@@ -11,6 +11,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasAttemptedGeneration, setHasAttemptedGeneration] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   // initialSummary가 변경될 때 summary 상태 업데이트
   useEffect(() => {
@@ -79,6 +80,25 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(summary);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // 2초 후 복사 상태 해제
+    } catch (err) {
+      console.error('복사 실패:', err);
+      // fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = summary;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
   };
 
   // 조건에 따른 메시지 생성
@@ -178,6 +198,14 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
               <div className="summary-footer">
                 <FaCheck className="success-icon" />
                 <span>AI가 생성한 요약입니다</span>
+                <button 
+                  className="copy-button"
+                  onClick={copyToClipboard}
+                  title="클립보드에 복사"
+                >
+                  <FaCopy />
+                  {isCopied ? '복사됨!' : '복사'}
+                </button>
               </div>
             </div>
           );
@@ -233,6 +261,14 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
           <div className="summary-footer">
             <FaCheck className="success-icon" />
             <span>AI가 생성한 요약입니다</span>
+            <button 
+              className="copy-button"
+              onClick={copyToClipboard}
+              title="클립보드에 복사"
+            >
+              <FaCopy />
+              {isCopied ? '복사됨!' : '복사'}
+            </button>
           </div>
         </div>
       );
@@ -409,6 +445,14 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
         <div className="summary-footer">
           <FaCheck className="success-icon" />
           <span>AI가 생성한 요약입니다</span>
+          <button 
+            className="copy-button"
+            onClick={copyToClipboard}
+            title="클립보드에 복사"
+          >
+            <FaCopy />
+            {isCopied ? '복사됨!' : '복사'}
+          </button>
         </div>
       </div>
     );

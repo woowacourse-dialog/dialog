@@ -312,10 +312,36 @@
 .summary-footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
   color: #28a745;
   font-size: 12px;
   font-weight: 500;
+}
+
+.copy-button {
+  background: none;
+  border: 1px solid #e9ecef;
+  color: #6c757d;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.copy-button:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+  border-color: #dee2e6;
+}
+
+.copy-button:active {
+  background-color: #e9ecef;
 }
 
 .success-icon {

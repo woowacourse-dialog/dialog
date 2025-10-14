@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import dialogIcon from '../assets/dialog_icon.png';
 import commentIcon from '../assets/comment-icon.svg';
+import { getDiscussionStatus, getDiscussionStatusStyle } from '../utils/discussionStatus';
 import styles from './DiscussionCard.module.css';
 
 const TRACKS = [
@@ -37,36 +38,16 @@ export default function DiscussionCard({
   };
 
   // 토론 상태 계산
-  const getDiscussionState = () => {
-    if (discussionType === 'ONLINE') {
-      const now = new Date();
-      const end = new Date(onlineDiscussionInfo.endDate);
-      return now > end ? '토론 완료' : '토론 중';
-    } else {
-      // OFFLINE
-      const now = new Date();
-      const start = new Date(offlineDiscussionInfo.startAt);
-      const end = new Date(offlineDiscussionInfo.endAt);
-
-      if (now < start) {
-        return offlineDiscussionInfo.participantCount >= offlineDiscussionInfo.maxParticipantCount ? '모집 완료' : '모집 중';
-      } else if (now >= start && now <= end) {
-        return '토론 중';
-      } else {
-        return '토론 완료';
-      }
-    }
+  const discussion = {
+    discussionType,
+    commonDiscussionInfo,
+    offlineDiscussionInfo,
+    onlineDiscussionInfo
   };
-
-  const discussionState = getDiscussionState();
+  const discussionState = getDiscussionStatus(discussion);
 
   // 상태별 색상
-  const stateStyle = {
-    '모집 중': { background: '#ffe066', color: '#333' },
-    '모집 완료': { background: '#ff7043', color: '#fff' },
-    '토론 중': { background: '#42a5f5', color: '#fff' },
-    '토론 완료':   { background: '#bdbdbd', color: '#fff' }
-  };
+  const stateStyle = getDiscussionStatusStyle(discussionState);
 
   return (
     <div
@@ -77,10 +58,7 @@ export default function DiscussionCard({
       <div className={styles.categoryStatusContainer}>
         <span
           className={styles.statusBadge}
-          style={{
-            background: stateStyle[discussionState].background,
-            color: stateStyle[discussionState].color
-          }}
+          style={stateStyle}
         >
           {discussionState}
         </span>

@@ -5,6 +5,7 @@ import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import Header from '../../../components/Header/Header';
 import CommentList from '../../../components/Comment/CommentList';
 import DiscussionSummary from '../../../components/DiscussionSummary/DiscussionSummary';
+import { getDiscussionStatusWithLabel, getDiscussionStatusStyle } from '../../../utils/discussionStatus';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion, isParticipating as checkIsParticipating } from '../../../api/discussion';
 
@@ -19,42 +20,6 @@ const TRACKS = [
   { id: 'ANDROID', name: '안드로이드' },
   { id: 'COMMON', name: '공통' }
 ];
-
-const stateStyle = {
-  '모집 중': { background: '#ffe066', color: '#333' },
-  '모집 완료': { background: '#ff7043', color: '#fff' },
-  '토론 중': { background: '#42a5f5', color: '#fff' },
-  '토론 완료':   { background: '#bdbdbd', color: '#fff' }
-};
-
-
-const getDiscussionStatus = (discussion) => {
-  if (discussion.discussionType === 'ONLINE') {
-    const now = new Date();
-    const end = new Date(discussion.onlineDiscussionInfo.endDate);
-    if (now > end) {
-      return { status: '토론 완료', label: '토론 완료' };
-    } else {
-      return { status: '토론 중', label: '토론 중' };
-    }
-  } else {
-    // OFFLINE
-    const now = new Date();
-    const start = new Date(discussion.offlineDiscussionInfo.startAt);
-    const end = new Date(discussion.offlineDiscussionInfo.endAt);
-
-    if (now < start) {
-      if(discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount) {
-        return { status: '모집 완료', label: '모집 완료' };
-      }
-      return { status: '모집 중', label: '모집 중' };
-    } else if (now > end) {
-      return { status: '토론 완료', label: '토론 완료' };
-    } else {
-      return { status: '토론 중', label: '토론 중' };
-    }
-  }
-};
 
 const getAuthorProfileImageSrc = (author) => {
   // If no author or no profileImage, use default icon from public assets
@@ -243,7 +208,7 @@ const DiscussionDetailPage = () => {
     return <div className="discussion-detail-error">토론을 찾을 수 없습니다.</div>;
   }
 
-  const { status, label } = getDiscussionStatus(discussion);
+  const { status, label } = getDiscussionStatusWithLabel(discussion);
   const isAuthor = me?.id === discussion.commonDiscussionInfo.author.id;
   const isOffline = discussion.discussionType === 'OFFLINE';
 
@@ -269,10 +234,8 @@ const DiscussionDetailPage = () => {
               <div className="discussion-track">{TRACKS.find(track => track.id === discussion.commonDiscussionInfo.category).name}</div>
               <div
                 className="discussion-status"
-                style={{
-                  background: stateStyle[status].background,
-                  color: stateStyle[status].color
-                }}>{label}</div>
+                style={getDiscussionStatusStyle(status)}
+              >{label}</div>
             </div>
             <div className="discussion-title-row">
               <h1>{discussion.commonDiscussionInfo.title}</h1>

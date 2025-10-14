@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFileAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaLock, FaClock } from 'react-icons/fa';
 import { generateDiscussionSummary } from '../../api/discussion';
 import MarkdownRender from '../Markdown/MarkdownRender';
+import { getDiscussionStatus as getDiscussionStatusUtil } from '../../utils/discussionStatus';
 import './DiscussionSummary.css';
 
 const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSummaryUpdate }) => {
@@ -11,28 +12,16 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasAttemptedGeneration, setHasAttemptedGeneration] = useState(false);
 
-  // 토론 상태 확인 함수
-  const getDiscussionStatus = () => {
-    if (!discussion) return null;
-    
-    if (discussion.discussionType === 'ONLINE') {
-      const now = new Date();
-      const end = new Date(discussion.onlineDiscussionInfo.endDate);
-      return now > end ? '토론 완료' : '토론 중';
-    } else {
-      // OFFLINE
-      const now = new Date();
-      const start = new Date(discussion.offlineDiscussionInfo.startAt);
-      const end = new Date(discussion.offlineDiscussionInfo.endAt);
-
-      if (now < start) {
-        return discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount ? '모집 완료' : '모집 중';
-      } else if (now >= start && now <= end) {
-        return '토론 중';
-      } else {
-        return '토론 완료';
-      }
+  // initialSummary가 변경될 때 summary 상태 업데이트
+  useEffect(() => {
+    if (initialSummary !== undefined) {
+      setSummary(initialSummary);
     }
+  }, [initialSummary]);
+
+  // 토론 상태 확인 함수
+  const getCurrentDiscussionStatus = () => {
+    return getDiscussionStatusUtil(discussion);
   };
 
   // 요약 생성 가능 여부 확인
@@ -58,7 +47,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
   const isGeneratingAllowedButInProgress = () => {
     if (!canGenerateSummary()) return false;
     
-    const status = getDiscussionStatus();
+    const status = getCurrentDiscussionStatus();
     return status === '토론 중';
   };
 
@@ -97,7 +86,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
     if (!discussion || !me) return null;
     
     const isOnline = discussion.discussionType === 'ONLINE';
-    const status = getDiscussionStatus();
+    const status = getCurrentDiscussionStatus();
     const isAuthor = me.id === discussion.commonDiscussionInfo.author.id;
     
     if (!isOnline) {
@@ -116,7 +105,15 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
     
     const now = new Date();
     const endDate = new Date(discussion.onlineDiscussionInfo.endDate);
-    if (now > endDate) {
+    // 종료일 다음 날부터 토론 완료 (종료일 당일은 아직 토론 중)
+    const tomorrow = new Date(endDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (now >= tomorrow) {
+      // 토론 완료 이후라도 이미 요약이 있으면 요약을 보여줌
+      if (summary) {
+        return null; // 요약이 있으면 일반 로직으로 처리
+      }
       return {
         icon: <FaClock />,
         title: '요약 생성 기간 만료',

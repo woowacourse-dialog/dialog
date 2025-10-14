@@ -90,7 +90,7 @@
   cursor: not-allowed;
 }
 
-.edit-button {
+.comment-owner-actions .edit-button {
   color: #656d76 !important;
   background: none !important;
   border: none !important;
@@ -100,15 +100,19 @@
   transition: text-decoration 0.2s ease !important;
   text-decoration: none !important;
   font-weight: normal !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-.edit-button:hover:not(:disabled) {
+.comment-owner-actions .edit-button:hover:not(:disabled) {
   text-decoration: underline !important;
   background: none !important;
   color: #656d76 !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-.delete-button {
+.comment-owner-actions .delete-button {
   color: #d1242f !important;
   background: none !important;
   border: none !important;
@@ -118,12 +122,16 @@
   transition: text-decoration 0.2s ease !important;
   text-decoration: none !important;
   font-weight: normal !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-.delete-button:hover:not(:disabled) {
+.comment-owner-actions .delete-button:hover:not(:disabled) {
   text-decoration: underline !important;
   background: none !important;
   color: #d1242f !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .edit-button:disabled,

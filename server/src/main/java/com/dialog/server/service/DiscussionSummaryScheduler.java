@@ -16,7 +16,7 @@ class DiscussionSummaryScheduler {
     private final DiscussionService discussionService;
     private final DiscussionSummaryService discussionSummaryService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void generateSummariesForEndedDiscussions() {
         List<OnlineDiscussion> onlineDiscussions = discussionService.getEndedAndBlankSummaryOnlineDiscussions();
 

@@ -59,7 +59,7 @@ public class DiscussionSummaryService {
 
         if (discussion instanceof OnlineDiscussion onlineDiscussion) {
             String summary = generateSummary(onlineDiscussion);
-            discussionService.updateSummary(onlineDiscussion, summary);
+            discussionService.updateSummary(onlineDiscussion.getId(), summary);
             return discussion;
         }
         throw new DialogException(ErrorCode.CANNOT_SUMMARIZE_OFFLINE_DISCUSSION);

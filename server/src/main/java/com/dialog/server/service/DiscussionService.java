@@ -259,7 +259,11 @@ public class DiscussionService {
     }
 
     @Transactional
-    public Discussion updateSummary(Discussion discussion, String summary) {
+    public Discussion updateSummary(Long discussionId, String summary) {
+        Discussion discussion = discussionRepository.findById(discussionId).orElseThrow(
+                () -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION)
+        );
+
         if (summary == null || summary.isEmpty()) {
             throw new DialogException(ErrorCode.FAILED_AI_SUMMARY);
         }

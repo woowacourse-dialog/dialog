@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFileAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaLock, FaClock } from 'react-icons/fa';
 import { generateDiscussionSummary } from '../../api/discussion';
 import MarkdownRender from '../Markdown/MarkdownRender';
+import { getDiscussionStatus as getDiscussionStatusUtil } from '../../utils/discussionStatus';
 import './DiscussionSummary.css';
 
 const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSummaryUpdate }) => {
@@ -11,28 +12,16 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasAttemptedGeneration, setHasAttemptedGeneration] = useState(false);
 
-  // 토론 상태 확인 함수
-  const getDiscussionStatus = () => {
-    if (!discussion) return null;
-    
-    if (discussion.discussionType === 'ONLINE') {
-      const now = new Date();
-      const end = new Date(discussion.onlineDiscussionInfo.endDate);
-      return now > end ? '토론 완료' : '토론 중';
-    } else {
-      // OFFLINE
-      const now = new Date();
-      const start = new Date(discussion.offlineDiscussionInfo.startAt);
-      const end = new Date(discussion.offlineDiscussionInfo.endAt);
-
-      if (now < start) {
-        return discussion.offlineDiscussionInfo.participantCount >= discussion.offlineDiscussionInfo.maxParticipantCount ? '모집 완료' : '모집 중';
-      } else if (now >= start && now <= end) {
-        return '토론 중';
-      } else {
-        return '토론 완료';
-      }
+  // initialSummary가 변경될 때 summary 상태 업데이트
+  useEffect(() => {
+    if (initialSummary !== undefined) {
+      setSummary(initialSummary);
     }
+  }, [initialSummary]);
+
+  // 토론 상태 확인 함수
+  const getCurrentDiscussionStatus = () => {
+    return getDiscussionStatusUtil(discussion);
   };
 
   // 요약 생성 가능 여부 확인
@@ -58,7 +47,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
   const isGeneratingAllowedButInProgress = () => {
     if (!canGenerateSummary()) return false;
     
-    const status = getDiscussionStatus();
+    const status = getCurrentDiscussionStatus();
     return status === '토론 중';
   };
 
@@ -97,14 +86,14 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
     if (!discussion || !me) return null;
     
     const isOnline = discussion.discussionType === 'ONLINE';
-    const status = getDiscussionStatus();
+    const status = getCurrentDiscussionStatus();
     const isAuthor = me.id === discussion.commonDiscussionInfo.author.id;
     
     if (!isOnline) {
       return {
         icon: <FaLock />,
         title: '오프라인 토론',
-        message: '토론 요약은 온라인 토론에서만 확인할 수 있습니다.',
+        message: '오프라인 토론은 요약 기능을 제공하지 않습니다.',
         type: 'restriction'
       };
     }
@@ -116,7 +105,15 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
     
     const now = new Date();
     const endDate = new Date(discussion.onlineDiscussionInfo.endDate);
-    if (now > endDate) {
+    // 종료일 다음 날부터 토론 완료 (종료일 당일은 아직 토론 중)
+    const tomorrow = new Date(endDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (now >= tomorrow) {
+      // 토론 완료 이후라도 이미 요약이 있으면 요약을 보여줌
+      if (summary) {
+        return null; // 요약이 있으면 일반 로직으로 처리
+      }
       return {
         icon: <FaClock />,
         title: '요약 생성 기간 만료',
@@ -130,11 +127,78 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
 
   // 비생성자를 위한 요약 표시 UI
   const renderNonAuthorSummary = () => {
-    if (!discussion || !me) return null;
+    if (!discussion) return null;
     
     const isOnline = discussion.discussionType === 'ONLINE';
-    const isAuthor = me.id === discussion.commonDiscussionInfo.author.id;
+    const isAuthor = me && me.id === discussion.commonDiscussionInfo.author.id;
     
+    // 로그인하지 않은 경우
+    if (!me) {
+      if (!isOnline) {
+        // 오프라인 토론 + 비로그인: 오프라인 토론 안내
+        return (
+          <div className="discussion-summary-container">
+            <div className="summary-header">
+              <FaFileAlt className="summary-icon" />
+              <h3>토론 요약</h3>
+            </div>
+            <div className="summary-restriction">
+              <div className="restriction-icon"><FaLock /></div>
+              <h4>오프라인 토론</h4>
+              <p>오프라인 토론은 요약 기능을 제공하지 않습니다.</p>
+            </div>
+          </div>
+        );
+      } else {
+        // 온라인 토론 + 비로그인
+        if (summary) {
+          // 요약이 있으면 표시
+          return (
+            <div className="discussion-summary-container">
+              <div className="summary-header">
+                <FaFileAlt className="summary-icon" />
+                <h3>토론 요약</h3>
+              </div>
+              
+              <div className="summary-content">
+                <div className={`summary-text ${isExpanded ? 'expanded' : 'collapsed'}`}>
+                  <MarkdownRender content={summary} />
+                </div>
+                
+                {summary.length > 200 && (
+                  <button 
+                    className="toggle-summary-btn"
+                    onClick={toggleExpanded}
+                  >
+                    {isExpanded ? '요약 접기' : '요약 더보기'}
+                  </button>
+                )}
+              </div>
+              
+              <div className="summary-footer">
+                <FaCheck className="success-icon" />
+                <span>AI가 생성한 요약입니다</span>
+              </div>
+            </div>
+          );
+        } else {
+          // 요약이 없으면 단순히 존재하지 않는다고 표시
+          return (
+            <div className="discussion-summary-container">
+              <div className="summary-header">
+                <FaFileAlt className="summary-icon" />
+                <h3>토론 요약</h3>
+              </div>
+              <div className="summary-empty">
+                <p>아직 토론 요약이 존재하지 않습니다.</p>
+              </div>
+            </div>
+          );
+        }
+      }
+    }
+    
+    // 로그인한 사용자의 경우 (기존 로직)
     // 온라인 토론이 아니면 표시하지 않음
     if (!isOnline) return null;
     

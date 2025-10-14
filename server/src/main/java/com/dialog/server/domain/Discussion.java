@@ -94,6 +94,7 @@ public abstract class Discussion extends BaseEntity {
     }
 
     public void updateSummary(String summary) {
+        System.out.println(summary);
         this.summary = summary;
     }
 

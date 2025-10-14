@@ -184,7 +184,7 @@
 .join-button:hover:not(:disabled) {
   filter: brightness(0.95);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.15);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 }
 
 .join-button:active:not(:disabled) {
@@ -250,7 +250,7 @@
 .edit-button:hover {
   background-color: #1976d2;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.15);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
 }
 
 .edit-button:active {

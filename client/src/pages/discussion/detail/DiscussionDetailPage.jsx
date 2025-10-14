@@ -315,13 +315,15 @@ const DiscussionDetailPage = () => {
             <MarkdownRender content={discussion.commonDiscussionInfo.content} />
           </div>
 
-          <DiscussionSummary 
-            discussionId={id}
-            discussion={discussion}
-            me={me}
-            initialSummary={summary}
-            onSummaryUpdate={handleSummaryUpdate}
-          />
+          {discussion.discussionType === 'ONLINE' && (
+            <DiscussionSummary 
+              discussionId={id}
+              discussion={discussion}
+              me={me}
+              initialSummary={summary}
+              onSummaryUpdate={handleSummaryUpdate}
+            />
+          )}
 
           <div className="discussion-join-section">
             {isAuthor ? (

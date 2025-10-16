@@ -86,4 +86,3 @@ export const getDiscussionStatusWithLabel = (discussion) => {
   const status = getDiscussionStatus(discussion);
   return { status, label: status };
 };
-

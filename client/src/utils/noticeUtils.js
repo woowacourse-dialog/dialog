@@ -40,9 +40,7 @@ export const fetchNotices = async () => {
     // 공지사항 파일 목록 (실제로는 서버에서 목록을 가져와야 함)
     // 여기서는 하드코딩된 파일명들을 사용
     const noticeFiles = [
-      '2025-10-17-프리코스-notice.md',
-      '2024-10-16-system-maintenance.md',
-      '2024-10-15-new-feature-update.md'
+      '2025-10-17-프리코스-notice.md'
     ];
     
     const notices = await Promise.all(

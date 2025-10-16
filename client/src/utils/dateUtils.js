@@ -11,9 +11,6 @@
 export const formatToKST = (dateTimeStr, options = {}) => {
   const date = new Date(dateTimeStr);
   
-  // UTC 시간을 한국 시간대로 변환 (UTC+9)
-  const kstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
-  
   const defaultOptions = {
     year: 'numeric',
     month: 'short',
@@ -26,7 +23,7 @@ export const formatToKST = (dateTimeStr, options = {}) => {
   
   const mergedOptions = { ...defaultOptions, ...options };
   
-  return new Intl.DateTimeFormat('ko-KR', mergedOptions).format(kstDate);
+  return new Intl.DateTimeFormat('ko-KR', mergedOptions).format(date);
 };
 
 /**
@@ -79,6 +76,6 @@ export const formatTimeOnly = (dateTimeStr) => {
  * @returns {Date} 한국 시간대의 현재 시간
  */
 export const getCurrentKST = () => {
-  const now = new Date();
-  return new Date(now.getTime() + (9 * 60 * 60 * 1000));
+  // 브라우저의 현재 시간을 사용 (이미 사용자의 로컬 시간대)
+  return new Date();
 };

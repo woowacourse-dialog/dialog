@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBell, FaTimes } from 'react-icons/fa';
+import { FaBullhorn, FaTimes } from 'react-icons/fa';
 import NoticeModal from './NoticeModal';
 import { fetchNotices, hasUnreadNotices } from '../../utils/noticeUtils';
 import './Notice.css';
@@ -48,7 +48,7 @@ const NoticeButton = () => {
         onClick={handleButtonClick}
         title="공지사항"
       >
-        <FaBell className="notice-icon" />
+        <FaBullhorn className="notice-icon" />
         {hasUnread && <span className="unread-indicator" />}
       </button>
       

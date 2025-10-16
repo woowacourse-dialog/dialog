@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import NoticeList from './NoticeList';
 import './Notice.css';
 
@@ -41,7 +43,25 @@ const NoticeModal = ({ notices, onClose }) => {
                 </div>
               </div>
               <div className="notice-content">
-                <div dangerouslySetInnerHTML={{ __html: selectedNotice.content }} />
+                <ReactMarkdown 
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ children }) => <h1 className="markdown-h1">{children}</h1>,
+                    h2: ({ children }) => <h2 className="markdown-h2">{children}</h2>,
+                    h3: ({ children }) => <h3 className="markdown-h3">{children}</h3>,
+                    h4: ({ children }) => <h4 className="markdown-h4">{children}</h4>,
+                    p: ({ children }) => <p className="markdown-p">{children}</p>,
+                    ul: ({ children }) => <ul className="markdown-ul">{children}</ul>,
+                    ol: ({ children }) => <ol className="markdown-ol">{children}</ol>,
+                    li: ({ children }) => <li className="markdown-li">{children}</li>,
+                    strong: ({ children }) => <strong className="markdown-strong">{children}</strong>,
+                    code: ({ children }) => <code className="markdown-code">{children}</code>,
+                    pre: ({ children }) => <pre className="markdown-pre">{children}</pre>,
+                    blockquote: ({ children }) => <blockquote className="markdown-blockquote">{children}</blockquote>
+                  }}
+                >
+                  {selectedNotice.content}
+                </ReactMarkdown>
               </div>
             </div>
           ) : (

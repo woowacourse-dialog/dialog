@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../../components/Header/Header';
 import DiscussionList from '../../../components/DiscussionList';
 import useMyDiscussionList from '../../../hooks/useMyDiscussionList';
-import { FaCrown } from 'react-icons/fa';
+import { FaCrown, FaRegSmileBeam } from 'react-icons/fa';
 import './MyDiscussionPage.css';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -57,7 +57,7 @@ const MyDiscussionPage = () => {
             <div className="my-discussion-error">{error}</div>
           ) : items.length === 0 ? (
             <div className="my-discussion-empty">
-              <img src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/party.svg" alt="empty" style={{ width: 80, marginBottom: 16 }} />
+              <FaRegSmileBeam size={80} color="#cbd5e1" style={{ marginBottom: 16 }} />
               <div style={{ color: '#888', fontWeight: 500, fontSize: '1.1rem' }}>아직 개설한 토론이 없습니다.<br/>첫 토론을 만들어보세요!</div>
               <button className="my-discussion-create-btn" onClick={() => navigate('/discussion/new')}>+ 새 토론 만들기</button>
             </div>

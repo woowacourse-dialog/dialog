@@ -6,6 +6,7 @@ import Header from '../../../components/Header/Header';
 import CommentList from '../../../components/Comment/CommentList';
 import DiscussionSummary from '../../../components/DiscussionSummary/DiscussionSummary';
 import { getDiscussionStatusWithLabel, getDiscussionStatusStyle } from '../../../utils/discussionStatus';
+import { formatDiscussionDate, formatTimeOnly } from '../../../utils/dateUtils';
 import './DiscussionDetailPage.css';
 import { findDiscussionById, participateDiscussion, deleteDiscussion, isParticipating as checkIsParticipating } from '../../../api/discussion';
 
@@ -212,17 +213,6 @@ const DiscussionDetailPage = () => {
   const isAuthor = me?.id === discussion.commonDiscussionInfo.author.id;
   const isOffline = discussion.discussionType === 'OFFLINE';
 
-  const formatDateTime = (dateTimeStr) => {
-    const date = new Date(dateTimeStr);
-    return new Intl.DateTimeFormat('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    }).format(date);
-  };
 
   return (
     <div className="discussion-detail-page">
@@ -275,13 +265,13 @@ const DiscussionDetailPage = () => {
                   <div className="meta-item">
                     <span className="meta-label">일시</span>
                     <span className="meta-value">
-                      {formatDateTime(discussion.offlineDiscussionInfo.startAt)}
+                      {formatDiscussionDate(discussion.offlineDiscussionInfo.startAt)}
                     </span>
                   </div>
                   <div className="meta-item">
                     <span className="meta-label">시간</span>
                     <span className="meta-value">
-                      {new Date(discussion.offlineDiscussionInfo.startAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })} ~ {new Date(discussion.offlineDiscussionInfo.endAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                      {formatTimeOnly(discussion.offlineDiscussionInfo.startAt)} ~ {formatTimeOnly(discussion.offlineDiscussionInfo.endAt)}
                     </span>
                   </div>
                 </div>

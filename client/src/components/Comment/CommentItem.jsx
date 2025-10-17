@@ -3,6 +3,7 @@ import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
 import { updateComment, deleteComment } from '../../api/discussion';
 import useMe from '../../hooks/useMe';
+import { formatCommentDate } from '../../utils/dateUtils';
 import './CommentItem.css';
 
 const getAuthorProfileImageSrc = (author) => {
@@ -17,17 +18,6 @@ const getAuthorProfileImageSrc = (author) => {
   return '/src/assets/dialog_icon.png';
 };
 
-const formatDateTime = (dateTimeStr) => {
-  const date = new Date(dateTimeStr);
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  }).format(date);
-};
 
 const CommentItem = ({
   comment,
@@ -110,7 +100,7 @@ const CommentItem = ({
               className="author-avatar"
             />
             <span className="author-name">{comment.author.nickname}</span>
-            <span className="comment-date">{formatDateTime(comment.createdAt)}</span>
+            <span className="comment-date">{formatCommentDate(comment.createdAt)}</span>
             {comment.createdAt !== comment.modifiedAt && (
               <span className="comment-modified">(수정됨)</span>
             )}

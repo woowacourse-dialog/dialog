@@ -2,6 +2,8 @@
  * 토론 상태를 판단하는 유틸리티 함수들
  */
 
+import { getCurrentKST } from './dateUtils';
+
 /**
  * 온라인 토론의 상태를 판단합니다.
  * 종료일 당일은 "토론 중", 종료일 다음 날부터는 "토론 완료"
@@ -11,7 +13,7 @@
 export const getOnlineDiscussionStatus = (onlineDiscussionInfo) => {
   if (!onlineDiscussionInfo?.endDate) return '토론 중';
   
-  const now = new Date();
+  const now = getCurrentKST();
   const end = new Date(onlineDiscussionInfo.endDate);
   // 종료일 다음 날부터 토론 완료 (종료일 당일은 아직 토론 중)
   const tomorrow = new Date(end);
@@ -28,7 +30,7 @@ export const getOnlineDiscussionStatus = (onlineDiscussionInfo) => {
 export const getOfflineDiscussionStatus = (offlineDiscussionInfo) => {
   if (!offlineDiscussionInfo) return '토론 중';
   
-  const now = new Date();
+  const now = getCurrentKST();
   const start = new Date(offlineDiscussionInfo.startAt);
   const end = new Date(offlineDiscussionInfo.endAt);
 
@@ -84,4 +86,3 @@ export const getDiscussionStatusWithLabel = (discussion) => {
   const status = getDiscussionStatus(discussion);
   return { status, label: status };
 };
-

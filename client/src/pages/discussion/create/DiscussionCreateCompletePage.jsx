@@ -5,7 +5,7 @@ import slackLogo from '../../../assets/slack-logo.svg';
 import discordLogo from '../../../assets/discord-logo.svg';
 
 const SLACK_CHANNEL_URL = import.meta.env.VITE_SLACK_CHANNEL_URL || 'https://app.slack.com/client';
-const DISCORD_CHANNEL_URL = import.meta.env.VITE_DISCORD_CHANNEL_URL || 'https://www.naver.com'; // TODO: 실제 디스코드 초대 링크로 변경 필요
+const DISCORD_CHANNEL_URL = import.meta.env.VITE_DISCORD_CHANNEL_URL || 'https://discord.com/channels';
 
 const trackEmojis = {
   '백엔드': '⚙️',
@@ -184,7 +184,7 @@ const DiscussionCreateCompletePage = () => {
       <div className="discussion-create-container">
         <div className="discussion-create-form">
           <h1>작성 완료</h1>
-          <p>이제 크루들과 공유해보세요.</p>
+          <h3>이제 크루들과 공유해보세요.</h3>
           <div style={{
             background: '#f7f7f9',
             border: '1px solid #e5e7eb',

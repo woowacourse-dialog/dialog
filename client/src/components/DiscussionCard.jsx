@@ -66,7 +66,7 @@ export default function DiscussionCard({
 
       {/* 토론 타입 */}
       <div className={styles.discussionTypeBadge}>
-        {discussionType === 'OFFLINE' ? '오프라인' : '온라인'}
+        {discussionType === 'OFFLINE' ? '👥 오프라인' : '💻 온라인'}
       </div>
 
       {/* 제목 영역 */}

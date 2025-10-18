@@ -4,6 +4,7 @@ import { FaFileAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaLock, FaClock, 
 import { generateDiscussionSummary } from '../../api/discussion';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import { getDiscussionStatus as getDiscussionStatusUtil } from '../../utils/discussionStatus';
+import { getCurrentKST } from '../../utils/dateUtils';
 import './DiscussionSummary.css';
 
 const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSummaryUpdate }) => {
@@ -38,7 +39,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
     if (!isAuthor) return false;
     
     // 3. 토론 종료일 이전에만 가능
-    const now = new Date();
+    const now = getCurrentKST();
     const endDate = new Date(discussion.onlineDiscussionInfo.endDate);
     if (now > endDate) return false;
     
@@ -124,7 +125,7 @@ const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSum
       return null; // 별도 UI로 처리
     }
     
-    const now = new Date();
+    const now = getCurrentKST();
     const endDate = new Date(discussion.onlineDiscussionInfo.endDate);
     // 종료일 다음 날부터 토론 완료 (종료일 당일은 아직 토론 중)
     const tomorrow = new Date(endDate);

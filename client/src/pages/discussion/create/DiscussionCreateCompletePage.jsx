@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Header from '../../../components/Header/Header';
 import slackLogo from '../../../assets/slack-logo.svg';
+import discordLogo from '../../../assets/discord-logo.svg';
 
 const SLACK_CHANNEL_URL = import.meta.env.VITE_SLACK_CHANNEL_URL || 'https://app.slack.com/client';
+const DISCORD_CHANNEL_URL = import.meta.env.VITE_DISCORD_CHANNEL_URL || 'https://discord.com/channels';
 
 const trackEmojis = {
   '백엔드': '⚙️',
@@ -47,7 +49,9 @@ const DiscussionCreateCompletePage = () => {
   const trackNameFromState = location?.state?.trackName || '';
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(null);
+  const [activeCountdownPlatform, setActiveCountdownPlatform] = useState(null); // 'slack' or 'discord'
   const [hasOpenedSlack, setHasOpenedSlack] = useState(false);
+  const [hasOpenedDiscord, setHasOpenedDiscord] = useState(false);
   const timerRef = useRef(null);
 
   const discussionUrl = useMemo(() => {
@@ -75,19 +79,29 @@ const DiscussionCreateCompletePage = () => {
     setHasOpenedSlack(true);
   };
 
-  const copyToClipboard = async () => {
+  const openDiscord = () => {
+    window.open(DISCORD_CHANNEL_URL, '_blank', 'noopener,noreferrer');
+    setHasOpenedDiscord(true);
+  };
+
+  const handleShare = async (platform) => {
+    const openFunc = platform === 'slack' ? openSlack : openDiscord;
+    const hasOpened = platform === 'slack' ? hasOpenedSlack : hasOpenedDiscord;
+
     try {
-      if (hasOpenedSlack) {
-        openSlack();
+      if (hasOpened) {
+        openFunc();
         return;
       }
-      if (countdown !== null) {
+      
+      if (activeCountdownPlatform) {
         if (timerRef.current) {
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
-        setCountdown(0);
-        openSlack();
+        setCountdown(null);
+        setActiveCountdownPlatform(null);
+        openFunc(); // 즉시 열기
         return;
       }
 
@@ -124,6 +138,7 @@ const DiscussionCreateCompletePage = () => {
       }
 
       setCopied(true);
+      setActiveCountdownPlatform(platform);
       setCountdown(3);
       let current = 3;
       timerRef.current = setInterval(() => {
@@ -134,7 +149,8 @@ const DiscussionCreateCompletePage = () => {
             clearInterval(timerRef.current);
             timerRef.current = null;
           }
-          openSlack();
+          openFunc();
+          setActiveCountdownPlatform(null);
         }
       }, 1000);
     } catch (e) {
@@ -150,11 +166,17 @@ const DiscussionCreateCompletePage = () => {
     };
   }, []);
 
-  const buttonLabel = countdown !== null && !hasOpenedSlack
+  const buttonLabel = activeCountdownPlatform === 'slack' && countdown !== null
     ? `${countdown}초 뒤 슬랙으로 이동합니다.`
     : hasOpenedSlack
       ? '슬랙 다시 열기'
       : '슬랙으로 공유하기';
+
+  const discordButtonLabel = activeCountdownPlatform === 'discord' && countdown !== null
+    ? `${countdown}초 뒤 디스코드로 이동합니다.`
+    : hasOpenedDiscord
+      ? '디스코드 다시 열기'
+      : '프리코스로 공유하기';
 
   return (
     <div className="discussion-create-page">
@@ -162,7 +184,7 @@ const DiscussionCreateCompletePage = () => {
       <div className="discussion-create-container">
         <div className="discussion-create-form">
           <h1>작성 완료</h1>
-          <p>이제 크루들과 공유해보세요.</p>
+          <h3>이제 크루들과 공유해보세요.</h3>
           <div style={{
             background: '#f7f7f9',
             border: '1px solid #e5e7eb',
@@ -192,7 +214,7 @@ const DiscussionCreateCompletePage = () => {
             <button
               type="button"
               className="discussion-button discussion-button-submit"
-              onClick={copyToClipboard}
+              onClick={() => handleShare('slack')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -204,6 +226,22 @@ const DiscussionCreateCompletePage = () => {
             >
               <img src={slackLogo} alt="Slack" width={18} height={18} />
               {buttonLabel}
+            </button>
+            <button
+              type="button"
+              className="discussion-button discussion-button-submit"
+              onClick={() => handleShare('discord')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                backgroundColor: '#5865F2',
+                borderColor: '#5865F2',
+                color: '#ffffff'
+              }}
+            >
+              <img src={discordLogo} alt="Discord" width={18} height={18} />
+              {discordButtonLabel}
             </button>
             <button type="button" className="discussion-button discussion-button-cancel" onClick={() => navigate(`/discussion/${id}`)}>
               게시글로 이동

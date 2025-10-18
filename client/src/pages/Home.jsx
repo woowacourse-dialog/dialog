@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import Header from '../components/Header/Header';
 import SearchBar from '../components/SearchBar';
 import DiscussionList from '../components/DiscussionList';
+import NoticeButton from '../components/Notice/NoticeButton';
 import useDiscussionList from '../hooks/useDiscussionList';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../hooks/useNotification';
@@ -160,6 +161,10 @@ const Home = () => {
           <NotificationGuideModal onClose={() => setShowGuideModal(false)} />
         )}
       </div>
+      
+      {/* 공지사항 버튼 */}
+      <NoticeButton />
+      
       {/* 플로팅 액션 버튼 */}
       {isLoggedIn && (
         <div

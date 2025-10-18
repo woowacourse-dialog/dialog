@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../../components/Header/Header';
 import DiscussionList from '../../../components/DiscussionList';
 import useScrapDiscussionList from '../../../hooks/useScrapDiscussionList';
-import { FaBookmark } from 'react-icons/fa';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import '../my/MyDiscussionPage.css';
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -55,7 +55,7 @@ const ScrapDiscussionPage = () => {
             <div className="my-discussion-error">{error}</div>
           ) : items.length === 0 ? (
             <div className="my-discussion-empty">
-              <img src="https://cdn.jsdelivr.net/gh/edent/SuperTinyIcons/images/svg/bookmark.svg" alt="empty" style={{ width: 80, marginBottom: 16 }} />
+              <FaRegBookmark size={80} color="#cbd5e1" style={{ marginBottom: 16 }} />
               <div style={{ color: '#888', fontWeight: 500, fontSize: '1.1rem' }}>아직 스크랩한 토론이 없습니다.<br/>관심있는 토론을 스크랩해보세요!</div>
             </div>
           ) : (

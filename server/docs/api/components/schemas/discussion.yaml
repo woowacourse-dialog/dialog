@@ -1,0 +1,383 @@
+openapi: 3.0.3
+info:
+  title: Discussion Domain Schemas
+  description: 토론 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    Category:
+      type: string
+      description: 토론 카테고리
+      enum:
+        - backend
+        - frontend
+        - android
+        - common
+      example: "backend"
+
+    OfflineDiscussionCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+        - startAt
+        - endAt
+        - place
+        - maxParticipantCount
+        - category
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: 토론 제목 (필수, 공백 불가)
+          example: "백엔드 아키텍처 토론"
+        content:
+          type: string
+          minLength: 1
+          description: 토론 내용 (필수, 공백 불가)
+          example: "마이크로서비스 아키텍처에 대해 논의합니다."
+        startAt:
+          type: string
+          format: date-time
+          description: 시작 일시 (ISO 8601 형식)
+          example: "2025-11-20T14:00:00"
+        endAt:
+          type: string
+          format: date-time
+          description: 종료 일시 (ISO 8601 형식)
+          example: "2025-11-20T16:00:00"
+        place:
+          type: string
+          minLength: 1
+          description: 장소 (필수, 공백 불가)
+          example: "강남역 스터디룸"
+        maxParticipantCount:
+          type: number
+          minimum: 1
+          description: 최대 참가자 수 (필수)
+          example: 10
+        category:
+          $ref: '#/components/schemas/Category'
+        summary:
+          type: string
+          nullable: true
+          description: 토론 요약 (삭제 예정)
+          deprecated: true
+
+    OnlineDiscussionCreateRequest:
+      type: object
+      required:
+        - title
+        - content
+        - endDate
+        - category
+      properties:
+        title:
+          type: string
+          minLength: 1
+          description: 토론 제목 (필수, 공백 불가)
+          example: "React vs Vue 비교"
+        content:
+          type: string
+          minLength: 1
+          description: 토론 내용 (필수, 공백 불가)
+          example: "프론트엔드 프레임워크 선택에 대해 토론합니다."
+        endDate:
+          type: string
+          format: date
+          description: 종료 날짜 (ISO 8601 형식, YYYY-MM-DD)
+          example: "2025-12-01"
+        category:
+          $ref: '#/components/schemas/Category'
+
+    OfflineDiscussionUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: 토론 제목 (1-50자)
+          example: "백엔드 아키텍처 심화 토론"
+        content:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: 토론 내용 (1-10000자)
+          example: "마이크로서비스 아키텍처 패턴에 대해 심도있게 논의합니다."
+        startAt:
+          type: string
+          format: date-time
+          description: 시작 일시
+          example: "2025-11-20T15:00:00"
+        endAt:
+          type: string
+          format: date-time
+          description: 종료 일시
+          example: "2025-11-20T17:00:00"
+        place:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: 장소 (1-50자)
+          example: "역삼역 스터디룸"
+        maxParticipantCount:
+          type: number
+          minimum: 1
+          description: 최대 참가자 수
+          example: 8
+        category:
+          $ref: '#/components/schemas/Category'
+
+    OnlineDiscussionUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: 토론 제목 (1-50자)
+          example: "React vs Vue 심화 비교"
+        content:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: 토론 내용 (1-10000자)
+          example: "상태 관리와 성능 최적화를 중심으로 비교합니다."
+        endDate:
+          type: string
+          format: date
+          description: 종료 날짜
+          example: "2025-12-15"
+        category:
+          $ref: '#/components/schemas/Category'
+
+    DiscussionCreateResponse:
+      type: object
+      required:
+        - discussionId
+      properties:
+        discussionId:
+          type: integer
+          format: int64
+          description: 생성된 토론 ID
+          example: 456
+
+    DiscussionSummaryCreateRequest:
+      type: object
+      required:
+        - discussionId
+      properties:
+        discussionId:
+          type: integer
+          format: int64
+          description: 요약을 생성할 토론 ID
+          example: 123
+
+    DiscussionSummaryCreateResponse:
+      type: object
+      required:
+        - discussionId
+        - summary
+      properties:
+        discussionId:
+          type: integer
+          format: int64
+          description: 토론 ID
+          example: 123
+        summary:
+          type: string
+          description: 생성된 요약
+          example: "마이크로서비스와 모놀리식 아키텍처의 장단점에 대한 심도있는 토론이 진행되었습니다."
+
+    DiscussionDetailResponse:
+      type: object
+      required:
+        - id
+        - title
+        - content
+        - status
+        - category
+        - discussionType
+        - likeCount
+        - commentCount
+        - scrapCount
+        - viewCount
+        - createdAt
+        - author
+        - profileImage
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 토론 ID
+          example: 1
+        title:
+          type: string
+          description: 토론 제목
+          example: "백엔드 아키텍처 토론"
+        content:
+          type: string
+          description: 토론 내용
+          example: "마이크로서비스 아키텍처에 대해 논의합니다."
+        status:
+          type: string
+          enum: [ACTIVE, CLOSED]
+          description: 토론 상태
+          example: "ACTIVE"
+        category:
+          $ref: '#/components/schemas/Category'
+        discussionType:
+          type: string
+          enum: [ONLINE, OFFLINE]
+          description: 토론 타입
+          example: "OFFLINE"
+        likeCount:
+          type: number
+          description: 좋아요 수
+          example: 15
+        commentCount:
+          type: number
+          description: 댓글 수
+          example: 8
+        scrapCount:
+          type: number
+          description: 북마크 수
+          example: 5
+        viewCount:
+          type: number
+          description: 조회 수
+          example: 120
+        createdAt:
+          type: string
+          format: date-time
+          description: 생성 일시
+          example: "2025-11-13T10:00:00"
+        startAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 시작 일시 (오프라인 토론만 해당)
+          example: "2025-11-20T14:00:00"
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: 종료 일시 (오프라인 토론만 해당)
+          example: "2025-11-20T16:00:00"
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          description: 종료 날짜 (온라인 토론만 해당)
+          example: "2025-12-01"
+        place:
+          type: string
+          nullable: true
+          description: 장소 (오프라인 토론만 해당)
+          example: "강남역 스터디룸"
+        maxParticipantCount:
+          type: number
+          nullable: true
+          description: 최대 참가자 수 (오프라인 토론만 해당)
+          example: 10
+        currentParticipantCount:
+          type: number
+          nullable: true
+          description: 현재 참가자 수 (오프라인 토론만 해당)
+          example: 7
+        summary:
+          type: string
+          nullable: true
+          description: 토론 요약
+          example: "마이크로서비스 vs 모놀리식 아키텍처"
+        author:
+          $ref: '../schemas/global.yaml#/components/schemas/AuthorResponse'
+        profileImage:
+          $ref: '../schemas/global.yaml#/components/schemas/ProfileImageResponse'
+
+    DiscussionPreviewResponse:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - category
+        - discussionType
+        - likeCount
+        - commentCount
+        - scrapCount
+        - viewCount
+        - createdAt
+        - author
+        - profileImage
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 토론 ID
+          example: 1
+        title:
+          type: string
+          description: 토론 제목
+          example: "백엔드 아키텍처 토론"
+        status:
+          type: string
+          enum: [ACTIVE, CLOSED]
+          description: 토론 상태
+          example: "ACTIVE"
+        category:
+          $ref: '#/components/schemas/Category'
+        discussionType:
+          type: string
+          enum: [ONLINE, OFFLINE]
+          description: 토론 타입
+          example: "OFFLINE"
+        likeCount:
+          type: number
+          description: 좋아요 수
+          example: 15
+        commentCount:
+          type: number
+          description: 댓글 수
+          example: 8
+        scrapCount:
+          type: number
+          description: 북마크 수
+          example: 5
+        viewCount:
+          type: number
+          description: 조회 수
+          example: 120
+        createdAt:
+          type: string
+          format: date-time
+          description: 생성 일시
+          example: "2025-11-13T10:00:00"
+        author:
+          $ref: '../schemas/global.yaml#/components/schemas/AuthorResponse'
+        profileImage:
+          $ref: '../schemas/global.yaml#/components/schemas/ProfileImageResponse'
+
+    DiscussionCursorPageResponse:
+      type: object
+      required:
+        - content
+        - nextCursor
+        - hasNext
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscussionPreviewResponse'
+          description: 토론 목록
+        nextCursor:
+          type: string
+          nullable: true
+          description: 다음 페이지 커서 (없으면 null)
+          example: "eyJpZCI6MSwiY3JlYXRlZEF0IjoiMjAyNS0xMS0xM1QxMDowMDowMCJ9"
+        hasNext:
+          type: boolean
+          description: 다음 페이지 존재 여부
+          example: true

@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: Dialog Auth API
+  description: 인증 및 회원가입 관리를 위한 API
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: Auth
+    description: 인증 및 회원가입
+
+paths:
+  /api/signup:
+    post:
+      tags:
+        - Auth
+      summary: 회원가입
+      description: |
+        GitHub OAuth 인증 후 회원가입을 진행합니다.
+
+        **로그인 및 회원가입 프로세스:**
+        - GitHub OAuth를 통해 인증을 진행합니다
+        - 사용자는 등록되지 않은 사용자(TEMP_USER)와 등록된 사용자(USER)로 구분됩니다
+        - TEMP_USER: GitHub 인증에 성공했지만 서비스를 처음 이용하여 회원가입이 되지 않은 사용자
+        - USER: 서비스에 회원가입한 사용자
+        - 리다이렉트 시 쿼리 파라미터로 사용자의 `OAUTH_ID`가 전달됩니다
+        - 세션 로그인 방식을 사용합니다
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/auth.yaml#/components/schemas/SignupRequest'
+            example:
+              track: "BACKEND"
+              webPushNotification: true
+      responses:
+        '200':
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/auth.yaml#/components/schemas/SignupResponse'
+              example:
+                data:
+                  userId: 123
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              examples:
+                alreadySignedUp:
+                  summary: 이미 회원가입한 회원
+                  value:
+                    code: 5033
+                    message: "이미 회원가입한 회원입니다."
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 5031
+                message: "사용자를 찾을 수 없습니다."
+        '502':
+          description: GitHub 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 1001
+                message: "GitHub에서 사용자 ID를 가져올 수 없습니다."
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+  /api/login/check:
+    get:
+      tags:
+        - Auth
+      summary: 로그인 상태 확인
+      description: 현재 사용자의 로그인 상태를 확인합니다.
+      operationId: checkLogin
+      responses:
+        '200':
+          description: 로그인 상태 확인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/auth.yaml#/components/schemas/LoginCheckResponse'
+              examples:
+                loggedIn:
+                  summary: 로그인된 상태
+                  value:
+                    data:
+                      isLoggedIn: true
+                notLoggedIn:
+                  summary: 로그인되지 않은 상태
+                  value:
+                    data:
+                      isLoggedIn: false
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+  /api/logout:
+    delete:
+      tags:
+        - Auth
+      summary: 로그아웃
+      description: 현재 사용자를 로그아웃 처리합니다. 세션 쿠키를 무효화합니다.
+      operationId: logout
+      parameters:
+        - name: JSESSIONID
+          in: cookie
+          description: 세션 쿠키
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 로그아웃 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+              example:
+                data: null
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'

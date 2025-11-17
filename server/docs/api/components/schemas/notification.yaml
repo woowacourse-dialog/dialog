@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: Notification Domain Schemas
+  description: Firebase Cloud Messaging 토큰 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    TokenRequest:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          minLength: 1
+          description: Firebase Cloud Messaging 토큰
+          example: "fcm-token-abc123xyz"
+
+    TokenCreationResponse:
+      type: object
+      required:
+        - tokenId
+      properties:
+        tokenId:
+          type: integer
+          format: int64
+          description: 생성된 토큰 ID
+          example: 1
+
+    MyTokenResponse:
+      type: object
+      required:
+        - tokenId
+        - token
+        - createdAt
+      properties:
+        tokenId:
+          type: integer
+          format: int64
+          description: 토큰 ID
+          example: 1
+        token:
+          type: string
+          description: FCM 토큰 문자열
+          example: "fcm-token-abc123xyz"
+        createdAt:
+          type: string
+          format: date-time
+          description: 토큰 생성 일시
+          example: "2025-11-10T09:00:00"

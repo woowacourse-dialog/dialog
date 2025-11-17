@@ -1,0 +1,290 @@
+openapi: 3.0.3
+info:
+  title: Dialog User API
+  description: 사용자 정보 및 프로필 관리를 위한 API
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: User
+    description: 사용자 프로필 관리
+
+paths:
+  /api/user/mine:
+    get:
+      tags:
+        - User
+      summary: 사용자 정보 조회
+      description: 인증된 사용자의 정보를 조회합니다.
+      operationId: getUserInfo
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 사용자 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/user.yaml#/components/schemas/UserInfoResponse'
+              example:
+                data:
+                  id: 123
+                  nickname: "홍길동"
+                  githubId: "gildong123"
+                  track: "BACKEND"
+                  isNotificationEnabled: true
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 5031
+                message: "사용자를 찾을 수 없습니다."
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - User
+      summary: 사용자 프로필 수정
+      description: 사용자의 닉네임과 트랙 정보를 수정합니다.
+      operationId: updateUserProfile
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/user.yaml#/components/schemas/UserMypageUpdateRequest'
+            example:
+              nickname: "새로운닉네임"
+              track: "FRONTEND"
+      responses:
+        '200':
+          description: 사용자 프로필 수정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+              example:
+                data: null
+        '400':
+          description: 잘못된 요청 (유효성 검증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 4000
+                message: "닉네임은 필수 입력값입니다."
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+  /api/user/mine/notifications:
+    patch:
+      tags:
+        - User
+      summary: 알림 설정 변경
+      description: 사용자의 알림 수신 설정을 변경합니다.
+      operationId: updateNotificationSettings
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/user.yaml#/components/schemas/NotificationSettingRequest'
+            example:
+              isNotificationEnable: true
+      responses:
+        '200':
+          description: 알림 설정 변경 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/user.yaml#/components/schemas/NotificationSettingResponse'
+              example:
+                data:
+                  isNotificationEnable: true
+        '400':
+          description: 잘못된 요청 (유효성 검증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+  /api/user/mine/profile-image:
+    get:
+      tags:
+        - User
+      summary: 프로필 이미지 조회
+      description: 사용자의 프로필 이미지 URL을 조회합니다. 커스텀 이미지와 기본 이미지(GitHub) URL을 모두 반환합니다.
+      operationId: getProfileImage
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 프로필 이미지 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/user.yaml#/components/schemas/ProfileImageGetResponse'
+              example:
+                data:
+                  customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+                  basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - User
+      summary: 프로필 이미지 업로드
+      description: 사용자의 프로필 이미지를 업로드하고 S3에 저장합니다.
+      operationId: updateProfileImage
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 업로드할 이미지 파일 (JPEG, PNG 등)
+      responses:
+        '200':
+          description: 프로필 이미지 업로드 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/user.yaml#/components/schemas/ProfileImageUpdateResponse'
+              example:
+                data:
+                  customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123-new.jpg"
+                  basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+        '400':
+          description: 잘못된 요청 (파일 형식 오류 등)
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '409':
+          description: 프로필 이미지 충돌
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: 이미지 저장 실패
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 5000
+                message: "이미지 저장에 실패했습니다."
+
+  /api/user/mine/track:
+    get:
+      tags:
+        - User
+      summary: 사용자 트랙 조회
+      description: 사용자의 트랙 정보를 조회합니다.
+      operationId: getUserTrack
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 사용자 트랙 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/user.yaml#/components/schemas/MyTrackGetTrackResponse'
+              example:
+                data:
+                  track: "BACKEND"
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 사용자를 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    sessionAuth:
+      $ref: './components/security/schemes.yaml#/components/securitySchemes/sessionAuth'

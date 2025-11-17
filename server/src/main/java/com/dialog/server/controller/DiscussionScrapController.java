@@ -39,7 +39,7 @@ public class DiscussionScrapController {
                 .build();
     }
 
-    @GetMapping("scraps/me")
+    @GetMapping("/scraps/me")
     public ResponseEntity<ApiSuccessResponse<ScrapCursorPageResponse<DiscussionPreviewResponse>>> getScraps(
             @RequestParam(required = false) Long lastCursorId,
             @RequestParam(defaultValue = "10") Integer size,

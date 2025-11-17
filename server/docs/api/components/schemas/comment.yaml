@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Comment Domain Schemas
+  description: 토론 댓글 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    DiscussionCommentCreateRequest:
+      type: object
+      required:
+        - content
+        - discussionId
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: 댓글 내용 (필수, 공백 불가)
+          example: "좋은 의견입니다!"
+        discussionId:
+          type: integer
+          format: int64
+          description: 댓글이 달릴 토론 ID (필수)
+          example: 123
+        parentDiscussionCommentId:
+          type: integer
+          format: int64
+          nullable: true
+          description: 부모 댓글 ID (대댓글인 경우에만 설정, 일반 댓글은 null)
+          example: 456
+
+    DiscussionCommentUpdateRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          minLength: 1
+          description: 수정할 댓글 내용 (필수, 공백 불가)
+          example: "수정된 댓글 내용입니다."
+
+    DiscussionCommentCreateResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 생성된 댓글 ID
+          example: 789
+
+    DiscussionCommentListResponse:
+      type: object
+      required:
+        - comments
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          description: 댓글 목록 (최상위 댓글만 포함, 대댓글은 childComments에 포함)
+
+    CommentResponse:
+      type: object
+      required:
+        - id
+        - content
+        - createdAt
+        - isDeleted
+        - author
+        - profileImage
+        - childComments
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 댓글 ID
+          example: 1
+        content:
+          type: string
+          description: 댓글 내용
+          example: "좋은 의견입니다!"
+        createdAt:
+          type: string
+          format: date-time
+          description: 작성 일시
+          example: "2025-11-13T10:30:00"
+        isDeleted:
+          type: boolean
+          description: 삭제 여부 (삭제된 댓글은 "삭제된 댓글입니다"로 표시)
+          example: false
+        author:
+          $ref: '../schemas/global.yaml#/components/schemas/AuthorResponse'
+        profileImage:
+          $ref: '../schemas/global.yaml#/components/schemas/ProfileImageResponse'
+        childComments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponse'
+          description: 대댓글 목록

@@ -1,0 +1,145 @@
+openapi: 3.0.3
+info:
+  title: Dialog Discussion Participant API
+  description: 토론 참가 관리를 위한 API
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: Discussion Participant
+    description: 토론 참가 관리
+
+paths:
+  /api/discussions/{discussionId}/participants:
+    post:
+      tags:
+        - Discussion Participant
+      summary: 토론 참가 신청
+      description: |
+        특정 토론에 참가 신청을 합니다.
+
+        **주의사항:**
+        - 오프라인 토론에만 참가 신청이 가능합니다
+        - 최대 참가자 수를 초과할 수 없습니다
+        - 이미 참가 신청한 토론에는 중복 신청이 불가능합니다
+      operationId: joinDiscussion
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 참가할 토론 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 참가 신청 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+              example:
+                data: null
+        '400':
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              examples:
+                fullParticipants:
+                  summary: 참가 인원이 가득 참
+                  value:
+                    code: 4000
+                    message: "참가 인원이 가득 찼습니다."
+                alreadyJoined:
+                  summary: 이미 참가 신청함
+                  value:
+                    code: 4000
+                    message: "이미 참가 신청한 토론입니다."
+                onlineDiscussion:
+                  summary: 온라인 토론에 참가 시도
+                  value:
+                    code: 4000
+                    message: "온라인 토론은 참가 신청이 불가능합니다."
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 토론을 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 4040
+                message: "토론을 찾을 수 없습니다."
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+  /api/discussions/{discussionId}/participants/status:
+    get:
+      tags:
+        - Discussion Participant
+      summary: 참가 상태 조회
+      description: 현재 사용자가 해당 토론에 참가 신청했는지 확인합니다.
+      operationId: getParticipationStatus
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 토론 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: 참가 상태 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/participant.yaml#/components/schemas/ParticipationStatusResponse'
+              examples:
+                participating:
+                  summary: 참가 중인 상태
+                  value:
+                    data:
+                      isParticipation: true
+                notParticipating:
+                  summary: 참가하지 않은 상태
+                  value:
+                    data:
+                      isParticipation: false
+        '401':
+          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
+        '404':
+          description: 토론을 찾을 수 없습니다
+          content:
+            application/json:
+              schema:
+                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
+              example:
+                code: 4040
+                message: "토론을 찾을 수 없습니다."
+        '500':
+          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    sessionAuth:
+      $ref: './components/security/schemes.yaml#/components/securitySchemes/sessionAuth'

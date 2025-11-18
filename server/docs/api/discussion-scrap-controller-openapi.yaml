@@ -47,28 +47,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5022]"
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4000
-                message: "이미 북마크에 추가된 토론입니다."
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
     delete:
       tags:
@@ -91,19 +69,6 @@ paths:
           description: 북마크 제거 성공 (응답 본문 없음)
         'error-codes':
           description: "[1005, 5022]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론 또는 북마크를 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "북마크를 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/{discussionId}/scraps/status:
     get:
@@ -145,19 +110,6 @@ paths:
                       isScraped: false
         'error-codes':
           description: "[1005, 5022]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/scraps/me:
     get:
@@ -225,10 +177,6 @@ paths:
                   size: 10
         'error-codes':
           description: "[1005]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
 components:
   securitySchemes:

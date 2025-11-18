@@ -54,12 +54,6 @@ paths:
                   discussionId: 456
         'error-codes':
           description: "[1005]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/online:
     post:
@@ -96,12 +90,6 @@ paths:
                   discussionId: 789
         'error-codes':
           description: "[1005]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/offline/{id}:
     patch:
@@ -149,20 +137,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5022, 5062]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (작성자만 수정 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-        '404':
-          $ref: './components/responses/global.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/online/{id}:
     patch:
@@ -207,20 +181,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5022, 5062]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (작성자만 수정 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-        '404':
-          $ref: './components/responses/global.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/{id}:
     get:
@@ -249,10 +209,6 @@ paths:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
         'error-codes':
           description: "[5022]"
-        '404':
-          $ref: './components/responses/global.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
     delete:
       tags:
@@ -285,18 +241,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5022, 5062]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (작성자만 삭제 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-        '404':
-          $ref: './components/responses/global.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions:
     get:
@@ -391,10 +335,6 @@ paths:
                   hasNext: true
         'error-codes':
           description: "[]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/search:
     get:
@@ -479,10 +419,6 @@ paths:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionCursorPageResponse'
         'error-codes':
           description: "[]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/me:
     get:
@@ -519,10 +455,6 @@ paths:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionCursorPageResponse'
         'error-codes':
           description: "[1005]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/summary:
     post:
@@ -557,14 +489,6 @@ paths:
                   summary: "마이크로서비스와 모놀리식 아키텍처의 장단점에 대한 심도있는 토론이 진행되었습니다."
         'error-codes':
           description: "[1005, 5022]"
-        '400':
-          $ref: './components/responses/global.yaml#/components/responses/BadRequest'
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          $ref: './components/responses/global.yaml#/components/responses/NotFound'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
 components:
   securitySchemes:

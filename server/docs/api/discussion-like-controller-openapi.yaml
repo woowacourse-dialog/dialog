@@ -47,19 +47,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5022]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
     delete:
       tags:
@@ -82,19 +69,6 @@ paths:
           description: 좋아요 취소 성공 (응답 본문 없음)
         'error-codes':
           description: "[1005, 5022]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론 또는 좋아요를 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "좋아요를 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/{discussionsId}/likes/status:
     get:
@@ -136,19 +110,6 @@ paths:
                       isLiked: false
         'error-codes':
           description: "[1005, 5022]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
 components:
   securitySchemes:

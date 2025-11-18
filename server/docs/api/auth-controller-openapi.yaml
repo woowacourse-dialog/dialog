@@ -55,38 +55,6 @@ paths:
                   userId: 123
         'error-codes':
           description: "[5031]"
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              examples:
-                alreadySignedUp:
-                  summary: 이미 회원가입한 회원
-                  value:
-                    code: 5033
-                    message: "이미 회원가입한 회원입니다."
-        '404':
-          description: 사용자를 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 5031
-                message: "사용자를 찾을 수 없습니다."
-        '502':
-          description: GitHub 서버 오류
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 1001
-                message: "GitHub에서 사용자 ID를 가져올 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/login/check:
     get:
@@ -118,8 +86,6 @@ paths:
                       isLoggedIn: false
         'error-codes':
           description: "[]"
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/logout:
     delete:
@@ -150,5 +116,3 @@ paths:
                 data: null
         'error-codes':
           description: "[]"
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'

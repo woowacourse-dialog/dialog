@@ -62,33 +62,6 @@ paths:
                   id: 789
         'error-codes':
           description: "[1005, 5022, 5060]"
-        '400':
-          description: 잘못된 요청 (유효성 검증 실패)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              examples:
-                emptyContent:
-                  summary: 내용이 비어있음
-                  value:
-                    code: 4000
-                    message: "댓글 내용은 필수 입력값입니다."
-                invalidDiscussionId:
-                  summary: 토론 ID가 null
-                  value:
-                    code: 4000
-                    message: "토론 ID는 필수 입력값입니다."
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론 또는 부모 댓글을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/comments/{discussionCommentId}:
     patch:
@@ -130,37 +103,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5060, 5062]"
-        '400':
-          description: 잘못된 요청 (유효성 검증 실패)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4000
-                message: "댓글 내용은 필수 입력값입니다."
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (작성자만 수정 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4030
-                message: "댓글을 수정할 권한이 없습니다."
-        '404':
-          description: 댓글을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "댓글을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
     delete:
       tags:
@@ -193,28 +135,6 @@ paths:
                 data: null
         'error-codes':
           description: "[1005, 5060, 5062]"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (작성자만 삭제 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4030
-                message: "댓글을 삭제할 권한이 없습니다."
-        '404':
-          description: 댓글을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "댓글을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
   /api/discussions/{discussionId}/comments:
     get:
@@ -276,17 +196,6 @@ paths:
                           childComments: []
         'error-codes':
           description: "[5022]"
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
 components:
   securitySchemes:

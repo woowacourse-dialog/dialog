@@ -31,21 +31,9 @@ components:
     MyTokenResponse:
       type: object
       required:
-        - tokenId
         - token
-        - createdAt
       properties:
-        tokenId:
-          type: integer
-          format: int64
-          description: 토큰 ID
-          example: 1
         token:
           type: string
           description: FCM 토큰 문자열
           example: "fcm-token-abc123xyz"
-        createdAt:
-          type: string
-          format: date-time
-          description: 토큰 생성 일시
-          example: "2025-11-10T09:00:00"

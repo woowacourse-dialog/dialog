@@ -426,7 +426,7 @@ paths:
             type: array
             items:
               type: string
-              enum: [ACTIVE, CLOSED]
+              enum: [recruiting, recruitComplete, inDiscussion, discussionComplete]
           style: form
           explode: true
         - name: discussionTypes
@@ -437,12 +437,12 @@ paths:
             type: array
             items:
               type: string
-              enum: [ONLINE, OFFLINE]
+              enum: [online, offline]
           style: form
           explode: true
         - name: cursor
           in: query
-          description: 페이지네이션 커서
+          description: 페이지네이션 커서, 첫 페이지는 null, 그 이후 페이지는 이전 페이지의 커서값 참조
           required: false
           schema:
             type: string

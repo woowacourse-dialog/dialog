@@ -38,12 +38,8 @@ paths:
                       $ref: './components/schemas/notification.yaml#/components/schemas/MyTokenResponse'
               example:
                 data:
-                  - tokenId: 1
-                    token: "fcm-token-abc123xyz"
-                    createdAt: "2025-11-10T09:00:00"
-                  - tokenId: 2
-                    token: "fcm-token-def456uvw"
-                    createdAt: "2025-11-13T14:30:00"
+                  - token: "fcm-token-abc123xyz"
+                  - token: "fcm-token-def456uvw"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '500':
@@ -84,23 +80,6 @@ paths:
               example:
                 data:
                   tokenId: 1
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              examples:
-                emptyToken:
-                  summary: 토큰이 비어있음
-                  value:
-                    code: 4000
-                    message: "토큰은 필수 입력값입니다."
-                duplicateToken:
-                  summary: 이미 등록된 토큰
-                  value:
-                    code: 4000
-                    message: "이미 등록된 토큰입니다."
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '500':
@@ -148,15 +127,6 @@ paths:
                     nullable: true
               example:
                 data: null
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4000
-                message: "토큰은 필수 입력값입니다."
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '403':

@@ -40,10 +40,8 @@ paths:
                 data:
                   - token: "fcm-token-abc123xyz"
                   - token: "fcm-token-def456uvw"
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005, 5031]"
 
     post:
       tags:
@@ -80,10 +78,8 @@ paths:
               example:
                 data:
                   tokenId: 1
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005, 5031]"
 
   /api/fcm-tokens/{tokenId}:
     patch:
@@ -127,28 +123,8 @@ paths:
                     nullable: true
               example:
                 data: null
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '403':
-          description: 권한 없음 (본인의 토큰만 수정 가능)
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4030
-                message: "토큰을 수정할 권한이 없습니다."
-        '404':
-          description: 토큰을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토큰을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005, 5031, 5041, 5042]"
 
     delete:
       tags:
@@ -175,17 +151,8 @@ paths:
       responses:
         '204':
           description: 토큰 삭제 성공 (응답 본문 없음)
-        '404':
-          description: 토큰을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토큰을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005]"
 
 components:
   securitySchemes:

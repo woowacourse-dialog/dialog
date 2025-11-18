@@ -41,6 +41,8 @@ paths:
                   githubId: "gildong123"
                   track: "BACKEND"
                   isNotificationEnabled: true
+        'error-codes':
+          description: "[1005, 5031]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':
@@ -85,6 +87,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5031]"
         '400':
           description: 잘못된 요청 (유효성 검증 실패)
           content:
@@ -135,6 +139,8 @@ paths:
               example:
                 data:
                   isNotificationEnable: true
+        'error-codes':
+          description: "[1005, 5031]"
         '400':
           description: 잘못된 요청 (유효성 검증 실패)
           content:
@@ -175,6 +181,8 @@ paths:
                 data:
                   customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
                   basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+        'error-codes':
+          description: "[1005, 5031]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':
@@ -221,6 +229,8 @@ paths:
                 data:
                   customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123-new.jpg"
                   basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+        'error-codes':
+          description: "[1005, 5031]"
         '400':
           description: 잘못된 요청 (파일 형식 오류 등)
           content:
@@ -273,6 +283,8 @@ paths:
               example:
                 data:
                   track: "BACKEND"
+        'error-codes':
+          description: "[1005, 5031]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':

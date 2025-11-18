@@ -51,41 +51,8 @@ paths:
                     nullable: true
               example:
                 data: null
-        '400':
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              examples:
-                fullParticipants:
-                  summary: 참가 인원이 가득 참
-                  value:
-                    code: 4000
-                    message: "참가 인원이 가득 찼습니다."
-                alreadyJoined:
-                  summary: 이미 참가 신청함
-                  value:
-                    code: 4000
-                    message: "이미 참가 신청한 토론입니다."
-                onlineDiscussion:
-                  summary: 온라인 토론에 참가 시도
-                  value:
-                    code: 4000
-                    message: "온라인 토론은 참가 신청이 불가능합니다."
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005, 5022, 5023, 5024, 5072]"
 
   /api/discussions/{discussionId}/participants/status:
     get:
@@ -125,19 +92,8 @@ paths:
                   value:
                     data:
                       isParticipation: false
-        '401':
-          $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
-        '404':
-          description: 토론을 찾을 수 없습니다
-          content:
-            application/json:
-              schema:
-                $ref: './components/schemas/global.yaml#/components/schemas/ErrorResponse'
-              example:
-                code: 4040
-                message: "토론을 찾을 수 없습니다."
-        '500':
-          $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
+        'error-codes':
+          description: "[1005, 5022]"
 
 components:
   securitySchemes:

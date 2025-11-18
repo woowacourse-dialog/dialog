@@ -45,6 +45,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5022]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':
@@ -78,6 +80,8 @@ paths:
       responses:
         '204':
           description: 좋아요 취소 성공 (응답 본문 없음)
+        'error-codes':
+          description: "[1005, 5022]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':
@@ -130,6 +134,8 @@ paths:
                   value:
                     data:
                       isLiked: false
+        'error-codes':
+          description: "[1005, 5022]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '404':

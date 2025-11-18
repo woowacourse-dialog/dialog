@@ -52,6 +52,8 @@ paths:
               example:
                 data:
                   discussionId: 456
+        'error-codes':
+          description: "[1005]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '401':
@@ -92,6 +94,8 @@ paths:
               example:
                 data:
                   discussionId: 789
+        'error-codes':
+          description: "[1005]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '401':
@@ -143,6 +147,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5022, 5062]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '401':
@@ -199,6 +205,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5022, 5062]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '401':
@@ -239,6 +247,8 @@ paths:
                 properties:
                   data:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
+        'error-codes':
+          description: "[5022]"
         '404':
           $ref: './components/responses/global.yaml#/components/responses/NotFound'
         '500':
@@ -273,6 +283,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5022, 5062]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '403':
@@ -377,6 +389,8 @@ paths:
                         basicImageUri: "https://avatars.githubusercontent.com/u/12345"
                   nextCursor: "eyJpZCI6MSwiY3JlYXRlZEF0IjoiMjAyNS0xMS0xM1QxMDowMDowMCJ9"
                   hasNext: true
+        'error-codes':
+          description: "[]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '500':
@@ -463,6 +477,8 @@ paths:
                 properties:
                   data:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionCursorPageResponse'
+        'error-codes':
+          description: "[]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '500':
@@ -501,6 +517,8 @@ paths:
                 properties:
                   data:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionCursorPageResponse'
+        'error-codes':
+          description: "[1005]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '500':
@@ -537,6 +555,8 @@ paths:
                 data:
                   discussionId: 123
                   summary: "마이크로서비스와 모놀리식 아키텍처의 장단점에 대한 심도있는 토론이 진행되었습니다."
+        'error-codes':
+          description: "[1005, 5022]"
         '400':
           $ref: './components/responses/global.yaml#/components/responses/BadRequest'
         '401':

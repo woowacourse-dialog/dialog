@@ -53,6 +53,8 @@ paths:
               example:
                 data:
                   userId: 123
+        'error-codes':
+          description: "[5031]"
         '400':
           description: 잘못된 요청
           content:
@@ -114,6 +116,8 @@ paths:
                   value:
                     data:
                       isLoggedIn: false
+        'error-codes':
+          description: "[]"
         '500':
           $ref: './components/responses/global.yaml#/components/responses/InternalServerError'
 
@@ -144,5 +148,7 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[]"
         '500':
           $ref: './components/responses/global.yaml#/components/responses/InternalServerError'

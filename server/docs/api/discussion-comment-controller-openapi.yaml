@@ -60,6 +60,8 @@ paths:
               example:
                 data:
                   id: 789
+        'error-codes':
+          description: "[1005, 5022, 5060]"
         '400':
           description: 잘못된 요청 (유효성 검증 실패)
           content:
@@ -126,6 +128,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5060, 5062]"
         '400':
           description: 잘못된 요청 (유효성 검증 실패)
           content:
@@ -187,6 +191,8 @@ paths:
                     nullable: true
               example:
                 data: null
+        'error-codes':
+          description: "[1005, 5060, 5062]"
         '401':
           $ref: './components/responses/global.yaml#/components/responses/Unauthorized'
         '403':
@@ -268,6 +274,8 @@ paths:
                             customImageUri: null
                             basicImageUri: "https://avatars.githubusercontent.com/u/67890"
                           childComments: []
+        'error-codes':
+          description: "[5022]"
         '404':
           description: 토론을 찾을 수 없습니다
           content:

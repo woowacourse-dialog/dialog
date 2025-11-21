@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: Dialog Firebase Token API
+  description: Firebase Cloud Messaging (FCM) 토큰 관리를 위한 API
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: Firebase Token
+    description: FCM 푸시 알림 토큰 관리
+
+paths:
+  /api/fcm-tokens:
+    get:
+      tags:
+        - Firebase Token
+      summary: 내 토큰 목록 조회
+      description: 현재 로그인한 사용자의 FCM 토큰 목록을 조회합니다.
+      operationId: getMyTokens
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 토큰 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: './components/schemas/notification.yaml#/components/schemas/MyTokenResponse'
+              example:
+                data:
+                  - token: "fcm-token-abc123xyz"
+                  - token: "fcm-token-def456uvw"
+        'error-codes':
+          description: "[1005, 5031]"
+
+    post:
+      tags:
+        - Firebase Token
+      summary: 토큰 등록
+      description: |
+        새로운 FCM 토큰을 등록합니다.
+
+        **사용 시나리오:**
+        - 사용자가 새로운 디바이스에서 로그인할 때
+        - 앱을 재설치한 후 새로운 FCM 토큰을 받았을 때
+        - 브라우저에서 푸시 알림 권한을 허용했을 때
+      operationId: createToken
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/notification.yaml#/components/schemas/TokenRequest'
+            example:
+              token: "fcm-token-abc123xyz"
+      responses:
+        '200':
+          description: 토큰 등록 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/notification.yaml#/components/schemas/TokenCreationResponse'
+              example:
+                data:
+                  tokenId: 1
+        'error-codes':
+          description: "[1005, 5031]"
+
+  /api/fcm-tokens/{tokenId}:
+    patch:
+      tags:
+        - Firebase Token
+      summary: 토큰 수정
+      description: |
+        기존 FCM 토큰을 수정합니다.
+
+        **사용 시나리오:**
+        - 디바이스의 FCM 토큰이 갱신되었을 때
+      operationId: updateToken
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          description: 수정할 토큰 ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/notification.yaml#/components/schemas/TokenRequest'
+            example:
+              token: "fcm-token-new-xyz789"
+      responses:
+        '200':
+          description: 토큰 수정 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+              example:
+                data: null
+        'error-codes':
+          description: "[1005, 5031, 5041, 5042]"
+
+    delete:
+      tags:
+        - Firebase Token
+      summary: 토큰 삭제
+      description: |
+        FCM 토큰을 삭제합니다.
+
+        **사용 시나리오:**
+        - 사용자가 로그아웃할 때
+        - 사용자가 푸시 알림을 비활성화할 때
+        - 디바이스를 더 이상 사용하지 않을 때
+      operationId: deleteToken
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          description: 삭제할 토큰 ID
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 토큰 삭제 성공 (응답 본문 없음)
+        'error-codes':
+          description: "[1005]"
+
+components:
+  securitySchemes:
+    sessionAuth:
+      $ref: './components/security/schemes.yaml#/components/securitySchemes/sessionAuth'

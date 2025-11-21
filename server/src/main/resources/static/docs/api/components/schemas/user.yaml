@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: User Domain Schemas
+  description: 사용자 프로필 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    UserInfoResponse:
+      type: object
+      required:
+        - id
+        - nickname
+        - githubId
+        - track
+        - isNotificationEnabled
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 사용자 ID
+          example: 123
+        nickname:
+          type: string
+          description: 사용자 닉네임
+          example: "홍길동"
+        githubId:
+          type: string
+          description: GitHub 사용자 ID
+          example: "gildong123"
+        track:
+          $ref: '../schemas/global.yaml#/components/schemas/Track'
+        isNotificationEnabled:
+          type: boolean
+          description: 알림 수신 활성화 여부
+          example: true
+
+    UserMypageUpdateRequest:
+      type: object
+      required:
+        - nickname
+        - track
+      properties:
+        nickname:
+          type: string
+          minLength: 1
+          description: 수정할 닉네임 (필수, 공백 불가)
+          example: "새로운닉네임"
+        track:
+          $ref: '../schemas/global.yaml#/components/schemas/Track'
+
+    NotificationSettingRequest:
+      type: object
+      required:
+        - isNotificationEnable
+      properties:
+        isNotificationEnable:
+          type: boolean
+          description: 알림 수신 활성화 여부 (필수)
+          example: true
+
+    NotificationSettingResponse:
+      type: object
+      required:
+        - isNotificationEnable
+      properties:
+        isNotificationEnable:
+          type: boolean
+          description: 변경된 알림 수신 활성화 여부
+          example: true
+
+    ProfileImageGetResponse:
+      type: object
+      required:
+        - customImageUri
+        - basicImageUri
+      properties:
+        customImageUri:
+          type: string
+          nullable: true
+          description: 사용자가 업로드한 커스텀 프로필 이미지 URL (없을 경우 null)
+          example: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+        basicImageUri:
+          type: string
+          nullable: true
+          description: GitHub에서 가져온 기본 프로필 이미지 URL
+          example: "https://avatars.githubusercontent.com/u/12345"
+
+    ProfileImageUpdateResponse:
+      type: object
+      required:
+        - customImageUri
+        - basicImageUri
+      properties:
+        customImageUri:
+          type: string
+          nullable: true
+          description: 업로드된 커스텀 프로필 이미지 URL
+          example: "https://s3.amazonaws.com/dialog/profiles/user123-new.jpg"
+        basicImageUri:
+          type: string
+          nullable: true
+          description: GitHub에서 가져온 기본 프로필 이미지 URL
+          example: "https://avatars.githubusercontent.com/u/12345"
+
+    MyTrackGetTrackResponse:
+      type: object
+      required:
+        - track
+      properties:
+        track:
+          $ref: '../schemas/global.yaml#/components/schemas/Track'

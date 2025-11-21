@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RequiredArgsConstructor
@@ -18,9 +17,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolvers.add(authenticatedUserIdArgumentResolver);
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry resourceHandlerRegistry) {
-        resourceHandlerRegistry.addResourceHandler("/docs/api/**")
-                .addResourceLocations("file:docs/api/");
-    }
 }

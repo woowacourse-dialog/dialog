@@ -65,3 +65,29 @@ management:
     web:
       exposure:
         include: "health,info,prometheus"
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Auth API
+        url: /docs/api/auth-controller-openapi.yaml
+      - name: Discussion API
+        url: /docs/api/discussion-controller-openapi.yaml
+      - name: Discussion Comment API
+        url: /docs/api/discussion-comment-controller-openapi.yaml
+      - name: Discussion Like API
+        url: /docs/api/discussion-like-controller-openapi.yaml
+      - name: Discussion Participant API
+        url: /docs/api/discussion-participant-controller-openapi.yaml
+      - name: Discussion Scrap API
+        url: /docs/api/discussion-scrap-controller-openapi.yaml
+      - name: Firebase Token API
+        url: /docs/api/firebase-token-controller-openapi.yaml
+      - name: User API
+        url: /docs/api/user-controller-openapi.yaml
+    urls-primary-name: Discussion API

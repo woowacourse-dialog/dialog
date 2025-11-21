@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Auth Domain Schemas
+  description: 인증 및 회원가입 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - track
+        - webPushNotification
+      properties:
+        track:
+          $ref: './global.yaml#/components/schemas/Track'
+        webPushNotification:
+          type: boolean
+          description: 웹 푸시 알림 수신 동의 여부
+          example: true
+
+    SignupResponse:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: 생성된 사용자의 ID
+          example: 123
+
+    LoginCheckResponse:
+      type: object
+      required:
+        - isLoggedIn
+      properties:
+        isLoggedIn:
+          type: boolean
+          description: 로그인 여부
+          example: true

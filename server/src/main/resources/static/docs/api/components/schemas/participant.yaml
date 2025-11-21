@@ -1,0 +1,17 @@
+openapi: 3.0.3
+info:
+  title: Participant Domain Schemas
+  description: 토론 참가 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    ParticipationStatusResponse:
+      type: object
+      required:
+        - isParticipation
+      properties:
+        isParticipation:
+          type: boolean
+          description: 참가 여부
+          example: true

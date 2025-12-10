@@ -1,7 +1,6 @@
 spring:
   config:
     activate:
-      # 개발 환경
       on-profile: develop
 
   datasource:

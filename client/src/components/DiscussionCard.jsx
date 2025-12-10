@@ -7,10 +7,10 @@ import { getDiscussionStatus, getDiscussionStatusStyle } from '../utils/discussi
 import styles from './DiscussionCard.module.css';
 
 const TRACKS = [
+  { id: 'COMMON', name: 'ALL' },
   { id: 'FRONTEND', name: 'FE' },
   { id: 'BACKEND', name: 'BE' },
   { id: 'ANDROID', name: 'AN' },
-  { id: 'COMMON', name: 'ALL' }
 ];
 
 // 프로필 이미지 URL을 가져오는 함수

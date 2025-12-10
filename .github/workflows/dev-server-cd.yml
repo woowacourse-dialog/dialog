@@ -1,8 +1,8 @@
-name: Prod Server CD
+name: Dev Server CD
 
 on:
   workflow_run:
-    workflows: [ "Dev Server CD" ]
+    workflows: [ "Dev Server CI" ]
     types: [ completed ]
     branches: [ develop ]
   workflow_dispatch:

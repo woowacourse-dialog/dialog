@@ -2,6 +2,7 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
@@ -32,6 +33,7 @@ public class DiscussionCommentService {
     private final DiscussionRepository discussionRepository;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public DiscussionCommentCreateResponse createComment(DiscussionCommentCreateRequest request, Long authorId) {
@@ -50,6 +52,12 @@ public class DiscussionCommentService {
                 throw new DialogException(ErrorCode.REPLY_DEPTH_EXCEEDED);
             }
         }
+
+        notificationService.createAndPropagateNotification(
+                author,
+                parentComment != null ? parentComment.getAuthor() : discussion.getAuthor(),
+                NotificationType.COMMENT_REPLY
+        );
 
         DiscussionComment comment = DiscussionComment.builder()
                 .content(request.content())

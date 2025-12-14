@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.lang.reflect.Type;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,10 +42,10 @@ public class Notification extends BaseEntity{
     private boolean isRead;
 
     @Builder
-    private Notification(User sender, User receiver, NotificationType type, boolean isRead) {
+    private Notification(User sender, User receiver, NotificationType type) {
         this.sender = sender;
         this.receiver = receiver;
         this.type = type;
-        this.isRead = isRead;
+        this.isRead = false;
     }
 }

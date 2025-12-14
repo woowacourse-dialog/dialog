@@ -2,29 +2,47 @@ package com.dialog.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.dialog.server.config.S3Config;
+import com.dialog.server.domain.Category;
+import com.dialog.server.domain.Discussion;
+import com.dialog.server.domain.DiscussionComment;
 import com.dialog.server.domain.MessagingToken;
+import com.dialog.server.domain.Notification;
+import com.dialog.server.domain.NotificationType;
+import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
+import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
+import com.dialog.server.dto.notification.resposne.NotificationResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
+import com.dialog.server.event.NotificationCreatedEvent;
+import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.repository.DiscussionCommentRepository;
+import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.MessagingTokenRepository;
+import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -39,6 +57,18 @@ class NotificationServiceTest {
 
     @Autowired
     private MessagingTokenRepository messagingTokenRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private DiscussionRepository discussionRepository;
+
+    @Autowired
+    private DiscussionCommentRepository discussionCommentRepository;
+
+    @Autowired
+    private DiscussionCommentService discussionCommentService;
 
     @MockitoBean
     private FcmService fcmService;
@@ -286,5 +316,114 @@ class NotificationServiceTest {
 
         // then
         verify(fcmService, times(0)).sendNotification(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("토론 게시글에 새로운 댓글 작성 시 실시간 알림 발송 - 성공")
+    void whenNewCommentOnDiscussion_thenDiscussionAuthorReceivesNotification() {
+        // given
+        // testUser가 토론 게시글 작성자, anotherUser가 댓글 작성자
+        Discussion discussion = OnlineDiscussion.builder()
+                .title("테스트 토론")
+                .content("내용입니다.")
+                .category(Category.BACKEND)
+                .summary(null)
+                .author(testUser)
+                .endDate(LocalDate.now().plusDays(1))
+                .build();
+
+        Discussion savedDiscussion = discussionRepository.save(discussion);
+
+        // testUser가 알림을 받기 위해 polling 시작
+        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
+                = new DeferredResult<>(3_000L);
+        String sessionId = "test-session-1";
+        notificationService.pollNotifications(testUser.getId(), sessionId, null, deferredResult);
+
+        // when
+        // anotherUser가 댓글 작성
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "새로운 댓글입니다.", savedDiscussion.getId(), null
+        );
+        discussionCommentService.createComment(request, anotherUser.getId());
+
+        // then
+        List<Notification> notifications = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
+                testUser, 0L);
+        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(testUser);
+        notificationService.handleNotificationEvent(new NotificationCreatedEvent(notifications.get(0), unreadCount));
+
+        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity =
+                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
+        ApiSuccessResponse<NotificationPollingResponse> apiResponse = responseEntity.getBody();
+        NotificationPollingResponse pollingResponse = apiResponse.data();
+        NotificationResponse notification = pollingResponse.notifications().get(0);
+
+        assertAll(
+            () -> assertThat(deferredResult.hasResult()).isTrue(),
+            () -> assertThat(pollingResponse.notifications()).hasSize(1),
+            () -> assertThat(notification.senderId()).isEqualTo(anotherUser.getId()),
+            () -> assertThat(notification.type()).isEqualTo(NotificationType.DISCUSSION_COMMENT),
+            () -> assertThat(notification.isRead()).isFalse()
+        );
+    }
+
+    @Test
+    @DisplayName("기존 댓글에 답글 작성 시 실시간 알림 발송 - 성공")
+    void whenNewReplyToComment_thenCommentAuthorReceivesNotification() {
+        // given
+        // testUser: 토론 작성자, anotherUser: 부모 댓글 작성자, replyAuthor: 답글 작성자
+        User replyAuthor = User.builder().oauthId("reply-author-789").nickname("답글 작성자").build();
+        userRepository.save(replyAuthor);
+
+        Discussion discussion = OnlineDiscussion.builder()
+                .title("테스트 토론")
+                .content("내용입니다.")
+                .category(Category.BACKEND)
+                .summary(null)
+                .author(testUser)
+                .endDate(LocalDate.now().plusDays(1))
+                .build();
+        discussionRepository.save(discussion);
+
+        DiscussionComment parentComment = DiscussionComment.builder()
+                .discussion(discussion)
+                .author(anotherUser)
+                .content("부모 댓글입니다.")
+                .build();
+        discussionCommentRepository.save(parentComment);
+
+        // anotherUser(부모 댓글 작성자)가 알림을 받기 위해 polling 시작
+        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
+                = new DeferredResult<>(3_000L);
+        String sessionId = "test-session-2";
+        notificationService.pollNotifications(anotherUser.getId(), sessionId, null, deferredResult);
+
+        // when
+        // replyAuthor가 anotherUser의 댓글에 답글 작성
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "답글입니다.", discussion.getId(), parentComment.getId()
+        );
+        discussionCommentService.createComment(request, replyAuthor.getId());
+
+        // then
+        List<Notification> notifications = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
+                anotherUser, 0L);
+        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(anotherUser);
+        notificationService.handleNotificationEvent(new NotificationCreatedEvent(notifications.get(0), unreadCount));
+
+        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity =
+                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
+        ApiSuccessResponse<NotificationPollingResponse> apiResponse = responseEntity.getBody();
+        NotificationPollingResponse pollingResponse = apiResponse.data();
+        NotificationResponse notification = pollingResponse.notifications().get(0);
+
+        assertAll(
+                () -> assertThat(deferredResult.hasResult()).isTrue(),
+                () -> assertThat(pollingResponse.notifications()).hasSize(1),
+                () -> assertThat(notification.senderId()).isEqualTo(replyAuthor.getId()),
+                () -> assertThat(notification.type()).isEqualTo(NotificationType.COMMENT_REPLY),
+                () -> assertThat(notification.isRead()).isFalse()
+        );
     }
 }

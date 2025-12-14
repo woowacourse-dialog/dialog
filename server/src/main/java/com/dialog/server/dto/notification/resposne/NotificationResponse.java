@@ -14,8 +14,8 @@ public record NotificationResponse(
         boolean isRead
         ) {
     public static NotificationResponse from(Notification notification) {
-        Long receiverId = notification.getReceiver().getId();
-        String receiverNickname = notification.getReceiver().getNickname();
+        Long senderId = notification.getSender().getId();
+        String senderNickname = notification.getSender().getNickname();
         NotificationType type = notification.getType();
         String message = type.getMessage(notification.getSender());
         LocalDateTime createdAt = notification.getCreatedAt();
@@ -23,8 +23,8 @@ public record NotificationResponse(
 
         return new NotificationResponse(
                 notification.getId(),
-                receiverId,
-                receiverNickname,
+                senderId,
+                senderNickname,
                 message,
                 type,
                 createdAt,

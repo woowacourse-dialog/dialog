@@ -93,9 +93,23 @@ public class NotificationService {
     public void pollNotifications(
             Long userId,
             String sessionId,
+            Long lastNotificationId,
             DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
     ) {
         User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+
+        List<Notification> missedNotifications = notificationRepository.findByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
+                user, lastNotificationId);
+
+        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(user);
+
+        if (lastNotificationId != null && !missedNotifications.isEmpty()) {
+            deferredResult.setResult(
+                    ResponseEntity.ok(
+                            new ApiSuccessResponse<>(NotificationPollingResponse.of(missedNotifications, unreadCount))
+                    )
+            );
+        }
 
         String connectionKey = createConnectionKey(user.getId(), sessionId);
 

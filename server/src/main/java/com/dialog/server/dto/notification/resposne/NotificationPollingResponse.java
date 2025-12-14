@@ -3,17 +3,27 @@ package com.dialog.server.dto.notification.resposne;
 import com.dialog.server.domain.Notification;
 import com.dialog.server.domain.PollingStatus;
 
+import java.util.Collections;
+import java.util.List;
+
 public record NotificationPollingResponse(
         PollingStatus status,
-        NotificationResponse notificationsResponse,
+        List<NotificationResponse> notifications,
         Long isReadFalseCount
 ) {
+    public static NotificationPollingResponse of(List<Notification> notifications, Long unreadCount) {
+        List<NotificationResponse> notificationResponses = notifications.stream()
+                .map(NotificationResponse::from)
+                .toList();
+        return new NotificationPollingResponse(PollingStatus.NEW_NOTIFICATION, notificationResponses, unreadCount);
+    }
+
     public static NotificationPollingResponse of(Notification notification, Long unreadCount) {
-        NotificationResponse notificationsResponse = NotificationResponse.from(notification);
-        return new NotificationPollingResponse(PollingStatus.NEW_NOTIFICATION, notificationsResponse, unreadCount);
+        NotificationResponse notificationResponse = NotificationResponse.from(notification);
+        return new NotificationPollingResponse(PollingStatus.NEW_NOTIFICATION, List.of(notificationResponse), unreadCount);
     }
 
     public static NotificationPollingResponse createTimeoutResponse() {
-        return new NotificationPollingResponse(PollingStatus.TIMEOUT, NotificationResponse.getEmptyResponse(), 0L);
+        return new NotificationPollingResponse(PollingStatus.TIMEOUT, Collections.emptyList(), 0L);
     }
 }

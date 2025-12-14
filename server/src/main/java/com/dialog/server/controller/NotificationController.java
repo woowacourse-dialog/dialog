@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -22,6 +23,7 @@ public class NotificationController {
     @GetMapping("/polling")
     public DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> getPollingNotifications(
             @AuthenticatedUserId Long userId,
+            @RequestParam(required = false) Long lastNotificationId,
             HttpSession session
     ) {
         DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
@@ -37,7 +39,7 @@ public class NotificationController {
             );
         });
 
-        notificationService.pollNotifications(userId, sessionId, deferredResult);
+        notificationService.pollNotifications(userId, sessionId, lastNotificationId, deferredResult);
 
         return deferredResult;
     }

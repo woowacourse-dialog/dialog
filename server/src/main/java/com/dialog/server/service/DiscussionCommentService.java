@@ -56,7 +56,7 @@ public class DiscussionCommentService {
         notificationService.createAndPropagateNotification(
                 author,
                 parentComment != null ? parentComment.getAuthor() : discussion.getAuthor(),
-                NotificationType.COMMENT_REPLY
+                parentComment != null ? NotificationType.COMMENT_REPLY : NotificationType.DISCUSSION_COMMENT
         );
 
         DiscussionComment comment = DiscussionComment.builder()

@@ -149,12 +149,20 @@ public class NotificationService {
                 .toList();
 
         for (String connection : connections) {
-            DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult = waitingRequests.get(connection);
-            if (deferredResult != null && !deferredResult.isSetOrExpired()) {
-                deferredResult.setResult(
-                        ResponseEntity.ok(
-                                new ApiSuccessResponse<>(NotificationPollingResponse.of(savedNotification, unreadCount))
-                        )
+            try {
+                DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult = waitingRequests.get(connection);
+                if (deferredResult != null && !deferredResult.isSetOrExpired()) {
+                    deferredResult.setResult(
+                            ResponseEntity.ok(
+                                    new ApiSuccessResponse<>(NotificationPollingResponse.of(savedNotification, unreadCount))
+                            )
+                    );
+                }
+            } catch (Exception e) {
+                log.warn("알림 전송에 실패하였습니다. sender : {} receiver : {} type : {}",
+                        savedNotification.getSender().getId(),
+                        receiver.getId(),
+                        savedNotification.getType()
                 );
             }
         }

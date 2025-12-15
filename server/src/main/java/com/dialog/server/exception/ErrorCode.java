@@ -65,8 +65,9 @@ public enum ErrorCode {
     INVALID_NICKNAME_LENGTH("5074", "닉네임은 2글자 이상 15자 이내여야 합니다.", HttpStatus.BAD_REQUEST),
 
     FAILED_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
-    ;
+    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    NOTIFICATION_NOT_FOUND("5090", "해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     public final String code;
     public final String message;

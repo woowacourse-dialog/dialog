@@ -198,4 +198,15 @@ public class NotificationService {
                 notificationPage.getTotalElements()
         );
     }
+
+    @Transactional
+    public void updateNotificationAsRead(Long userId, Long notificationId) {
+        User receiver = userRepository.findById(userId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+
+        Notification notification = notificationRepository.findByIdAndReceiver(notificationId, receiver)
+                .orElseThrow(() -> new DialogException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        notification.read();
+    }
 }

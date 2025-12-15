@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,5 +58,15 @@ public class NotificationController {
         NotificationPageResponse response = notificationService.getNotificationPage(userId, request);
 
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateNotificationAsRead(
+            @AuthenticatedUserId Long userId,
+            @PathVariable Long notificationId
+    ) {
+        notificationService.updateNotificationAsRead(userId, notificationId);
+
+        return ResponseEntity.ok(new ApiSuccessResponse<>(null));
     }
 }

@@ -39,6 +39,7 @@ public class Notification extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @Column(name = "is_read")
     private boolean isRead;
 
     @Builder
@@ -47,5 +48,9 @@ public class Notification extends BaseEntity{
         this.receiver = receiver;
         this.type = type;
         this.isRead = false;
+    }
+
+    public void read() {
+        this.isRead = true;
     }
 }

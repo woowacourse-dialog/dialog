@@ -18,7 +18,9 @@ import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
+import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
+import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
 import com.dialog.server.dto.notification.resposne.NotificationResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
@@ -33,6 +35,7 @@ import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -425,5 +428,342 @@ class NotificationServiceTest {
                 () -> assertThat(notification.type()).isEqualTo(NotificationType.COMMENT_REPLY),
                 () -> assertThat(notification.isRead()).isFalse()
         );
+    }
+
+    // ========== 페이징 조회 테스트 ==========
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 기본값으로 첫 페이지 조회 성공")
+    void getNotificationPage_DefaultValues_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        NotificationPageRequest request = new NotificationPageRequest(null, null);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(5),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.pageSize()).isEqualTo(20),
+                () -> assertThat(response.totalElements()).isEqualTo(5),
+                () -> assertThat(response.totalPages()).isEqualTo(1),
+                () -> assertThat(response.unreadCount()).isEqualTo(5L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 커스텀 페이지 크기로 조회 성공")
+    void getNotificationPage_CustomPageSize_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 15);
+        NotificationPageRequest request = new NotificationPageRequest(0, 10);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(10),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.pageSize()).isEqualTo(10),
+                () -> assertThat(response.totalElements()).isEqualTo(15),
+                () -> assertThat(response.totalPages()).isEqualTo(2),
+                () -> assertThat(response.unreadCount()).isEqualTo(15L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 두 번째 페이지 조회 성공")
+    void getNotificationPage_SecondPage_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 25);
+        NotificationPageRequest request = new NotificationPageRequest(1, 10);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(10),
+                () -> assertThat(response.currentPage()).isEqualTo(1),
+                () -> assertThat(response.pageSize()).isEqualTo(10),
+                () -> assertThat(response.totalElements()).isEqualTo(25),
+                () -> assertThat(response.totalPages()).isEqualTo(3)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 마지막 페이지 조회 (페이지 크기보다 적은 항목)")
+    void getNotificationPage_LastPageWithPartialItems_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 25);
+        NotificationPageRequest request = new NotificationPageRequest(2, 10);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(5),
+                () -> assertThat(response.currentPage()).isEqualTo(2),
+                () -> assertThat(response.pageSize()).isEqualTo(10),
+                () -> assertThat(response.totalElements()).isEqualTo(25),
+                () -> assertThat(response.totalPages()).isEqualTo(3)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 빈 목록 조회")
+    void getNotificationPage_EmptyList_Success() {
+        // given
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).isEmpty(),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.pageSize()).isEqualTo(20),
+                () -> assertThat(response.totalElements()).isEqualTo(0),
+                () -> assertThat(response.totalPages()).isEqualTo(0),
+                () -> assertThat(response.unreadCount()).isEqualTo(0L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 범위를 벗어난 페이지 조회")
+    void getNotificationPage_PageOutOfBounds_ReturnsEmpty() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        NotificationPageRequest request = new NotificationPageRequest(10, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).isEmpty(),
+                () -> assertThat(response.currentPage()).isEqualTo(10),
+                () -> assertThat(response.totalElements()).isEqualTo(5),
+                () -> assertThat(response.totalPages()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 최신순 정렬 확인")
+    void getNotificationPage_OrderByCreatedAtDesc_Success() {
+        // given
+        List<Notification> notifications = createNotifications(testUser, anotherUser, 3);
+        NotificationPageRequest request = new NotificationPageRequest(0, 10);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        List<NotificationResponse> notificationResponses = response.notifications();
+        assertAll(
+                () -> assertThat(notificationResponses).hasSize(3),
+                () -> assertThat(notificationResponses.get(0).createdAt())
+                        .isAfterOrEqualTo(notificationResponses.get(1).createdAt()),
+                () -> assertThat(notificationResponses.get(1).createdAt())
+                        .isAfterOrEqualTo(notificationResponses.get(2).createdAt())
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 안읽은 알림 개수 정확성 확인")
+    void getNotificationPage_UnreadCountAccuracy_Success() {
+        // given
+        List<Notification> notifications = createNotifications(testUser, anotherUser, 10);
+
+        // 처음 5개만 읽음 처리
+        IntStream.range(0, 5).forEach(i -> notifications.get(i).read());
+
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(10),
+                () -> assertThat(response.unreadCount()).isEqualTo(5L),
+                () -> assertThat(response.notifications().stream().filter(n -> !n.isRead()).count()).isEqualTo(5L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 다른 사용자의 알림은 조회되지 않음")
+    void getNotificationPage_OnlyUserNotifications_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        createNotifications(anotherUser, testUser, 3);
+
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(5),
+                () -> assertThat(response.totalElements()).isEqualTo(5),
+                () -> assertThat(response.notifications())
+                        .allMatch(n -> n.senderId().equals(anotherUser.getId()))
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 존재하지 않는 사용자")
+    void getNotificationPage_UserNotFound_ThrowsException() {
+        // given
+        Long nonExistentUserId = 999L;
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when & then
+        assertThatThrownBy(() -> notificationService.getNotificationPage(nonExistentUserId, request))
+                .isInstanceOf(DialogException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 단일 알림 조회")
+    void getNotificationPage_SingleNotification_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 1);
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(1),
+                () -> assertThat(response.totalElements()).isEqualTo(1),
+                () -> assertThat(response.totalPages()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 정확히 페이지 크기만큼의 알림")
+    void getNotificationPage_ExactlyPageSize_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 20);
+        NotificationPageRequest request = new NotificationPageRequest(0, 20);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(20),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.totalElements()).isEqualTo(20),
+                () -> assertThat(response.totalPages()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - null page는 0으로 기본값 설정")
+    void notificationPageRequest_NullPage_DefaultsToZero() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(null, 10);
+
+        // then
+        assertThat(request.page()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - 음수 page는 0으로 보정")
+    void notificationPageRequest_NegativePage_DefaultsToZero() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(-5, 10);
+
+        // then
+        assertThat(request.page()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - null size는 20으로 기본값 설정")
+    void notificationPageRequest_NullSize_DefaultsToTwenty() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(0, null);
+
+        // then
+        assertThat(request.size()).isEqualTo(20);
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - 0 이하 size는 20으로 기본값 설정")
+    void notificationPageRequest_ZeroOrNegativeSize_DefaultsToTwenty() {
+        // given & when
+        NotificationPageRequest requestZero = new NotificationPageRequest(0, 0);
+        NotificationPageRequest requestNegative = new NotificationPageRequest(0, -10);
+
+        // then
+        assertAll(
+                () -> assertThat(requestZero.size()).isEqualTo(20),
+                () -> assertThat(requestNegative.size()).isEqualTo(20)
+        );
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - size 50 초과 시 50으로 제한")
+    void notificationPageRequest_SizeExceedsFifty_CapsAtFifty() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(0, 100);
+
+        // then
+        assertThat(request.size()).isEqualTo(50);
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - 정상적인 page와 size는 그대로 유지")
+    void notificationPageRequest_ValidValues_KeepsOriginal() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(2, 15);
+
+        // then
+        assertAll(
+                () -> assertThat(request.page()).isEqualTo(2),
+                () -> assertThat(request.size()).isEqualTo(15)
+        );
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - 경계값 테스트 (size = 50)")
+    void notificationPageRequest_BoundaryValue_SizeFifty() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(0, 50);
+
+        // then
+        assertThat(request.size()).isEqualTo(50);
+    }
+
+    @Test
+    @DisplayName("NotificationPageRequest - 경계값 테스트 (size = 51)")
+    void notificationPageRequest_BoundaryValue_SizeFiftyOne() {
+        // given & when
+        NotificationPageRequest request = new NotificationPageRequest(0, 51);
+
+        // then
+        assertThat(request.size()).isEqualTo(50);
+    }
+
+    private List<Notification> createNotifications(User receiver, User sender, int count) {
+        return IntStream.range(0, count)
+                .mapToObj(i -> {
+                    Notification notification = Notification.builder()
+                            .sender(sender)
+                            .receiver(receiver)
+                            .type(NotificationType.DISCUSSION_COMMENT)
+                            .build();
+                    return notificationRepository.save(notification);
+                })
+                .toList();
     }
 }

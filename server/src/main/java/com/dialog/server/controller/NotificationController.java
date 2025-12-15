@@ -1,6 +1,8 @@
 package com.dialog.server.controller;
 
 import com.dialog.server.dto.auth.AuthenticatedUserId;
+import com.dialog.server.dto.notification.request.NotificationPageRequest;
+import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.NotificationService;
@@ -42,5 +44,17 @@ public class NotificationController {
         notificationService.pollNotifications(userId, sessionId, lastNotificationId, deferredResult);
 
         return deferredResult;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiSuccessResponse<NotificationPageResponse>> getNotificationPage(
+            @AuthenticatedUserId Long userId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        NotificationPageRequest request = new NotificationPageRequest(page, size);
+        NotificationPageResponse response = notificationService.getNotificationPage(userId, request);
+
+        return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 }

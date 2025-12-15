@@ -4,8 +4,11 @@ import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.Notification;
 import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
+import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
+import com.dialog.server.dto.notification.resposne.NotificationResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
 import com.dialog.server.event.NotificationCreatedEvent;
 import com.dialog.server.exception.ApiSuccessResponse;
@@ -20,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,5 +172,30 @@ public class NotificationService {
                 );
             }
         }
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationPageResponse getNotificationPage(Long userId, NotificationPageRequest request) {
+        User receiver = userRepository.findById(userId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(request.page(), request.size());
+
+        Page<Notification> notificationPage = notificationRepository.findAllByReceiverOrderByCreatedAtDesc(receiver, pageable);
+
+        List<NotificationResponse> notificationResponses = notificationPage.getContent()
+                .stream()
+                .map(NotificationResponse::from)
+                .toList();
+
+        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(receiver);
+
+        return NotificationPageResponse.of(
+                notificationResponses,
+                unreadCount,
+                notificationPage.getNumber(),
+                notificationPage.getSize(),
+                notificationPage.getTotalElements()
+        );
     }
 }

@@ -53,12 +53,6 @@ public class DiscussionCommentService {
             }
         }
 
-        notificationService.createAndPropagateNotification(
-                author,
-                parentComment != null ? parentComment.getAuthor() : discussion.getAuthor(),
-                parentComment != null ? NotificationType.COMMENT_REPLY : NotificationType.DISCUSSION_COMMENT
-        );
-
         DiscussionComment comment = DiscussionComment.builder()
                 .content(request.content())
                 .discussion(discussion)
@@ -67,6 +61,22 @@ public class DiscussionCommentService {
                 .build();
 
         DiscussionComment savedComment = discussionCommentRepository.save(comment);
+
+        if (parentComment != null && parentComment.isNotAuthor(authorId)) {
+            notificationService.createAndPropagateNotification(
+                    author,
+                    parentComment.getAuthor(),
+                    NotificationType.COMMENT_REPLY
+            );
+        }
+
+        if (parentComment == null && discussion.isNotAuthor(authorId)) {
+            notificationService.createAndPropagateNotification(
+                    author,
+                    discussion.getAuthor(),
+                    NotificationType.DISCUSSION_COMMENT
+            );
+        }
 
         return new DiscussionCommentCreateResponse(savedComment.getId());
     }

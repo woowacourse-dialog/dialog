@@ -6,7 +6,6 @@ import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.NotificationService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,12 +27,10 @@ public class NotificationController {
     public DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> getPollingNotifications(
             @AuthenticatedUserId Long userId,
             @RequestParam(required = false) Long lastNotificationId,
-            HttpSession session
+            @RequestParam String sessionId
     ) {
         DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
                 = new DeferredResult<>(30_000L);
-
-        String sessionId = session.getId();
 
         deferredResult.onTimeout(() -> {
             deferredResult.setResult(

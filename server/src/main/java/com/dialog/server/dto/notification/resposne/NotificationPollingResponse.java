@@ -23,8 +23,8 @@ public record NotificationPollingResponse(
         return new NotificationPollingResponse(PollingStatus.NEW_NOTIFICATION, List.of(notificationResponse), unreadCount);
     }
 
-    public static NotificationPollingResponse createTimeoutResponse() {
-        return new NotificationPollingResponse(PollingStatus.TIMEOUT, Collections.emptyList(), 0L);
+    public static NotificationPollingResponse createTimeoutResponse(Long unreadCount) {
+        return new NotificationPollingResponse(PollingStatus.TIMEOUT, Collections.emptyList(), unreadCount);
     }
 
     public static NotificationPollingResponse createBulkReadResponse(Long unreadCount) {

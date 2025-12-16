@@ -33,9 +33,10 @@ public class NotificationController {
                 = new DeferredResult<>(30_000L);
 
         deferredResult.onTimeout(() -> {
+            Long unreadCount = notificationService.getUnreadCount(userId);
             deferredResult.setResult(
                     ResponseEntity.ok(new ApiSuccessResponse<>(
-                            NotificationPollingResponse.createTimeoutResponse()
+                            NotificationPollingResponse.createTimeoutResponse(unreadCount)
                     ))
             );
         });

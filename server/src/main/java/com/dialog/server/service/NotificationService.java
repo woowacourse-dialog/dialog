@@ -180,6 +180,13 @@ public class NotificationService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public Long getUnreadCount(Long userId) {
+        User receiver = userRepository.findById(userId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        return notificationRepository.countByReceiverAndIsReadFalse(receiver);
+    }
+
     @Transactional
     public void updateNotificationAsRead(Long userId, Long notificationId) {
         User receiver = userRepository.findById(userId)

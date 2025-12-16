@@ -430,8 +430,6 @@ class NotificationServiceTest {
         );
     }
 
-    // ========== 페이징 조회 테스트 ==========
-
     @Test
     @DisplayName("알림 목록 페이징 조회 - 기본값으로 첫 페이지 조회 성공")
     void getNotificationPage_DefaultValues_Success() {
@@ -752,6 +750,92 @@ class NotificationServiceTest {
 
         // then
         assertThat(request.size()).isEqualTo(50);
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 성공")
+    void updateNotificationAsRead_Success() {
+        // given
+        Notification notification = Notification.builder()
+                .sender(anotherUser)
+                .receiver(testUser)
+                .type(NotificationType.DISCUSSION_COMMENT)
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+
+        // when
+        notificationService.updateNotificationAsRead(testUser.getId(), savedNotification.getId());
+
+        // then
+        Notification updatedNotification = notificationRepository.findById(savedNotification.getId()).orElseThrow();
+        assertThat(updatedNotification.isRead()).isTrue();
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 이미 읽은 알림 재처리 (멱등성)")
+    void updateNotificationAsRead_AlreadyRead_Success() {
+        // given
+        Notification notification = Notification.builder()
+                .sender(anotherUser)
+                .receiver(testUser)
+                .type(NotificationType.DISCUSSION_COMMENT)
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+        savedNotification.read();
+
+        // when
+        notificationService.updateNotificationAsRead(testUser.getId(), savedNotification.getId());
+
+        // then
+        Notification updatedNotification = notificationRepository.findById(savedNotification.getId()).orElseThrow();
+        assertThat(updatedNotification.isRead()).isTrue();
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 존재하지 않는 사용자")
+    void updateNotificationAsRead_UserNotFound() {
+        // given
+        Notification notification = Notification.builder()
+                .sender(anotherUser)
+                .receiver(testUser)
+                .type(NotificationType.DISCUSSION_COMMENT)
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+        Long nonExistentUserId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(nonExistentUserId, savedNotification.getId()))
+                .isInstanceOf(DialogException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 다른 사용자의 알림 접근 시도")
+    void updateNotificationAsRead_UnauthorizedAccess() {
+        // given
+        Notification notification = Notification.builder()
+                .sender(anotherUser)
+                .receiver(testUser)
+                .type(NotificationType.DISCUSSION_COMMENT)
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+
+        // when & then
+        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(anotherUser.getId(), savedNotification.getId()))
+                .isInstanceOf(DialogException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOTIFICATION_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 존재하지 않는 알림")
+    void updateNotificationAsRead_NotificationNotFound() {
+        // given
+        Long nonExistentNotificationId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(testUser.getId(), nonExistentNotificationId))
+                .isInstanceOf(DialogException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOTIFICATION_NOT_FOUND);
     }
 
     private List<Notification> createNotifications(User receiver, User sender, int count) {

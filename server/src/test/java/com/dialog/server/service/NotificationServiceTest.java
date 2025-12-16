@@ -838,6 +838,144 @@ class NotificationServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOTIFICATION_NOT_FOUND);
     }
 
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 성공")
+    void updateAllNotificationAsRead_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 10);
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository
+                .findAllByReceiverOrderByCreatedAtDesc(testUser, org.springframework.data.domain.PageRequest.of(0, 20))
+                .getContent();
+
+        assertAll(
+                () -> assertThat(updatedNotifications).hasSize(10),
+                () -> assertThat(updatedNotifications).allMatch(Notification::isRead),
+                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                        .isEqualTo(0L)
+        );
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 멱등성 (이미 모두 읽음)")
+    void updateAllNotificationAsRead_AlreadyAllRead_Idempotent() {
+        // given
+        List<Notification> notifications = createNotifications(testUser, anotherUser, 5);
+        notifications.forEach(Notification::read);
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                .isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 일부만 읽음 상태")
+    void updateAllNotificationAsRead_PartiallyRead_Success() {
+        // given
+        List<Notification> notifications = createNotifications(testUser, anotherUser, 10);
+        IntStream.range(0, 5).forEach(i -> notifications.get(i).read());
+
+        Long initialUnreadCount = notificationRepository.countByReceiverAndIsReadFalse(testUser);
+        assertThat(initialUnreadCount).isEqualTo(5L);
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                .isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 존재하지 않는 사용자")
+    void updateAllNotificationAsRead_UserNotFound() {
+        // given
+        Long nonExistentUserId = 999L;
+
+        // when & then
+        assertThatThrownBy(() -> notificationService.updateAllNotificationAsRead(nonExistentUserId))
+                .isInstanceOf(DialogException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 다른 사용자 알림 영향 없음")
+    void updateAllNotificationAsRead_OnlyUserNotifications_OtherUserUnaffected() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        createNotifications(anotherUser, testUser, 3);
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                        .isEqualTo(0L),
+                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(anotherUser))
+                        .isEqualTo(3L)
+        );
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 알림이 없는 경우")
+    void updateAllNotificationAsRead_NoNotifications_Success() {
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                .isEqualTo(0L);
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 활성 폴링 연결에 알림 전송")
+    void updateAllNotificationAsRead_NotifiesActivePollers() throws Exception {
+        // given
+        createNotifications(testUser, anotherUser, 10);
+
+        // testUser가 폴링 시작
+        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
+                = new DeferredResult<>(30_000L);
+        String sessionId = "test-session-bulk";
+        notificationService.pollNotifications(testUser.getId(), sessionId, null, deferredResult);
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        assertThat(deferredResult.hasResult()).isTrue();
+
+        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> response =
+                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
+        NotificationPollingResponse pollingResponse = response.getBody().data();
+
+        assertAll(
+                () -> assertThat(pollingResponse.unreadCount()).isEqualTo(0L),
+                () -> assertThat(pollingResponse.notifications()).isEmpty()
+        );
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 폴링 연결 없으면 예외 없이 성공")
+    void updateAllNotificationAsRead_NoActivePollers_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        // 폴링 연결 없음
+
+        // when & then
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() ->
+                notificationService.updateAllNotificationAsRead(testUser.getId())
+        );
+    }
+
     private List<Notification> createNotifications(User receiver, User sender, int count) {
         return IntStream.range(0, count)
                 .mapToObj(i -> {

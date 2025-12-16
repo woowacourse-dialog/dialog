@@ -60,7 +60,7 @@ public class NotificationController {
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
 
-    @PatchMapping("/{notificationId}/read")
+    @PatchMapping("/{notificationId}")
     public ResponseEntity<ApiSuccessResponse<Void>> updateNotificationAsRead(
             @AuthenticatedUserId Long userId,
             @PathVariable Long notificationId

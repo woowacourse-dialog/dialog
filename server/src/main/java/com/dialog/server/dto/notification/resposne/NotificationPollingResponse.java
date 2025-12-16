@@ -9,7 +9,7 @@ import java.util.List;
 public record NotificationPollingResponse(
         PollingStatus status,
         List<NotificationResponse> notifications,
-        Long isReadFalseCount
+        Long unreadCount
 ) {
     public static NotificationPollingResponse of(List<Notification> notifications, Long unreadCount) {
         List<NotificationResponse> notificationResponses = notifications.stream()
@@ -25,5 +25,9 @@ public record NotificationPollingResponse(
 
     public static NotificationPollingResponse createTimeoutResponse() {
         return new NotificationPollingResponse(PollingStatus.TIMEOUT, Collections.emptyList(), 0L);
+    }
+
+    public static NotificationPollingResponse createBulkReadResponse(Long unreadCount) {
+        return new NotificationPollingResponse(PollingStatus.NEW_NOTIFICATION, Collections.emptyList(), unreadCount);
     }
 }

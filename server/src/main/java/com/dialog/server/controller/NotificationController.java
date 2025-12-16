@@ -69,4 +69,13 @@ public class NotificationController {
 
         return ResponseEntity.ok(new ApiSuccessResponse<>(null));
     }
+
+    @PatchMapping("/all")
+    public ResponseEntity<ApiSuccessResponse<Void>> updateAllNotificationAsRead(
+        @AuthenticatedUserId Long userId
+    ) {
+        notificationService.updateAllNotificationAsRead(userId);
+
+        return ResponseEntity.ok(new ApiSuccessResponse<>(null));
+    }
 }

@@ -17,6 +17,7 @@ import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.MessagingTokenRepository;
 import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,7 +115,8 @@ public class NotificationService {
                 long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(user);
                 deferredResult.setResult(
                         ResponseEntity.ok(
-                                new ApiSuccessResponse<>(NotificationPollingResponse.of(missedNotifications, unreadCount))
+                                new ApiSuccessResponse<>(
+                                        NotificationPollingResponse.of(missedNotifications, unreadCount))
                         )
                 );
                 return;
@@ -149,29 +151,7 @@ public class NotificationService {
         Notification savedNotification = event.getNotification();
         Long unreadCount = event.getUnreadCount();
         User receiver = savedNotification.getReceiver();
-
-        List<String> connections = waitingRequests.keySet().stream()
-                .filter(key -> key.startsWith(receiver.getId().toString()))
-                .toList();
-
-        for (String connection : connections) {
-            try {
-                DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult = waitingRequests.get(connection);
-                if (deferredResult != null && !deferredResult.isSetOrExpired()) {
-                    deferredResult.setResult(
-                            ResponseEntity.ok(
-                                    new ApiSuccessResponse<>(NotificationPollingResponse.of(savedNotification, unreadCount))
-                            )
-                    );
-                }
-            } catch (Exception e) {
-                log.warn("알림 전송에 실패하였습니다. sender : {} receiver : {} type : {}",
-                        savedNotification.getSender().getId(),
-                        receiver.getId(),
-                        savedNotification.getType()
-                );
-            }
-        }
+        notifyToActivePollers(receiver.getId(), NotificationPollingResponse.of(savedNotification, unreadCount));
     }
 
     @Transactional(readOnly = true)
@@ -181,7 +161,8 @@ public class NotificationService {
 
         Pageable pageable = PageRequest.of(request.page(), request.size());
 
-        Page<Notification> notificationPage = notificationRepository.findAllByReceiverOrderByCreatedAtDesc(receiver, pageable);
+        Page<Notification> notificationPage = notificationRepository.findAllByReceiverOrderByCreatedAtDesc(receiver,
+                pageable);
 
         List<NotificationResponse> notificationResponses = notificationPage.getContent()
                 .stream()
@@ -208,5 +189,36 @@ public class NotificationService {
                 .orElseThrow(() -> new DialogException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         notification.read();
+    }
+
+    @Transactional
+    public void updateAllNotificationAsRead(Long userId) {
+        User receiver = userRepository.findById(userId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+
+        int updateCount = notificationRepository.bulkUpdateAsRead(receiver, LocalDateTime.now());
+
+        if (updateCount > 0) {
+            Long newUnreadCount = notificationRepository.countByReceiverAndIsReadFalse(receiver);
+            notifyToActivePollers(receiver.getId(), NotificationPollingResponse.createBulkReadResponse(newUnreadCount));
+        }
+    }
+
+    private void notifyToActivePollers(Long receiverId, NotificationPollingResponse response) {
+        List<String> connections = waitingRequests.keySet().stream()
+                .filter(key -> key.startsWith(receiverId.toString()))
+                .toList();
+
+        for (String connection : connections) {
+            DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult =
+                    waitingRequests.get(connection);
+
+            if (deferredResult != null && !deferredResult.isSetOrExpired()) {
+                deferredResult.setResult(
+                        ResponseEntity.ok(new ApiSuccessResponse<>(response))
+                );
+                waitingRequests.remove(connection);
+            }
+        }
     }
 }

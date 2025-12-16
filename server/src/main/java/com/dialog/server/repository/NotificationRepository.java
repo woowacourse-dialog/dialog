@@ -21,7 +21,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Optional<Notification> findByIdAndReceiver(Long notificationId, User receiver);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE Notification n SET n.isRead = true, n.modifiedAt = :now " +
             "WHERE n.receiver = :receiver AND n.isRead = false")
     int bulkUpdateAsRead(@Param("receiver") User receiver, @Param("now") LocalDateTime now);

@@ -33,6 +33,7 @@ import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.MessagingTokenRepository;
 import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -72,6 +73,9 @@ class NotificationServiceTest {
 
     @Autowired
     private DiscussionCommentService discussionCommentService;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @MockitoBean
     private FcmService fcmService;
@@ -846,6 +850,8 @@ class NotificationServiceTest {
 
         // when
         notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        entityManager.clear();
 
         // then
         List<Notification> updatedNotifications = notificationRepository

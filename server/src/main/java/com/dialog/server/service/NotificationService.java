@@ -8,11 +8,10 @@ import com.dialog.server.domain.User;
 import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
-import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
 import com.dialog.server.dto.notification.resposne.NotificationResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
 import com.dialog.server.event.NotificationCreatedEvent;
-import com.dialog.server.exception.ApiSuccessResponse;
+import com.dialog.server.event.NotificationsReadEvent;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.MessagingTokenRepository;
@@ -20,27 +19,19 @@ import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.web.context.request.async.DeferredResult;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class NotificationService {
-    private final Map<String, DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>>>
-            waitingRequests = new ConcurrentHashMap<>();
     private final MessagingTokenRepository messagingTokenRepository;
     private final UserRepository userRepository;
     private final FcmService fcmService;
@@ -100,39 +91,6 @@ public class NotificationService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public void pollNotifications(
-            Long userId,
-            String sessionId,
-            Long lastNotificationId,
-            DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
-    ) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-
-        if (lastNotificationId != null) {
-            List<Notification> missedNotifications = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
-                    user, lastNotificationId);
-            if (!missedNotifications.isEmpty()) {
-                long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(user);
-                deferredResult.setResult(
-                        ResponseEntity.ok(
-                                new ApiSuccessResponse<>(
-                                        NotificationPollingResponse.of(missedNotifications, unreadCount))
-                        )
-                );
-                return;
-            }
-        }
-
-        String connectionKey = createConnectionKey(user.getId(), sessionId);
-        deferredResult.onCompletion(() -> waitingRequests.remove(connectionKey));
-        waitingRequests.put(connectionKey, deferredResult);
-    }
-
-    private String createConnectionKey(Long userId, String sessionId) {
-        return userId + "_" + sessionId;
-    }
-
     @Transactional
     public void createAndPropagateNotification(User sender, User receiver, NotificationType type, RouteParams routeParams) {
         Notification notification = Notification.builder()
@@ -146,14 +104,6 @@ public class NotificationService {
         Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(receiver);
 
         eventPublisher.publishEvent(new NotificationCreatedEvent(savedNotification, unreadCount));
-    }
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotificationEvent(NotificationCreatedEvent event) {
-        Notification savedNotification = event.getNotification();
-        Long unreadCount = event.getUnreadCount();
-        User receiver = savedNotification.getReceiver();
-        notifyToActivePollers(receiver.getId(), NotificationPollingResponse.of(savedNotification, unreadCount));
     }
 
     @Transactional(readOnly = true)
@@ -209,25 +159,13 @@ public class NotificationService {
 
         if (updateCount > 0) {
             Long newUnreadCount = notificationRepository.countByReceiverAndIsReadFalse(receiver);
-            notifyToActivePollers(receiver.getId(), NotificationPollingResponse.createBulkReadResponse(newUnreadCount));
+            eventPublisher.publishEvent(new NotificationsReadEvent(userId, newUnreadCount));
         }
     }
 
-    private void notifyToActivePollers(Long receiverId, NotificationPollingResponse response) {
-        List<String> connections = waitingRequests.keySet().stream()
-                .filter(key -> key.startsWith(receiverId.toString()))
-                .toList();
-
-        for (String connection : connections) {
-            DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult =
-                    waitingRequests.get(connection);
-
-            if (deferredResult != null && !deferredResult.isSetOrExpired()) {
-                deferredResult.setResult(
-                        ResponseEntity.ok(new ApiSuccessResponse<>(response))
-                );
-                waitingRequests.remove(connection);
-            }
-        }
+    @Transactional(readOnly = true)
+    public List<Notification> findMissedNotifications(User user, Long lastNotificationId) {
+        return notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
+                user, lastNotificationId);
     }
 }

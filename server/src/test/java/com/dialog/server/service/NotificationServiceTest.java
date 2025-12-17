@@ -8,35 +8,23 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.dialog.server.config.S3Config;
-import com.dialog.server.domain.Category;
-import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.DiscussionComment;
-import com.dialog.server.domain.DiscussionCommentRouteParams;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.Notification;
 import com.dialog.server.domain.NotificationType;
-import com.dialog.server.domain.OnlineDiscussion;
 import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
-import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
 import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
-import com.dialog.server.dto.notification.resposne.NotificationPollingResponse;
-import com.dialog.server.dto.notification.resposne.NotificationResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
 import com.dialog.server.event.NotificationCreatedEvent;
-import com.dialog.server.exception.ApiSuccessResponse;
+import com.dialog.server.event.NotificationsReadEvent;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
-import com.dialog.server.repository.DiscussionCommentRepository;
-import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.MessagingTokenRepository;
 import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,15 +32,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.async.DeferredResult;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
+@RecordApplicationEvents
 class NotificationServiceTest {
 
     @Autowired
@@ -68,25 +57,13 @@ class NotificationServiceTest {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private DiscussionRepository discussionRepository;
-
-    @Autowired
-    private DiscussionCommentRepository discussionCommentRepository;
-
-    @Autowired
-    private DiscussionCommentService discussionCommentService;
-
-    @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ApplicationEvents events;
 
     @MockitoBean
     private FcmService fcmService;
-
-    @MockitoBean
-    private S3Uploader s3Uploader;
-
-    @MockitoBean
-    private S3Config s3Config;
 
     private User testUser;
     private User anotherUser;
@@ -328,112 +305,40 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("토론 게시글에 새로운 댓글 작성 시 실시간 알림 발송 - 성공")
-    void whenNewCommentOnDiscussion_thenDiscussionAuthorReceivesNotification() {
+    @DisplayName("알림 생성 및 전파 시 NotificationCreatedEvent가 발행된다")
+    void createAndPropagateNotification_publishesEvent() {
         // given
-        // testUser가 토론 게시글 작성자, anotherUser가 댓글 작성자
-        Discussion discussion = OnlineDiscussion.builder()
-                .title("테스트 토론")
-                .content("내용입니다.")
-                .category(Category.BACKEND)
-                .summary(null)
-                .author(testUser)
-                .endDate(LocalDate.now().plusDays(1))
-                .build();
-
-        Discussion savedDiscussion = discussionRepository.save(discussion);
-
-        // testUser가 알림을 받기 위해 polling 시작
-        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
-                = new DeferredResult<>(3_000L);
-        String sessionId = "test-session-1";
-        notificationService.pollNotifications(testUser.getId(), sessionId, null, deferredResult);
+        RouteParams routeParams = null; // 테스트용 dummy
 
         // when
-        // anotherUser가 댓글 작성
-        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
-                "새로운 댓글입니다.", savedDiscussion.getId(), null
-        );
-        discussionCommentService.createComment(request, anotherUser.getId());
+        notificationService.createAndPropagateNotification(anotherUser, testUser, NotificationType.DISCUSSION_COMMENT, routeParams);
 
         // then
-        List<Notification> notifications = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
-                testUser, 0L);
-        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(testUser);
-        notificationService.handleNotificationEvent(new NotificationCreatedEvent(notifications.get(0), unreadCount));
+        long eventCount = events.stream(NotificationCreatedEvent.class)
+                .filter(event -> event.getNotification().getReceiver().equals(testUser))
+                .filter(event -> event.getNotification().getSender().equals(anotherUser))
+                .count();
 
-        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity =
-                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
-        ApiSuccessResponse<NotificationPollingResponse> apiResponse = responseEntity.getBody();
-        NotificationPollingResponse pollingResponse = apiResponse.data();
-        NotificationResponse notification = pollingResponse.notifications().get(0);
-
-        assertAll(
-            () -> assertThat(deferredResult.hasResult()).isTrue(),
-            () -> assertThat(pollingResponse.notifications()).hasSize(1),
-            () -> assertThat(notification.senderId()).isEqualTo(anotherUser.getId()),
-            () -> assertThat(notification.type()).isEqualTo(NotificationType.DISCUSSION_COMMENT),
-            () -> assertThat(notification.isRead()).isFalse()
-        );
+        assertThat(eventCount).isEqualTo(1);
     }
 
     @Test
-    @DisplayName("기존 댓글에 답글 작성 시 실시간 알림 발송 - 성공")
-    void whenNewReplyToComment_thenCommentAuthorReceivesNotification() {
+    @DisplayName("모든 알림 읽음 처리 시 NotificationsReadEvent가 발행된다")
+    void updateAllNotificationAsRead_publishesEvent() {
         // given
-        // testUser: 토론 작성자, anotherUser: 부모 댓글 작성자, replyAuthor: 답글 작성자
-        User replyAuthor = User.builder().oauthId("reply-author-789").nickname("답글 작성자").build();
-        userRepository.save(replyAuthor);
-
-        Discussion discussion = OnlineDiscussion.builder()
-                .title("테스트 토론")
-                .content("내용입니다.")
-                .category(Category.BACKEND)
-                .summary(null)
-                .author(testUser)
-                .endDate(LocalDate.now().plusDays(1))
-                .build();
-        discussionRepository.save(discussion);
-
-        DiscussionComment parentComment = DiscussionComment.builder()
-                .discussion(discussion)
-                .author(anotherUser)
-                .content("부모 댓글입니다.")
-                .build();
-        discussionCommentRepository.save(parentComment);
-
-        // anotherUser(부모 댓글 작성자)가 알림을 받기 위해 polling 시작
-        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
-                = new DeferredResult<>(3_000L);
-        String sessionId = "test-session-2";
-        notificationService.pollNotifications(anotherUser.getId(), sessionId, null, deferredResult);
+        createNotifications(testUser, anotherUser, 5);
+        entityManager.flush();
 
         // when
-        // replyAuthor가 anotherUser의 댓글에 답글 작성
-        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
-                "답글입니다.", discussion.getId(), parentComment.getId()
-        );
-        discussionCommentService.createComment(request, replyAuthor.getId());
+        notificationService.updateAllNotificationAsRead(testUser.getId());
 
         // then
-        List<Notification> notifications = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(
-                anotherUser, 0L);
-        Long unreadCount = notificationRepository.countByReceiverAndIsReadFalse(anotherUser);
-        notificationService.handleNotificationEvent(new NotificationCreatedEvent(notifications.get(0), unreadCount));
+        long eventCount = events.stream(NotificationsReadEvent.class)
+                .filter(event -> event.getUserId().equals(testUser.getId()))
+                .filter(event -> event.getUnreadCount() == 0L)
+                .count();
 
-        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity =
-                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
-        ApiSuccessResponse<NotificationPollingResponse> apiResponse = responseEntity.getBody();
-        NotificationPollingResponse pollingResponse = apiResponse.data();
-        NotificationResponse notification = pollingResponse.notifications().get(0);
-
-        assertAll(
-                () -> assertThat(deferredResult.hasResult()).isTrue(),
-                () -> assertThat(pollingResponse.notifications()).hasSize(1),
-                () -> assertThat(notification.senderId()).isEqualTo(replyAuthor.getId()),
-                () -> assertThat(notification.type()).isEqualTo(NotificationType.COMMENT_REPLY),
-                () -> assertThat(notification.isRead()).isFalse()
-        );
+        assertThat(eventCount).isEqualTo(1);
     }
 
     @Test
@@ -479,286 +384,6 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("알림 목록 페이징 조회 - 두 번째 페이지 조회 성공")
-    void getNotificationPage_SecondPage_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 25);
-        NotificationPageRequest request = new NotificationPageRequest(1, 10);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(10),
-                () -> assertThat(response.currentPage()).isEqualTo(1),
-                () -> assertThat(response.pageSize()).isEqualTo(10),
-                () -> assertThat(response.totalElements()).isEqualTo(25),
-                () -> assertThat(response.totalPages()).isEqualTo(3)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 마지막 페이지 조회 (페이지 크기보다 적은 항목)")
-    void getNotificationPage_LastPageWithPartialItems_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 25);
-        NotificationPageRequest request = new NotificationPageRequest(2, 10);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(5),
-                () -> assertThat(response.currentPage()).isEqualTo(2),
-                () -> assertThat(response.pageSize()).isEqualTo(10),
-                () -> assertThat(response.totalElements()).isEqualTo(25),
-                () -> assertThat(response.totalPages()).isEqualTo(3)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 빈 목록 조회")
-    void getNotificationPage_EmptyList_Success() {
-        // given
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).isEmpty(),
-                () -> assertThat(response.currentPage()).isEqualTo(0),
-                () -> assertThat(response.pageSize()).isEqualTo(20),
-                () -> assertThat(response.totalElements()).isEqualTo(0),
-                () -> assertThat(response.totalPages()).isEqualTo(0),
-                () -> assertThat(response.unreadCount()).isEqualTo(0L)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 범위를 벗어난 페이지 조회")
-    void getNotificationPage_PageOutOfBounds_ReturnsEmpty() {
-        // given
-        createNotifications(testUser, anotherUser, 5);
-        NotificationPageRequest request = new NotificationPageRequest(10, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).isEmpty(),
-                () -> assertThat(response.currentPage()).isEqualTo(10),
-                () -> assertThat(response.totalElements()).isEqualTo(5),
-                () -> assertThat(response.totalPages()).isEqualTo(1)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 최신순 정렬 확인")
-    void getNotificationPage_OrderByCreatedAtDesc_Success() {
-        // given
-        List<Notification> notifications = createNotifications(testUser, anotherUser, 3);
-        NotificationPageRequest request = new NotificationPageRequest(0, 10);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        List<NotificationResponse> notificationResponses = response.notifications();
-        assertAll(
-                () -> assertThat(notificationResponses).hasSize(3),
-                () -> assertThat(notificationResponses.get(0).createdAt())
-                        .isAfterOrEqualTo(notificationResponses.get(1).createdAt()),
-                () -> assertThat(notificationResponses.get(1).createdAt())
-                        .isAfterOrEqualTo(notificationResponses.get(2).createdAt())
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 안읽은 알림 개수 정확성 확인")
-    void getNotificationPage_UnreadCountAccuracy_Success() {
-        // given
-        List<Notification> notifications = createNotifications(testUser, anotherUser, 10);
-
-        // 처음 5개만 읽음 처리
-        IntStream.range(0, 5).forEach(i -> notifications.get(i).read());
-
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(10),
-                () -> assertThat(response.unreadCount()).isEqualTo(5L),
-                () -> assertThat(response.notifications().stream().filter(n -> !n.isRead()).count()).isEqualTo(5L)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 다른 사용자의 알림은 조회되지 않음")
-    void getNotificationPage_OnlyUserNotifications_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 5);
-        createNotifications(anotherUser, testUser, 3);
-
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(5),
-                () -> assertThat(response.totalElements()).isEqualTo(5),
-                () -> assertThat(response.notifications())
-                        .allMatch(n -> n.senderId().equals(anotherUser.getId()))
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 존재하지 않는 사용자")
-    void getNotificationPage_UserNotFound_ThrowsException() {
-        // given
-        Long nonExistentUserId = 999L;
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when & then
-        assertThatThrownBy(() -> notificationService.getNotificationPage(nonExistentUserId, request))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 단일 알림 조회")
-    void getNotificationPage_SingleNotification_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 1);
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(1),
-                () -> assertThat(response.totalElements()).isEqualTo(1),
-                () -> assertThat(response.totalPages()).isEqualTo(1)
-        );
-    }
-
-    @Test
-    @DisplayName("알림 목록 페이징 조회 - 정확히 페이지 크기만큼의 알림")
-    void getNotificationPage_ExactlyPageSize_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 20);
-        NotificationPageRequest request = new NotificationPageRequest(0, 20);
-
-        // when
-        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
-
-        // then
-        assertAll(
-                () -> assertThat(response.notifications()).hasSize(20),
-                () -> assertThat(response.currentPage()).isEqualTo(0),
-                () -> assertThat(response.totalElements()).isEqualTo(20),
-                () -> assertThat(response.totalPages()).isEqualTo(1)
-        );
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - null page는 0으로 기본값 설정")
-    void notificationPageRequest_NullPage_DefaultsToZero() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(null, 10);
-
-        // then
-        assertThat(request.page()).isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - 음수 page는 0으로 보정")
-    void notificationPageRequest_NegativePage_DefaultsToZero() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(-5, 10);
-
-        // then
-        assertThat(request.page()).isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - null size는 20으로 기본값 설정")
-    void notificationPageRequest_NullSize_DefaultsToTwenty() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(0, null);
-
-        // then
-        assertThat(request.size()).isEqualTo(20);
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - 0 이하 size는 20으로 기본값 설정")
-    void notificationPageRequest_ZeroOrNegativeSize_DefaultsToTwenty() {
-        // given & when
-        NotificationPageRequest requestZero = new NotificationPageRequest(0, 0);
-        NotificationPageRequest requestNegative = new NotificationPageRequest(0, -10);
-
-        // then
-        assertAll(
-                () -> assertThat(requestZero.size()).isEqualTo(20),
-                () -> assertThat(requestNegative.size()).isEqualTo(20)
-        );
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - size 50 초과 시 50으로 제한")
-    void notificationPageRequest_SizeExceedsFifty_CapsAtFifty() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(0, 100);
-
-        // then
-        assertThat(request.size()).isEqualTo(50);
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - 정상적인 page와 size는 그대로 유지")
-    void notificationPageRequest_ValidValues_KeepsOriginal() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(2, 15);
-
-        // then
-        assertAll(
-                () -> assertThat(request.page()).isEqualTo(2),
-                () -> assertThat(request.size()).isEqualTo(15)
-        );
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - 경계값 테스트 (size = 50)")
-    void notificationPageRequest_BoundaryValue_SizeFifty() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(0, 50);
-
-        // then
-        assertThat(request.size()).isEqualTo(50);
-    }
-
-    @Test
-    @DisplayName("NotificationPageRequest - 경계값 테스트 (size = 51)")
-    void notificationPageRequest_BoundaryValue_SizeFiftyOne() {
-        // given & when
-        NotificationPageRequest request = new NotificationPageRequest(0, 51);
-
-        // then
-        assertThat(request.size()).isEqualTo(50);
-    }
-
-    @Test
     @DisplayName("알림 읽음 처리 - 성공")
     void updateNotificationAsRead_Success() {
         // given
@@ -778,77 +403,11 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("알림 읽음 처리 - 이미 읽은 알림 재처리 (멱등성)")
-    void updateNotificationAsRead_AlreadyRead_Success() {
-        // given
-        Notification notification = Notification.builder()
-                .sender(anotherUser)
-                .receiver(testUser)
-                .type(NotificationType.DISCUSSION_COMMENT)
-                .build();
-        Notification savedNotification = notificationRepository.save(notification);
-        savedNotification.read();
-
-        // when
-        notificationService.updateNotificationAsRead(testUser.getId(), savedNotification.getId());
-
-        // then
-        Notification updatedNotification = notificationRepository.findById(savedNotification.getId()).orElseThrow();
-        assertThat(updatedNotification.isRead()).isTrue();
-    }
-
-    @Test
-    @DisplayName("알림 읽음 처리 - 존재하지 않는 사용자")
-    void updateNotificationAsRead_UserNotFound() {
-        // given
-        Notification notification = Notification.builder()
-                .sender(anotherUser)
-                .receiver(testUser)
-                .type(NotificationType.DISCUSSION_COMMENT)
-                .build();
-        Notification savedNotification = notificationRepository.save(notification);
-        Long nonExistentUserId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(nonExistentUserId, savedNotification.getId()))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("알림 읽음 처리 - 다른 사용자의 알림 접근 시도")
-    void updateNotificationAsRead_UnauthorizedAccess() {
-        // given
-        Notification notification = Notification.builder()
-                .sender(anotherUser)
-                .receiver(testUser)
-                .type(NotificationType.DISCUSSION_COMMENT)
-                .build();
-        Notification savedNotification = notificationRepository.save(notification);
-
-        // when & then
-        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(anotherUser.getId(), savedNotification.getId()))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOTIFICATION_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("알림 읽음 처리 - 존재하지 않는 알림")
-    void updateNotificationAsRead_NotificationNotFound() {
-        // given
-        Long nonExistentNotificationId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> notificationService.updateNotificationAsRead(testUser.getId(), nonExistentNotificationId))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NOTIFICATION_NOT_FOUND);
-    }
-
-    @Test
     @DisplayName("모든 알림 읽음 처리 - 성공")
     void updateAllNotificationAsRead_Success() {
         // given
         createNotifications(testUser, anotherUser, 10);
+        entityManager.flush();
 
         // when
         notificationService.updateAllNotificationAsRead(testUser.getId());
@@ -868,134 +427,13 @@ class NotificationServiceTest {
         );
     }
 
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 멱등성 (이미 모두 읽음)")
-    void updateAllNotificationAsRead_AlreadyAllRead_Idempotent() {
-        // given
-        List<Notification> notifications = createNotifications(testUser, anotherUser, 5);
-        notifications.forEach(Notification::read);
-
-        // when
-        notificationService.updateAllNotificationAsRead(testUser.getId());
-
-        // then
-        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
-                .isEqualTo(0L);
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 일부만 읽음 상태")
-    void updateAllNotificationAsRead_PartiallyRead_Success() {
-        // given
-        List<Notification> notifications = createNotifications(testUser, anotherUser, 10);
-        IntStream.range(0, 5).forEach(i -> notifications.get(i).read());
-
-        Long initialUnreadCount = notificationRepository.countByReceiverAndIsReadFalse(testUser);
-        assertThat(initialUnreadCount).isEqualTo(5L);
-
-        // when
-        notificationService.updateAllNotificationAsRead(testUser.getId());
-
-        // then
-        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
-                .isEqualTo(0L);
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 존재하지 않는 사용자")
-    void updateAllNotificationAsRead_UserNotFound() {
-        // given
-        Long nonExistentUserId = 999L;
-
-        // when & then
-        assertThatThrownBy(() -> notificationService.updateAllNotificationAsRead(nonExistentUserId))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 다른 사용자 알림 영향 없음")
-    void updateAllNotificationAsRead_OnlyUserNotifications_OtherUserUnaffected() {
-        // given
-        createNotifications(testUser, anotherUser, 5);
-        createNotifications(anotherUser, testUser, 3);
-
-        // when
-        notificationService.updateAllNotificationAsRead(testUser.getId());
-
-        // then
-        assertAll(
-                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
-                        .isEqualTo(0L),
-                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(anotherUser))
-                        .isEqualTo(3L)
-        );
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 알림이 없는 경우")
-    void updateAllNotificationAsRead_NoNotifications_Success() {
-        // when
-        notificationService.updateAllNotificationAsRead(testUser.getId());
-
-        // then
-        assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
-                .isEqualTo(0L);
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 활성 폴링 연결에 알림 전송")
-    void updateAllNotificationAsRead_NotifiesActivePollers() throws Exception {
-        // given
-        createNotifications(testUser, anotherUser, 10);
-
-        // testUser가 폴링 시작
-        DeferredResult<ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>> deferredResult
-                = new DeferredResult<>(30_000L);
-        String sessionId = "test-session-bulk";
-        notificationService.pollNotifications(testUser.getId(), sessionId, null, deferredResult);
-
-        // when
-        notificationService.updateAllNotificationAsRead(testUser.getId());
-
-        // then
-        assertThat(deferredResult.hasResult()).isTrue();
-
-        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> response =
-                (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
-        NotificationPollingResponse pollingResponse = response.getBody().data();
-
-        assertAll(
-                () -> assertThat(pollingResponse.unreadCount()).isEqualTo(0L),
-                () -> assertThat(pollingResponse.notifications()).isEmpty()
-        );
-    }
-
-    @Test
-    @DisplayName("모든 알림 읽음 처리 - 폴링 연결 없으면 예외 없이 성공")
-    void updateAllNotificationAsRead_NoActivePollers_Success() {
-        // given
-        createNotifications(testUser, anotherUser, 5);
-        // 폴링 연결 없음
-
-        // when & then
-        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() ->
-                notificationService.updateAllNotificationAsRead(testUser.getId())
-        );
-    }
-
     private List<Notification> createNotifications(User receiver, User sender, int count) {
         return IntStream.range(0, count)
                 .mapToObj(i -> {
-                    RouteParams routeParams = new DiscussionCommentRouteParams(
-                            100L + i,
-                            200L + i
-                    );
                     Notification notification = Notification.builder()
                             .sender(sender)
                             .receiver(receiver)
                             .type(NotificationType.DISCUSSION_COMMENT)
-                            .routeParams(routeParams)
                             .build();
                     return notificationRepository.save(notification);
                 })

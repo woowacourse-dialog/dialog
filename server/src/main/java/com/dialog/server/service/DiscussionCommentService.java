@@ -66,7 +66,8 @@ public class DiscussionCommentService {
         DiscussionComment savedComment = discussionCommentRepository.save(comment);
 
         if (parentComment != null && parentComment.isNotAuthor(authorId)) {
-            RouteParams routeParams = new CommentReplyRouteParams(parentComment.getId(), savedComment.getId());
+            RouteParams routeParams = new CommentReplyRouteParams(discussion.getId(), parentComment.getId(),
+                    savedComment.getId());
             notificationService.createAndPropagateNotification(
                     author,
                     parentComment.getAuthor(),
@@ -76,7 +77,7 @@ public class DiscussionCommentService {
         }
 
         if (parentComment == null && discussion.isNotAuthor(authorId)) {
-            RouteParams routeParams = new DiscussionCommentRouteParams(discussion.getId(),savedComment.getId());
+            RouteParams routeParams = new DiscussionCommentRouteParams(discussion.getId(), savedComment.getId());
             notificationService.createAndPropagateNotification(
                     author,
                     discussion.getAuthor(),

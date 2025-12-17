@@ -3,6 +3,7 @@ package com.dialog.server.service;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.Notification;
 import com.dialog.server.domain.NotificationType;
+import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
@@ -133,11 +134,12 @@ public class NotificationService {
     }
 
     @Transactional
-    public void createAndPropagateNotification(User sender, User receiver, NotificationType type) {
+    public void createAndPropagateNotification(User sender, User receiver, NotificationType type, RouteParams routeParams) {
         Notification notification = Notification.builder()
                 .sender(sender)
                 .receiver(receiver)
                 .type(type)
+                .routeParams(routeParams)
                 .build();
 
         Notification savedNotification = notificationRepository.save(notification);

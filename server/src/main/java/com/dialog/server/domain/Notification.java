@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @AllArgsConstructor
@@ -39,14 +41,18 @@ public class Notification extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    private RouteParams routeParams;
+
     @Column(name = "is_read")
     private boolean isRead;
 
     @Builder
-    private Notification(User sender, User receiver, NotificationType type) {
+    private Notification(User sender, User receiver, NotificationType type, RouteParams routeParams) {
         this.sender = sender;
         this.receiver = receiver;
         this.type = type;
+        this.routeParams = routeParams;
         this.isRead = false;
     }
 

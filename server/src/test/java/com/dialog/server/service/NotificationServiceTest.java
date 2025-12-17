@@ -12,10 +12,12 @@ import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.Category;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.DiscussionCommentRouteParams;
 import com.dialog.server.domain.MessagingToken;
 import com.dialog.server.domain.Notification;
 import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.OnlineDiscussion;
+import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.notification.request.NotificationPageRequest;
@@ -985,10 +987,15 @@ class NotificationServiceTest {
     private List<Notification> createNotifications(User receiver, User sender, int count) {
         return IntStream.range(0, count)
                 .mapToObj(i -> {
+                    RouteParams routeParams = new DiscussionCommentRouteParams(
+                            100L + i,
+                            200L + i
+                    );
                     Notification notification = Notification.builder()
                             .sender(sender)
                             .receiver(receiver)
                             .type(NotificationType.DISCUSSION_COMMENT)
+                            .routeParams(routeParams)
                             .build();
                     return notificationRepository.save(notification);
                 })

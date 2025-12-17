@@ -14,16 +14,11 @@ import pageStyles from './discussion/search/SearchResultPage.module.css';
 const DEFAULT_PAGE_SIZE = 10;
 
 const Home = () => {
-  const { isLoggedIn, checkLoginStatus } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { showGuideModal, setShowGuideModal } = useNotification(isLoggedIn);
   const navigate = useNavigate();
   const loaderRef = useRef(null);
   const [searchParams] = useSearchParams();
-
-  useEffect(() => {
-    checkLoginStatus();
-    // eslint-disable-next-line
-  }, []);
 
   // URL에서 필터 파라미터 추출
   const categories = searchParams.get('categories')?.split(',').filter(Boolean) || [];

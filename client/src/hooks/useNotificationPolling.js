@@ -149,20 +149,26 @@ const useNotificationPolling = (isLoggedIn) => {
     // infinite loop when lastNotificationId updates
     useEffect(() => {
         if (isLoggedIn) {
-            const controller = { cancelled: false };
-            activePollController.current = controller;
-            poll(controller);
+            // Start polling with a small delay to avoid conflicts with StrictMode double mounting
+            const timeoutId = setTimeout(() => {
+                const controller = { cancelled: false };
+                activePollController.current = controller;
+                poll(controller);
+            }, 100);
+
+            return () => {
+                // Clear the timeout if component unmounts before polling starts
+                clearTimeout(timeoutId);
+                // Cancel the polling logic
+                if (activePollController.current) {
+                    activePollController.current.cancelled = true;
+                }
+                // Abort the actual HTTP request
+                if (abortControllerRef.current) {
+                    abortControllerRef.current.abort();
+                }
+            };
         }
-        return () => {
-            // Cancel the polling logic
-            if (activePollController.current) {
-                activePollController.current.cancelled = true;
-            }
-            // Abort the actual HTTP request
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoggedIn]);
 

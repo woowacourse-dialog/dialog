@@ -1,5 +1,15 @@
 import api from './axios';
+import axios from 'axios';
 
+// Create a separate axios instance for long-polling with extended timeout
+const pollingApi = axios.create({
+    baseURL: `${import.meta.env.VITE_API_URL}/api`,
+    timeout: 45000, // 45 seconds timeout for long polling (server timeout is 30s)
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true
+});
 
 export const getNotificationPage = async (page = 0, size = 10) => {
     const response = await api.get('/notifications/me', {
@@ -13,9 +23,8 @@ export const getPollingNotifications = async (lastNotificationId, sessionId, sig
         ...(lastNotificationId && { lastNotificationId }),
         sessionId
     };
-    const response = await api.get('/notifications/polling', {
+    const response = await pollingApi.get('/notifications/polling', {
         params,
-        timeout: 45000, // 45 seconds timeout to allow long polling (server timeout is 30s)
         signal // AbortSignal to cancel request on unmount
     });
     return response.data;

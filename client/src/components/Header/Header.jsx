@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import dialogIcon from '../../assets/favicon_navy.ico'
 import githubLogo from '../../assets/github-mark-white.svg';
@@ -8,17 +7,10 @@ import useNotificationPolling from '../../hooks/useNotificationPolling';
 import NotificationDropdown from '../Notification/NotificationDropdown';
 import './Header.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
 const GITHUB_AUTH_URL = import.meta.env.VITE_GITHUB_AUTH_URL;
 
-// axios 인스턴스 생성
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true
-});
-
 const Header = () => {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const { unreadCount, notifications, markAsRead, markAllAsRead, loadMore, hasMore, isLoading } = useNotificationPolling(isLoggedIn);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -31,20 +23,9 @@ const Header = () => {
     navigate('/mypage');
   };
 
-  const handleMyDiscussions = () => {
-    navigate('/discussion/my');
-  };
-
   const handleLogout = async () => {
-    try {
-      const response = await api.delete('/api/logout');
-      if (response.status === 200) {
-        setIsLoggedIn(false);
-        navigate('/');
-      }
-    } catch (error) {
-      console.error('Failed to logout:', error);
-    }
+    await logout();
+    navigate('/');
   };
 
   const toggleNotifications = () => {

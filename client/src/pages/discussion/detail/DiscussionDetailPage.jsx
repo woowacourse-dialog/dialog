@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MarkdownRender from '../../../components/Markdown/MarkdownRender';
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import Header from '../../../components/Header/Header';
 import CommentList from '../../../components/Comment/CommentList';
 import DiscussionSummary from '../../../components/DiscussionSummary/DiscussionSummary';
 import { getDiscussionStatusWithLabel, getDiscussionStatusStyle } from '../../../utils/discussionStatus';
@@ -13,7 +12,7 @@ import { findDiscussionById, participateDiscussion, deleteDiscussion, isParticip
 import { scrapDiscussion, deleteScrapDiscussion, getScrapStatus } from '../../../api/scrap';
 import { likeDiscussion, deleteLikeDiscussion, getLikeStatus } from '../../../api/like';
 
-import useMe from '../../../hooks/useMe';
+import { useAuth } from '../../../context/AuthContext';
 
 const TRACKS = [
   { id: 'FRONTEND', name: '프론트엔드' },
@@ -40,7 +39,7 @@ const DiscussionDetailPage = () => {
   const navigate = useNavigate();
   const hasFetched = useRef(false);
   const { id } = useParams();
-  const { me } = useMe();
+  const { currentUser: me } = useAuth();
   const [discussion, setDiscussion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isParticipating, setIsParticipating] = useState(false);
@@ -216,7 +215,6 @@ const DiscussionDetailPage = () => {
 
   return (
     <div className="discussion-detail-page">
-      <Header />
       <div className="discussion-detail-container">
         <div className="discussion-detail-wrapper">
           <div className="discussion-detail-header">

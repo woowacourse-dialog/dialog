@@ -1,8 +1,10 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './NotificationDropdown.css';
 
 const NotificationDropdown = ({ notifications, onRead, onReadAll, onClose, onLoadMore, hasMore, isLoading }) => {
     const listRef = useRef(null);
+    const navigate = useNavigate();
 
     const handleScroll = () => {
         if (listRef.current) {
@@ -13,9 +15,23 @@ const NotificationDropdown = ({ notifications, onRead, onReadAll, onClose, onLoa
         }
     };
 
-    const handleRead = (e, id) => {
+    const handleNotificationClick = (e, notification) => {
         e.stopPropagation();
-        onRead(id);
+        onRead(notification.id);
+
+        const { routeParams } = notification;
+        if (routeParams) {
+            const { type, discussionId, discussionCommentId, replyId } = routeParams;
+            if ((type === 'DISCUSSION_COMMENT' || type === 'COMMENT_REPLY') && discussionId) {
+                let path = `/discussion/${discussionId}`;
+                const targetCommentId = type === 'COMMENT_REPLY' ? replyId : discussionCommentId;
+                if (targetCommentId) {
+                    path += `#comment-${targetCommentId}`;
+                }
+                navigate(path);
+                onClose();
+            }
+        }
     };
 
     const handleReadAll = (e) => {
@@ -45,7 +61,7 @@ const NotificationDropdown = ({ notifications, onRead, onReadAll, onClose, onLoa
                         <div
                             key={notification.id}
                             className={`notification-item ${notification.isRead ? 'read' : 'unread'}`}
-                            onClick={(e) => handleRead(e, notification.id)}
+                            onClick={(e) => handleNotificationClick(e, notification)}
                         >
                             <div className="notification-message">{notification.message}</div>
                             <div className="notification-date">

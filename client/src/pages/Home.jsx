@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Header from '../components/Header/Header';
 import SearchBar from '../components/SearchBar';
 import DiscussionList from '../components/DiscussionList';
 import NoticeButton from '../components/Notice/NoticeButton';
@@ -10,7 +9,7 @@ import NotificationGuideModal from '../components/NotificationGuideModal/Notific
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DiscussionFilterBar from '../components/DiscussionFilterBar';
 import pageStyles from './discussion/search/SearchResultPage.module.css';
-import useMe from '../hooks/useMe';
+
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -135,7 +134,6 @@ const Home = () => {
 
   return (
     <>
-      <Header />
       <div style={{ marginTop: 64, maxWidth: 1200, margin: '64px auto 0', padding: '0 20px' }}>
         <SearchBar onSearch={handleSearch} />
         <DiscussionFilterBar

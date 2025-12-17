@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Header from '../../../components/Header/Header';
 import slackLogo from '../../../assets/slack-logo.svg';
 import discordLogo from '../../../assets/discord-logo.svg';
 
@@ -49,7 +48,7 @@ const DiscussionCreateCompletePage = () => {
   const trackNameFromState = location?.state?.trackName || '';
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(null);
-  const [activeCountdownPlatform, setActiveCountdownPlatform] = useState(null); // 'slack' or 'discord'
+  const [activeCountdownPlatform, setActiveCountdownPlatform] = useState(null); // 'slack' or 'discord' 
   const [hasOpenedSlack, setHasOpenedSlack] = useState(false);
   const [hasOpenedDiscord, setHasOpenedDiscord] = useState(false);
   const timerRef = useRef(null);
@@ -180,7 +179,6 @@ const DiscussionCreateCompletePage = () => {
 
   return (
     <div className="discussion-create-page">
-      <Header />
       <div className="discussion-create-container">
         <div className="discussion-create-form">
           <h1>작성 완료</h1>

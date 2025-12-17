@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Header from '../../components/Header/Header';
 import axios from 'axios';
 import './MyPage.css';
 import { useNavigate } from 'react-router-dom';
@@ -197,7 +196,6 @@ const MyPage = () => {
 
   return (
     <div className="mypage-container">
-      <Header />
       <div className="mypage-content" style={{ background: '#fff', padding: '2rem 0' }}>
         {/* <h1>마이페이지</h1> */}
         {loading ? (

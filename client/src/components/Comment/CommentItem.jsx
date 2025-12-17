@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
 import { updateComment, deleteComment } from '../../api/discussion';
-import useMe from '../../hooks/useMe';
+import { useAuth } from '../../context/AuthContext';
 import { formatCommentDate } from '../../utils/dateUtils';
 import './CommentItem.css';
 
@@ -27,7 +27,7 @@ const CommentItem = ({
   depth = 0,
   discussionId
 }) => {
-  const { me } = useMe();
+  const { currentUser: me } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -90,7 +90,7 @@ const CommentItem = ({
   };
 
   return (
-    <div className={`comment-item ${depth > 0 ? 'comment-reply' : ''}`}>
+    <div id={`comment-${comment.discussionCommentId}`} className={`comment-item ${depth > 0 ? 'comment-reply' : ''}`}>
       <div className="comment-content">
         <div className="comment-header">
           <div className="comment-author">

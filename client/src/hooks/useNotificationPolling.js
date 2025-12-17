@@ -11,11 +11,20 @@ const useNotificationPolling = (isLoggedIn) => {
 
     const isPollingRef = useRef(false);
     const sessionIdRef = useRef(crypto.randomUUID());
+    const activePollController = useRef(null);
+    const abortControllerRef = useRef(null);
 
     // Initial load
     useEffect(() => {
         if (isLoggedIn) {
             loadInitialNotifications();
+        } else {
+            // Reset state on logout
+            setNotifications([]);
+            setUnreadCount(0);
+            setLastNotificationId(null);
+            setPage(0);
+            setHasMore(true);
         }
     }, [isLoggedIn]);
 
@@ -24,23 +33,20 @@ const useNotificationPolling = (isLoggedIn) => {
             setIsLoading(true);
             const response = await getNotificationPage(0, 10);
 
-            // Guard clause: check if response and response.data exist
             if (!response || !response.data) {
                 console.warn('Invalid response from getNotificationPage:', response);
                 return;
             }
 
             const data = response.data;
-            setNotifications(data.notifications || []); // Default to empty array
+            setNotifications(data.notifications || []);
             setUnreadCount(data.unreadCount || 0);
             setPage(1);
 
-            // Safe access to pagination info
             const currentPage = data.currentPage || 0;
             const totalPages = data.totalPages || 0;
             setHasMore(currentPage < totalPages - 1);
 
-            // Update lastNotificationId for polling
             if (data.notifications && data.notifications.length > 0) {
                 const newestId = Math.max(...data.notifications.map(n => n.id));
                 setLastNotificationId(newestId);
@@ -83,22 +89,31 @@ const useNotificationPolling = (isLoggedIn) => {
     };
 
     // Polling function
-    const poll = useCallback(async () => {
-        if (!isLoggedIn || isPollingRef.current) return;
+    const poll = useCallback(async (controller) => {
+        if (!isLoggedIn || isPollingRef.current || controller.cancelled) return;
 
         isPollingRef.current = true;
+
+        // Create new AbortController for this polling request
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+
         try {
-            const response = await getPollingNotifications(lastNotificationId, sessionIdRef.current);
+            const response = await getPollingNotifications(
+                lastNotificationId,
+                sessionIdRef.current,
+                abortController.signal
+            );
+
+            if (controller.cancelled) return;
 
             if (response && response.data) {
                 const data = response.data;
 
-                // 항상 unreadCount 업데이트
                 if (data.unreadCount !== undefined) {
                     setUnreadCount(data.unreadCount);
                 }
 
-                // 새 알림이 있을 때만 notifications 업데이트
                 if (data.status === 'NEW_NOTIFICATION' && data.notifications && data.notifications.length > 0) {
                     setNotifications(prev => {
                         const existingIds = new Set(prev.map(n => n.id));
@@ -111,22 +126,45 @@ const useNotificationPolling = (isLoggedIn) => {
                 }
             }
         } catch (error) {
+            // Ignore abort errors - they're expected when unmounting
+            if (error.name === 'AbortError' || error.name === 'CanceledError') {
+                console.log('Polling request cancelled');
+                return;
+            }
+
             console.error('Notification polling error:', error);
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            if (!controller.cancelled) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
         } finally {
             isPollingRef.current = false;
-            if (isLoggedIn) {
-                poll();
+            if (isLoggedIn && !controller.cancelled) {
+                poll(controller);
             }
         }
     }, [isLoggedIn, lastNotificationId]);
 
+    // Polling effect: only start/stop on login status change
+    // Note: 'poll' is intentionally excluded from dependencies to prevent
+    // infinite loop when lastNotificationId updates
     useEffect(() => {
         if (isLoggedIn) {
-            poll();
+            const controller = { cancelled: false };
+            activePollController.current = controller;
+            poll(controller);
         }
-        return () => { };
-    }, [isLoggedIn, poll]);
+        return () => {
+            // Cancel the polling logic
+            if (activePollController.current) {
+                activePollController.current.cancelled = true;
+            }
+            // Abort the actual HTTP request
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoggedIn]);
 
     const markAsRead = async (id) => {
         try {

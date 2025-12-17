@@ -8,14 +8,15 @@ export const getNotificationPage = async (page = 0, size = 10) => {
     return response.data;
 };
 
-export const getPollingNotifications = async (lastNotificationId, sessionId) => {
+export const getPollingNotifications = async (lastNotificationId, sessionId, signal) => {
     const params = {
         ...(lastNotificationId && { lastNotificationId }),
         sessionId
     };
     const response = await api.get('/notifications/polling', {
         params,
-        timeout: 45000 // 45 seconds timeout to allow long polling (server timeout is 30s)
+        timeout: 45000, // 45 seconds timeout to allow long polling (server timeout is 30s)
+        signal // AbortSignal to cancel request on unmount
     });
     return response.data;
 };

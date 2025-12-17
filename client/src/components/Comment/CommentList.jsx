@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import { getComments, createComment } from '../../api/discussion';
-import useMe from '../../hooks/useMe';
+import { useAuth } from '../../context/AuthContext';
 import './CommentList.css';
 
 const CommentList = ({ discussionId }) => {
-  const { me } = useMe();
+  const { currentUser: me } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const location = useLocation();
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -32,6 +35,40 @@ const CommentList = ({ discussionId }) => {
       fetchComments();
     }
   }, [discussionId, refreshTrigger]);
+
+  useEffect(() => {
+    // Only scroll if comments are loaded, there's a hash, and we haven't scrolled to this hash yet.
+    if (!loading && location.hash && scrolledRef.current !== location.hash) {
+      const elementId = location.hash.substring(1);
+
+      const scrollToElement = () => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.style.transition = 'background-color 0.5s ease';
+          element.style.backgroundColor = '#e8f4ff';
+          setTimeout(() => {
+            element.style.backgroundColor = '';
+          }, 2000);
+          // Mark this hash as scrolled to.
+          scrolledRef.current = location.hash;
+          return true; // Found and scrolled
+        }
+        return false; // Not found
+      };
+
+      // Try scrolling immediately, and then retry a few times
+      if (!scrollToElement()) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if (scrollToElement() || attempts >= 10) {
+            clearInterval(interval);
+          }
+        }, 200);
+      }
+    }
+  }, [loading, location.hash]);
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Signup.css';
-import Header from '../../components/Header/Header';
 
 // 슬랙 안내 페이지 활성화 여부 (나중에 다시 활성화하려면 true로 변경)
 const ENABLE_SLACK_GUIDE_PAGE = false;
@@ -86,7 +85,6 @@ const Signup = () => {
 
   return (
     <div className="signup-wrapper">
-      <Header />
       <div className="signup-container">
         <h1>회원가입</h1>
         <form className="signup-form" onSubmit={handleSubmit}>

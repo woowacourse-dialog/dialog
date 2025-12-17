@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import useDiscussionList from '../../../hooks/useDiscussionList';
 import DiscussionList from '../../../components/DiscussionList';
-import Header from '../../../components/Header/Header';
+
 import SearchBar from '../../../components/SearchBar';
 import DiscussionFilterBar from '../../../components/DiscussionFilterBar';
 
@@ -114,7 +114,7 @@ const SearchResultPage = () => {
 
   return (
     <>
-      <Header />
+      
       <div style={{ marginTop: 64, maxWidth: 1200, margin: '64px auto 0', padding: '0 20px' }}>
         <SearchBar
           onSearch={handleSearch}

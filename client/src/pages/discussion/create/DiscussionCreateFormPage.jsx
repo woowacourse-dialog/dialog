@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import './DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
-import Header from '../../../components/Header/Header';
 import { createOfflineDiscussion, createOnlineDiscussion } from '../../../api/discussion';
 import { userApi } from '../../../api/userApi';
 
@@ -121,7 +120,6 @@ const DiscussionCreateFormPage = () => {
 
   return (
     <div className="discussion-create-page">
-      <Header />
       <div className="discussion-create-container">
         <div className="discussion-create-form">
           <h1>새로운 토론 주제 작성</h1>

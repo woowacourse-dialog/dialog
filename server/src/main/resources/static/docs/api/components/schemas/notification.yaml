@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Notification Domain Schemas
-  description: Firebase Cloud Messaging 토큰 도메인 스키마
+  description: 알림 및 Firebase Cloud Messaging 토큰 도메인 스키마
   version: 1.0.0
 
 components:
@@ -37,3 +37,188 @@ components:
           type: string
           description: FCM 토큰 문자열
           example: "fcm-token-abc123xyz"
+
+    NotificationType:
+      type: string
+      enum:
+        - DISCUSSION_COMMENT
+        - COMMENT_REPLY
+        - MENTION
+      description: |
+        알림 유형:
+        - DISCUSSION_COMMENT: 토론에 댓글이 달렸을 때
+        - COMMENT_REPLY: 댓글에 답글이 달렸을 때
+        - MENTION: 토론에서 멘션되었을 때
+
+    PollingStatus:
+      type: string
+      enum:
+        - TIMEOUT
+        - NEW_NOTIFICATION
+      description: |
+        폴링 상태:
+        - TIMEOUT: 타임아웃 발생 (새 알림 없음)
+        - NEW_NOTIFICATION: 새로운 알림 있음
+
+    RouteParams:
+      type: object
+      description: 알림 클릭 시 이동할 경로 정보
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum:
+            - DISCUSSION_COMMENT
+            - COMMENT_REPLY
+          description: 라우팅 타입
+      oneOf:
+        - $ref: '#/components/schemas/DiscussionCommentRouteParams'
+        - $ref: '#/components/schemas/CommentReplyRouteParams'
+
+    DiscussionCommentRouteParams:
+      type: object
+      required:
+        - type
+        - discussionId
+        - commentId
+      properties:
+        type:
+          type: string
+          enum:
+            - DISCUSSION_COMMENT
+        discussionId:
+          type: integer
+          format: int64
+          description: 토론 ID
+        commentId:
+          type: integer
+          format: int64
+          description: 댓글 ID
+
+    CommentReplyRouteParams:
+      type: object
+      required:
+        - type
+        - discussionId
+        - parentCommentId
+        - childCommentId
+      properties:
+        type:
+          type: string
+          enum:
+            - COMMENT_REPLY
+        discussionId:
+          type: integer
+          format: int64
+          description: 토론 ID
+        parentCommentId:
+          type: integer
+          format: int64
+          description: 부모 댓글 ID
+        childCommentId:
+          type: integer
+          format: int64
+          description: 자식 댓글 ID (답글 ID)
+
+    NotificationResponse:
+      type: object
+      required:
+        - id
+        - senderId
+        - senderNickname
+        - message
+        - type
+        - routeParams
+        - createdAt
+        - isRead
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 알림 ID
+          example: 123
+        senderId:
+          type: integer
+          format: int64
+          description: 알림 발송자 ID
+          example: 456
+        senderNickname:
+          type: string
+          description: 알림 발송자 닉네임
+          example: "홍길동"
+        message:
+          type: string
+          description: 알림 메시지
+          example: "홍길동님이 토론에 의견을 남겼습니다."
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        routeParams:
+          $ref: '#/components/schemas/RouteParams'
+        createdAt:
+          type: string
+          format: date-time
+          description: 알림 생성 시간
+          example: "2025-12-21T14:30:00"
+        isRead:
+          type: boolean
+          description: 읽음 여부
+          example: false
+
+    NotificationPollingResponse:
+      type: object
+      required:
+        - status
+        - notifications
+        - unreadCount
+      properties:
+        status:
+          $ref: '#/components/schemas/PollingStatus'
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationResponse'
+          description: 새로운 알림 목록
+        unreadCount:
+          type: integer
+          format: int64
+          description: 읽지 않은 알림 개수
+          example: 5
+
+    NotificationPageResponse:
+      type: object
+      required:
+        - notifications
+        - unreadCount
+        - currentPage
+        - pageSize
+        - totalElements
+        - totalPages
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationResponse'
+          description: 알림 목록
+        unreadCount:
+          type: integer
+          format: int64
+          description: 읽지 않은 알림 개수
+          example: 5
+        currentPage:
+          type: integer
+          description: 현재 페이지 번호 (0부터 시작)
+          example: 0
+        pageSize:
+          type: integer
+          description: 페이지 크기
+          example: 20
+        totalElements:
+          type: integer
+          format: int64
+          description: 전체 알림 개수
+          example: 100
+        totalPages:
+          type: integer
+          description: 전체 페이지 수
+          example: 5

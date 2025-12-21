@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../../components/Header/Header';
+
 import DiscussionList from '../../../components/DiscussionList';
 import useScrapDiscussionList from '../../../hooks/useScrapDiscussionList';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
@@ -36,7 +36,7 @@ const ScrapDiscussionPage = () => {
 
   return (
     <>
-      <Header />
+      
       <div className="my-discussion-page-fancy" style={{ minHeight: '100vh', background: '#fff', paddingTop: 64 }}>
         {/* 상단 배너 */}
         <div className="my-discussion-banner">

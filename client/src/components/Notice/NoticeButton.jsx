@@ -2,17 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { FaBullhorn, FaTimes } from 'react-icons/fa';
 import NoticeModal from './NoticeModal';
 import { fetchNotices, hasUnreadNotices } from '../../utils/noticeUtils';
+import { useAuth } from '../../context/AuthContext';
 import './Notice.css';
 
 const NoticeButton = () => {
+  const { isLoggedIn } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [notices, setNotices] = useState([]);
   const [hasUnread, setHasUnread] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadNotices();
-  }, []);
+    if (isLoggedIn) {
+      loadNotices();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isLoggedIn]);
 
   const loadNotices = async () => {
     try {

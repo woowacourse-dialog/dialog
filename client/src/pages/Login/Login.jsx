@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from '../../components/Header/Header';
 import './Login.css';
 
 const Login = () => {
@@ -14,7 +13,6 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <Header />
       <div className="login-content">
         <button className="github-login-btn" onClick={handleGithubLogin}>
           Sign in with GitHub

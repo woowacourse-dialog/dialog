@@ -1,23 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import dialogIcon from '../../assets/favicon_navy.ico'
 import githubLogo from '../../assets/github-mark-white.svg';
+import useNotificationPolling from '../../hooks/useNotificationPolling';
+import NotificationDropdown from '../Notification/NotificationDropdown';
 import './Header.css';
 
-const API_URL = import.meta.env.VITE_API_URL;
 const GITHUB_AUTH_URL = import.meta.env.VITE_GITHUB_AUTH_URL;
 
-// axios 인스턴스 생성
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true
-});
-
 const Header = () => {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount, notifications, markAsRead, markAllAsRead, loadMore, hasMore, isLoading } = useNotificationPolling(isLoggedIn);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleGithubLogin = () => {
     window.location.href = GITHUB_AUTH_URL;
@@ -27,20 +23,13 @@ const Header = () => {
     navigate('/mypage');
   };
 
-  const handleMyDiscussions = () => {
-    navigate('/discussion/my');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
-  const handleLogout = async () => {
-    try {
-      const response = await api.delete('/api/logout');
-      if (response.status === 200) {
-        setIsLoggedIn(false);
-        navigate('/');
-      }
-    } catch (error) {
-      console.error('Failed to logout:', error);
-    }
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
   };
 
   return (
@@ -55,6 +44,41 @@ const Header = () => {
         <div className="header-nav">
           {isLoggedIn ? (
             <div className="nav-buttons">
+              <div className="notification-wrapper">
+                <button
+                  className="notification-container"
+                  onClick={toggleNotifications}
+                >
+                  <svg
+                    className="notification-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="notification-badge">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {showNotifications && (
+                  <NotificationDropdown
+                    notifications={notifications}
+                    onRead={markAsRead}
+                    onReadAll={markAllAsRead}
+                    onClose={() => setShowNotifications(false)}
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                  />
+                )}
+              </div>
               {/* <button className="nav-button my-discussions-button" onClick={handleMyDiscussions}>
                 내 토론
               </button> */}

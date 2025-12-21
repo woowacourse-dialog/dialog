@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/Header/Header';
 import channelJoinImage from '../../assets/channel-join-image.png';
 import slackLogo from '../../assets/slack-logo.svg';
 import { useAuth } from '../../context/AuthContext';
@@ -22,7 +21,6 @@ const SignupComplete = () => {
 
   return (
     <div className="signup-wrapper">
-      <Header />
       <div className="signup-container" style={{ maxWidth: 840 }}>
         <h1>회원가입이 완료되었습니다</h1>
         <p style={{ color: '#6b7280', marginTop: 8 }}>

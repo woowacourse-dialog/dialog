@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import '../create/DiscussionCreateFormPage.css';
 import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
-import Header from '../../../components/Header/Header';
+
 import { findDiscussionById, updateOfflineDiscussion, updateOnlineDiscussion } from '../../../api/discussion';
 
 const TRACKS = [
@@ -112,7 +112,7 @@ const DiscussionEditFormPage = () => {
 
   return (
     <div className="discussion-create-page">
-      <Header />
+      
       <div className="discussion-create-container">
         <div className="discussion-create-form">
           <h1>토론 주제 수정</h1>

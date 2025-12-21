@@ -2,21 +2,31 @@ package com.dialog.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.MessagingToken;
+import com.dialog.server.domain.Notification;
+import com.dialog.server.domain.NotificationType;
+import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.notification.request.NotificationPageRequest;
 import com.dialog.server.dto.notification.resposne.MyTokenResponse;
+import com.dialog.server.dto.notification.resposne.NotificationPageResponse;
 import com.dialog.server.dto.notification.resposne.TokenCreationResponse;
+import com.dialog.server.event.NotificationCreatedEvent;
+import com.dialog.server.event.NotificationsReadEvent;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.MessagingTokenRepository;
+import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,11 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
+@RecordApplicationEvents
 class NotificationServiceTest {
 
     @Autowired
@@ -40,14 +53,17 @@ class NotificationServiceTest {
     @Autowired
     private MessagingTokenRepository messagingTokenRepository;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private ApplicationEvents events;
+
     @MockitoBean
     private FcmService fcmService;
-
-    @MockitoBean
-    private S3Uploader s3Uploader;
-
-    @MockitoBean
-    private S3Config s3Config;
 
     private User testUser;
     private User anotherUser;
@@ -286,5 +302,141 @@ class NotificationServiceTest {
 
         // then
         verify(fcmService, times(0)).sendNotification(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("알림 생성 및 전파 시 NotificationCreatedEvent가 발행된다")
+    void createAndPropagateNotification_publishesEvent() {
+        // given
+        RouteParams routeParams = null; // 테스트용 dummy
+
+        // when
+        notificationService.createAndPropagateNotification(anotherUser, testUser, NotificationType.DISCUSSION_COMMENT, routeParams);
+
+        // then
+        long eventCount = events.stream(NotificationCreatedEvent.class)
+                .filter(event -> event.getNotification().getReceiver().equals(testUser))
+                .filter(event -> event.getNotification().getSender().equals(anotherUser))
+                .count();
+
+        assertThat(eventCount).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 시 NotificationsReadEvent가 발행된다")
+    void updateAllNotificationAsRead_publishesEvent() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        entityManager.flush();
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        // then
+        long eventCount = events.stream(NotificationsReadEvent.class)
+                .filter(event -> event.getUserId().equals(testUser.getId()))
+                .filter(event -> event.getUnreadCount() == 0L)
+                .count();
+
+        assertThat(eventCount).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 기본값으로 첫 페이지 조회 성공")
+    void getNotificationPage_DefaultValues_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 5);
+        NotificationPageRequest request = new NotificationPageRequest(null, null);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(5),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.pageSize()).isEqualTo(20),
+                () -> assertThat(response.totalElements()).isEqualTo(5),
+                () -> assertThat(response.totalPages()).isEqualTo(1),
+                () -> assertThat(response.unreadCount()).isEqualTo(5L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 목록 페이징 조회 - 커스텀 페이지 크기로 조회 성공")
+    void getNotificationPage_CustomPageSize_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 15);
+        NotificationPageRequest request = new NotificationPageRequest(0, 10);
+
+        // when
+        NotificationPageResponse response = notificationService.getNotificationPage(testUser.getId(), request);
+
+        // then
+        assertAll(
+                () -> assertThat(response.notifications()).hasSize(10),
+                () -> assertThat(response.currentPage()).isEqualTo(0),
+                () -> assertThat(response.pageSize()).isEqualTo(10),
+                () -> assertThat(response.totalElements()).isEqualTo(15),
+                () -> assertThat(response.totalPages()).isEqualTo(2),
+                () -> assertThat(response.unreadCount()).isEqualTo(15L)
+        );
+    }
+
+    @Test
+    @DisplayName("알림 읽음 처리 - 성공")
+    void updateNotificationAsRead_Success() {
+        // given
+        Notification notification = Notification.builder()
+                .sender(anotherUser)
+                .receiver(testUser)
+                .type(NotificationType.DISCUSSION_COMMENT)
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+
+        // when
+        notificationService.updateNotificationAsRead(testUser.getId(), savedNotification.getId());
+
+        // then
+        Notification updatedNotification = notificationRepository.findById(savedNotification.getId()).orElseThrow();
+        assertThat(updatedNotification.isRead()).isTrue();
+    }
+
+    @Test
+    @DisplayName("모든 알림 읽음 처리 - 성공")
+    void updateAllNotificationAsRead_Success() {
+        // given
+        createNotifications(testUser, anotherUser, 10);
+        entityManager.flush();
+
+        // when
+        notificationService.updateAllNotificationAsRead(testUser.getId());
+
+        entityManager.clear();
+
+        // then
+        List<Notification> updatedNotifications = notificationRepository
+                .findAllByReceiverOrderByCreatedAtDesc(testUser, org.springframework.data.domain.PageRequest.of(0, 20))
+                .getContent();
+
+        assertAll(
+                () -> assertThat(updatedNotifications).hasSize(10),
+                () -> assertThat(updatedNotifications).allMatch(Notification::isRead),
+                () -> assertThat(notificationRepository.countByReceiverAndIsReadFalse(testUser))
+                        .isEqualTo(0L)
+        );
+    }
+
+    private List<Notification> createNotifications(User receiver, User sender, int count) {
+        return IntStream.range(0, count)
+                .mapToObj(i -> {
+                    Notification notification = Notification.builder()
+                            .sender(sender)
+                            .receiver(receiver)
+                            .type(NotificationType.DISCUSSION_COMMENT)
+                            .build();
+                    return notificationRepository.save(notification);
+                })
+                .toList();
     }
 }

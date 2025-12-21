@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import Header from './components/Header/Header';
 import Home from './pages/Home';
 import Signup from './pages/Signup/Signup';
 import SignupComplete from './pages/Signup/SignupComplete';
@@ -18,6 +19,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="app">
+          <Header />
           <main className="main-content">
             <Routes>
               <Route path="/" element={<Home />} />

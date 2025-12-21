@@ -48,13 +48,42 @@ self.addEventListener('pushsubscriptionchange', event => {
 // 알림 클릭 이벤트 핸들러
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  let targetPath = event.notification.data?.path || '/';
-  if (targetPath.startsWith('/api/discussions/')) {
-    targetPath = targetPath.replace('/api/discussions/', '/discussion/');
+
+  const routeParamsRaw = event.notification.data?.routeParams;
+  let targetPath = '/';
+
+  if (routeParamsRaw) {
+    try {
+      const routeParams = JSON.parse(routeParamsRaw);
+      const { type, discussionId, discussionCommentId, replyId } = routeParams;
+      if ((type === 'DISCUSSION_COMMENT' || type === 'COMMENT_REPLY') && discussionId) {
+        targetPath = `/discussion/${discussionId}`;
+        const targetCommentId = type === 'COMMENT_REPLY' ? replyId : discussionCommentId;
+        if (targetCommentId) {
+          targetPath += `#comment-${targetCommentId}`;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing routeParams from notification data:', e);
+      // Fallback to legacy path if parsing fails but path exists
+      if (event.notification.data?.path) {
+        targetPath = event.notification.data.path;
+        if (targetPath.startsWith('/api/discussions/')) {
+          targetPath = targetPath.replace('/api/discussions/', '/discussion/');
+        }
+      }
+    }
+  } else if (event.notification.data?.path) {
+    // Legacy path handling
+    targetPath = event.notification.data.path;
+    if (targetPath.startsWith('/api/discussions/')) {
+      targetPath = targetPath.replace('/api/discussions/', '/discussion/');
+    }
   }
+
   const targetUrl = self.location.origin + targetPath;
   event.waitUntil(
-    clients.openWindow(targetUrl)
+    clients.openWindow(targetUrl).then(windowClient => windowClient ? windowClient.focus() : null)
   );
 });
 

@@ -66,8 +66,11 @@ public class DiscussionCommentService {
         DiscussionComment savedComment = discussionCommentRepository.save(comment);
 
         if (parentComment != null && parentComment.isNotAuthor(authorId)) {
-            RouteParams routeParams = new CommentReplyRouteParams(discussion.getId(), parentComment.getId(),
-                    savedComment.getId());
+            RouteParams routeParams = new CommentReplyRouteParams(
+                    discussion.getId(),
+                    parentComment.getId(),
+                    savedComment.getId()
+            );
             notificationService.createAndPropagateNotification(
                     author,
                     parentComment.getAuthor(),

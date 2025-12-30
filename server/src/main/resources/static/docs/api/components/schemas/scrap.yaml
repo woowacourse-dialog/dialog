@@ -27,7 +27,7 @@ components:
         content:
           type: array
           items:
-            $ref: '../discussion.yaml#/components/schemas/DiscussionPreviewResponse'
+            $ref: './discussion.yaml#/components/schemas/DiscussionPreviewResponse'
           description: 북마크한 토론 목록
         nextCursorId:
           type: integer

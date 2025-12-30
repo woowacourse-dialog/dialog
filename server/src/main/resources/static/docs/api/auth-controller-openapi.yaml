@@ -63,6 +63,13 @@ paths:
       summary: 로그인 상태 확인
       description: 현재 사용자의 로그인 상태를 확인합니다.
       operationId: checkLogin
+      parameters:
+        - name: JSESSIONID
+          in: cookie
+          description: 세션 쿠키
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: 로그인 상태 확인 성공
@@ -112,7 +119,5 @@ paths:
                   data:
                     type: object
                     nullable: true
-              example:
-                data: null
         'error-codes':
           description: "[]"

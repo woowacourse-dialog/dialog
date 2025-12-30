@@ -32,7 +32,10 @@ public class FirebaseTokenController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiSuccessResponse<TokenCreationResponse>> addToken(@RequestBody TokenRequest tokenRequest, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<TokenCreationResponse>> addToken(
+            @RequestBody TokenRequest tokenRequest,
+            @AuthenticatedUserId Long userId
+    ) {
         final TokenCreationResponse response = notificationService.addMessagingToken(userId, tokenRequest.token());
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
     }
@@ -44,7 +47,11 @@ public class FirebaseTokenController {
     }
 
     @PatchMapping("/{tokenId}")
-    public ResponseEntity<Void> updateToken(@PathVariable Long tokenId, TokenRequest tokenRequest, @AuthenticatedUserId Long userId) {
+    public ResponseEntity<Void> updateToken(
+            @PathVariable Long tokenId,
+            @RequestBody TokenRequest tokenRequest,
+            @AuthenticatedUserId Long userId
+    ) {
         notificationService.updateToken(userId, tokenId, tokenRequest.token());
         return ResponseEntity.ok().build();
     }

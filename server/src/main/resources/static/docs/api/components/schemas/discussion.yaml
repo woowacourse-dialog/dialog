@@ -93,6 +93,14 @@ components:
 
     OfflineDiscussionUpdateRequest:
       type: object
+      required:
+        - title
+        - content
+        - startAt
+        - endAt
+        - place
+        - maxParticipantCount
+        - category
       properties:
         title:
           type: string
@@ -132,6 +140,11 @@ components:
 
     OnlineDiscussionUpdateRequest:
       type: object
+      required:
+        - title
+        - content
+        - endDate
+        - category
       properties:
         title:
           type: string
@@ -192,27 +205,47 @@ components:
           example: "마이크로서비스와 모놀리식 아키텍처의 장단점에 대한 심도있는 토론이 진행되었습니다."
 
     DiscussionDetailResponse:
+      description: "commonDiscussionInfo: 온/오프라인 공통, offlineDiscussionInfo: 온라인 토론일 시 null, onlineDiscussionInfo: 오프라인 토론일 시 null"
       type: object
       required:
         - id
-        - title
-        - content
-        - status
-        - category
         - discussionType
-        - likeCount
-        - commentCount
-        - scrapCount
-        - viewCount
-        - createdAt
-        - author
-        - profileImage
+        - commonDiscussionInfo
       properties:
         id:
           type: integer
           format: int64
           description: 토론 ID
           example: 1
+        discussionType:
+          type: string
+          enum: [ONLINE, OFFLINE]
+          description: 토론 타입
+          example: "OFFLINE"
+        commonDiscussionInfo:
+          $ref: '#/components/schemas/DiscussionDetail_CommonDiscussionInfo'
+        offlineDiscussionInfo:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionDetail_OfflineDiscussionInfo'
+          description: 오프라인 토론 정보 (오프라인 토론만 해당)
+        onlineDiscussionInfo:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionDetail_OnlineDiscussionInfo'
+          description: 온라인 토론 정보 (온라인 토론만 해당)
+
+    DiscussionDetail_CommonDiscussionInfo:
+      type: object
+      required:
+        - title
+        - content
+        - category
+        - createdAt
+        - modifiedAt
+        - likeCount
+        - author
+      properties:
         title:
           type: string
           description: 토론 제목
@@ -221,144 +254,254 @@ components:
           type: string
           description: 토론 내용
           example: "마이크로서비스 아키텍처에 대해 논의합니다."
-        status:
-          type: string
-          enum: [ACTIVE, CLOSED]
-          description: 토론 상태
-          example: "ACTIVE"
-        category:
-          $ref: '#/components/schemas/Category'
-        discussionType:
-          type: string
-          enum: [ONLINE, OFFLINE]
-          description: 토론 타입
-          example: "OFFLINE"
-        likeCount:
-          type: number
-          description: 좋아요 수
-          example: 15
-        commentCount:
-          type: number
-          description: 댓글 수
-          example: 8
-        scrapCount:
-          type: number
-          description: 북마크 수
-          example: 5
-        viewCount:
-          type: number
-          description: 조회 수
-          example: 120
-        createdAt:
-          type: string
-          format: date-time
-          description: 생성 일시
-          example: "2025-11-13T10:00:00"
-        startAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: 시작 일시 (오프라인 토론만 해당)
-          example: "2025-11-20T14:00:00"
-        endAt:
-          type: string
-          format: date-time
-          nullable: true
-          description: 종료 일시 (오프라인 토론만 해당)
-          example: "2025-11-20T16:00:00"
-        endDate:
-          type: string
-          format: date
-          nullable: true
-          description: 종료 날짜 (온라인 토론만 해당)
-          example: "2025-12-01"
-        place:
-          type: string
-          nullable: true
-          description: 장소 (오프라인 토론만 해당)
-          example: "강남역 스터디룸"
-        maxParticipantCount:
-          type: number
-          nullable: true
-          description: 최대 참가자 수 (오프라인 토론만 해당)
-          example: 10
-        currentParticipantCount:
-          type: number
-          nullable: true
-          description: 현재 참가자 수 (오프라인 토론만 해당)
-          example: 7
         summary:
           type: string
           nullable: true
           description: 토론 요약
           example: "마이크로서비스 vs 모놀리식 아키텍처"
+        category:
+          $ref: '#/components/schemas/Category'
+        createdAt:
+          type: string
+          format: date-time
+          description: 생성 일시
+          example: "2025-11-13T10:00:00"
+        modifiedAt:
+          type: string
+          format: date-time
+          description: 수정 일시
+          example: "2025-11-14T15:30:00"
+        likeCount:
+          type: number
+          description: 좋아요 수
+          example: 15
         author:
-          $ref: '../schemas/global.yaml#/components/schemas/AuthorResponse'
+          $ref: '#/components/schemas/DiscussionDetail_AuthorResponse'
+
+    DiscussionDetail_AuthorResponse:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 작성자 ID
+          example: 123
+        name:
+          type: string
+          description: 작성자 이름
+          example: "홍길동"
         profileImage:
-          $ref: '../schemas/global.yaml#/components/schemas/ProfileImageResponse'
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionDetail_ProfileImageResponse'
+
+    DiscussionDetail_ProfileImageResponse:
+      type: object
+      properties:
+        basicImageUri:
+          type: string
+          nullable: true
+          description: 기본 프로필 이미지 URL
+          example: "https://avatars.githubusercontent.com/u/12345"
+        customImageUri:
+          type: string
+          nullable: true
+          description: 커스텀 프로필 이미지 URL
+          example: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+
+    DiscussionDetail_OfflineDiscussionInfo:
+      type: object
+      required:
+        - startAt
+        - endAt
+        - place
+        - participantCount
+        - maxParticipantCount
+        - participants
+      properties:
+        startAt:
+          type: string
+          format: date-time
+          description: 시작 일시 (yyyy-MM-dd HH:mm)
+          example: "2025-11-20 14:00"
+        endAt:
+          type: string
+          format: date-time
+          description: 종료 일시 (yyyy-MM-dd HH:mm)
+          example: "2025-11-20 16:00"
+        place:
+          type: string
+          description: 장소
+          example: "강남역 스터디룸"
+        participantCount:
+          type: integer
+          description: 현재 참가자 수
+          example: 7
+        maxParticipantCount:
+          type: integer
+          description: 최대 참가자 수
+          example: 10
+        participants:
+          type: array
+          description: 참가자 목록
+          items:
+            $ref: '#/components/schemas/DiscussionDetail_ParticipantResponse'
+
+    DiscussionDetail_ParticipantResponse:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: 참가자 ID
+          example: 456
+        name:
+          type: string
+          description: 참가자 이름
+          example: "김철수"
+
+    DiscussionDetail_OnlineDiscussionInfo:
+      type: object
+      required:
+        - endDate
+      properties:
+        endDate:
+          type: string
+          format: date
+          description: 종료 날짜 (yyyy-MM-dd)
+          example: "2025-12-01"
 
     DiscussionPreviewResponse:
       type: object
       required:
         - id
-        - title
-        - status
-        - category
         - discussionType
-        - likeCount
-        - commentCount
-        - scrapCount
-        - viewCount
-        - createdAt
-        - author
-        - profileImage
+        - commonDiscussionInfo
       properties:
         id:
           type: integer
           format: int64
           description: 토론 ID
           example: 1
-        title:
-          type: string
-          description: 토론 제목
-          example: "백엔드 아키텍처 토론"
-        status:
-          type: string
-          enum: [ACTIVE, CLOSED]
-          description: 토론 상태
-          example: "ACTIVE"
-        category:
-          $ref: '#/components/schemas/Category'
         discussionType:
           type: string
           enum: [ONLINE, OFFLINE]
           description: 토론 타입
           example: "OFFLINE"
-        likeCount:
-          type: number
-          description: 좋아요 수
-          example: 15
-        commentCount:
-          type: number
-          description: 댓글 수
-          example: 8
-        scrapCount:
-          type: number
-          description: 북마크 수
-          example: 5
-        viewCount:
-          type: number
-          description: 조회 수
-          example: 120
+        commonDiscussionInfo:
+          $ref: '#/components/schemas/DiscussionPreview_CommonDiscussionInfo'
+        offlineDiscussionInfo:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionPreview_OfflineDiscussionInfo'
+          description: 오프라인 토론 정보 (오프라인 토론만 해당)
+        onlineDiscussionInfo:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionPreview_OnlineDiscussionInfo'
+          description: 온라인 토론 정보 (온라인 토론만 해당)
+
+    DiscussionPreview_CommonDiscussionInfo:
+      type: object
+      required:
+        - title
+        - author
+        - category
+        - createdAt
+        - modifiedAt
+        - commentCount
+      properties:
+        title:
+          type: string
+          description: 토론 제목
+          example: "백엔드 아키텍처 토론"
+        author:
+          type: string
+          description: 작성자 이름
+          example: "홍길동"
+        profileImage:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/DiscussionPreview_ProfileImageResponse'
+        category:
+          $ref: '#/components/schemas/Category'
         createdAt:
           type: string
           format: date-time
           description: 생성 일시
           example: "2025-11-13T10:00:00"
-        author:
-          $ref: '../schemas/global.yaml#/components/schemas/AuthorResponse'
-        profileImage:
-          $ref: '../schemas/global.yaml#/components/schemas/ProfileImageResponse'
+        modifiedAt:
+          type: string
+          format: date-time
+          description: 수정 일시
+          example: "2025-11-14T15:30:00"
+        commentCount:
+          type: number
+          description: 댓글 수
+          example: 8
+
+    DiscussionPreview_ProfileImageResponse:
+      type: object
+      properties:
+        basicImageUri:
+          type: string
+          nullable: true
+          description: 기본 프로필 이미지 URL
+          example: "https://avatars.githubusercontent.com/u/12345"
+        customImageUri:
+          type: string
+          nullable: true
+          description: 커스텀 프로필 이미지 URL
+          example: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+
+    DiscussionPreview_OfflineDiscussionInfo:
+      type: object
+      required:
+        - startAt
+        - endAt
+        - place
+        - participantCount
+        - maxParticipantCount
+      properties:
+        startAt:
+          type: string
+          format: date-time
+          description: 시작 일시 (yyyy-MM-dd HH:mm)
+          example: "2025-11-20 14:00"
+        endAt:
+          type: string
+          format: date-time
+          description: 종료 일시 (yyyy-MM-dd HH:mm)
+          example: "2025-11-20 16:00"
+        place:
+          type: string
+          description: 장소
+          example: "강남역 스터디룸"
+        participantCount:
+          type: integer
+          description: 현재 참가자 수
+          example: 7
+        maxParticipantCount:
+          type: integer
+          description: 최대 참가자 수
+          example: 10
+
+    DiscussionPreview_OnlineDiscussionInfo:
+      type: object
+      required:
+        - endDate
+      properties:
+        endDate:
+          type: string
+          format: date
+          description: 종료 날짜 (yyyy-MM-dd)
+          example: "2025-12-01"
 
     DiscussionCursorPageResponse:
       type: object
@@ -376,7 +519,7 @@ components:
           type: string
           nullable: true
           description: 다음 페이지 커서 (없으면 null)
-          example: "eyJpZCI6MSwiY3JlYXRlZEF0IjoiMjAyNS0xMS0xM1QxMDowMDowMCJ9"
+          example: "2025-09-18T13:33:58.614988_18"
         hasNext:
           type: boolean
           description: 다음 페이지 존재 여부

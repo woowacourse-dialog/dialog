@@ -38,7 +38,6 @@ paths:
               place: "강남역 스터디룸"
               maxParticipantCount: 10
               category: "BACKEND"
-              summary: null
       responses:
         '201':
           description: 토론 생성 성공
@@ -74,7 +73,7 @@ paths:
               title: "React vs Vue 비교"
               content: "프론트엔드 프레임워크 선택에 대해 토론합니다."
               endDate: "2025-12-01"
-              category: "FRONTEND"
+              category: "frontend"
       responses:
         '201':
           description: 토론 생성 성공
@@ -117,11 +116,11 @@ paths:
             example:
               title: "백엔드 아키텍처 심화 토론"
               content: "마이크로서비스 아키텍처 패턴에 대해 심도있게 논의합니다."
-              startAt: "2025-11-20T15:00:00"
-              endAt: "2025-11-20T17:00:00"
+              startAt: "2025-11-20 15:00:00"
+              endAt: "2025-11-20 17:00:00"
               place: "역삼역 스터디룸"
               maxParticipantCount: 8
-              category: "BACKEND"
+              category: "backend"
       responses:
         '200':
           description: 토론 수정 성공
@@ -165,7 +164,7 @@ paths:
               title: "React vs Vue 심화 비교"
               content: "상태 관리와 성능 최적화를 중심으로 비교합니다."
               endDate: "2025-12-15"
-              category: "FRONTEND"
+              category: "frontend"
       responses:
         '200':
           description: 토론 수정 성공
@@ -207,6 +206,36 @@ paths:
                 properties:
                   data:
                     $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
+              example:
+                data:
+                  id: 1
+                  discussionType: "OFFLINE"
+                  commonDiscussionInfo:
+                    title: "백엔드 아키텍처 토론"
+                    content: "마이크로서비스 아키텍처에 대해 논의합니다."
+                    summary: "마이크로서비스 vs 모놀리식 아키텍처"
+                    category: "backend"
+                    createdAt: "2025-11-13T10:00:00"
+                    modifiedAt: "2025-11-14T15:30:00"
+                    likeCount: 15
+                    author:
+                      id: 123
+                      name: "홍길동"
+                      profileImage:
+                        customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                  offlineDiscussionInfo:
+                    startAt: "2025-11-20 14:00"
+                    endAt: "2025-11-20 16:00"
+                    place: "강남역 스터디룸"
+                    participantCount: 7
+                    maxParticipantCount: 10
+                    participants:
+                      - id: 456
+                        name: "김철수"
+                      - id: 789
+                        name: "이영희"
+                  onlineDiscussionInfo: null
         'error-codes':
           description: "[5022]"
 
@@ -285,12 +314,12 @@ paths:
             type: array
             items:
               type: string
-              enum: [ONLINE, OFFLINE]
+              enum: [online, offline]
           style: form
           explode: true
         - name: cursor
           in: query
-          description: 페이지네이션 커서 (다음 페이지 조회 시 사용)
+          description: 페이지네이션 커서 (다음 페이지 조회 시 사용, 첫 페이지 시 null 입력)
           required: false
           schema:
             type: string
@@ -315,23 +344,25 @@ paths:
                 data:
                   content:
                     - id: 1
-                      title: "백엔드 아키텍처 토론"
-                      status: "ACTIVE"
-                      category: "BACKEND"
                       discussionType: "OFFLINE"
-                      likeCount: 15
-                      commentCount: 8
-                      scrapCount: 5
-                      viewCount: 120
-                      createdAt: "2025-11-13T10:00:00"
-                      author:
-                        id: 123
-                        nickname: "홍길동"
-                        track: "BACKEND"
-                      profileImage:
-                        customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
-                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
-                  nextCursor: "eyJpZCI6MSwiY3JlYXRlZEF0IjoiMjAyNS0xMS0xM1QxMDowMDowMCJ9"
+                      commonDiscussionInfo:
+                        title: "백엔드 아키텍처 토론"
+                        author: "홍길동"
+                        profileImage:
+                          customImageUri: "https://s3.amazonaws.com/dialog/profiles/user123.jpg"
+                          basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                        category: "BACKEND"
+                        createdAt: "2025-11-13T10:00:00"
+                        modifiedAt: "2025-11-14T15:30:00"
+                        commentCount: 8
+                      offlineDiscussionInfo:
+                        startAt: "2025-11-20 14:00"
+                        endAt: "2025-11-20 16:00"
+                        place: "강남역 스터디룸"
+                        participantCount: 7
+                        maxParticipantCount: 10
+                      onlineDiscussionInfo: null
+                  nextCursor: "2025-09-18T13:33:58.614988_18"
                   hasNext: true
         'error-codes':
           description: "[]"
@@ -461,7 +492,7 @@ paths:
       tags:
         - Discussion
       summary: 토론 요약 생성
-      description: AI를 사용하여 토론의 요약을 생성합니다.
+      description: AI를 사용하여 토론의 요약을 생성합니다. 해당 작업은 시간이 오래걸릴 수 있습니다.
       operationId: createDiscussionSummary
       security:
         - sessionAuth: []

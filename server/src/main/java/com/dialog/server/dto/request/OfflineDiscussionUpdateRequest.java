@@ -25,6 +25,7 @@ public record OfflineDiscussionUpdateRequest(
         Integer maxParticipantCount,
         @NotNull
         Category category,
+        // todo: 삭제 필요
         String summary
 ) {
 }

@@ -156,22 +156,24 @@ paths:
                 data:
                   content:
                     - id: 123
-                      title: "백엔드 아키텍처 토론"
-                      status: "ACTIVE"
-                      category: "BACKEND"
                       discussionType: "OFFLINE"
-                      likeCount: 15
-                      commentCount: 8
-                      scrapCount: 5
-                      viewCount: 120
-                      createdAt: "2025-11-13T10:00:00"
-                      author:
-                        id: 456
-                        nickname: "홍길동"
-                        track: "BACKEND"
-                      profileImage:
-                        customImageUri: "https://s3.amazonaws.com/dialog/profiles/user456.jpg"
-                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                      commonDiscussionInfo:
+                        title: "백엔드 아키텍처 토론"
+                        author: "홍길동"
+                        profileImage:
+                          customImageUri: "https://s3.amazonaws.com/dialog/profiles/user456.jpg"
+                          basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                        category: "backend"
+                        createdAt: "2025-11-13T10:00:00"
+                        modifiedAt: "2025-11-14T15:30:00"
+                        commentCount: 8
+                      offlineDiscussionInfo:
+                        startAt: "2025-11-20 14:00"
+                        endAt: "2025-11-20 16:00"
+                        place: "강남역 스터디룸"
+                        participantCount: 7
+                        maxParticipantCount: 10
+                      onlineDiscussionInfo: null
                   nextCursorId: 78
                   hasNext: true
                   size: 10

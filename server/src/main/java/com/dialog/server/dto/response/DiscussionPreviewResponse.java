@@ -1,10 +1,6 @@
 package com.dialog.server.dto.response;
 
-import com.dialog.server.domain.Category;
-import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.OfflineDiscussion;
-import com.dialog.server.domain.OnlineDiscussion;
-import com.dialog.server.domain.ProfileImage;
+import com.dialog.server.domain.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,11 +41,6 @@ public record DiscussionPreviewResponse(
                 null,
                 new OnlineDiscussionInfo(onlineDiscussion.getEndDate())
         );
-    }
-
-
-    public enum DiscussionType {
-        ONLINE, OFFLINE;
     }
 
     public record CommonDiscussionInfo(

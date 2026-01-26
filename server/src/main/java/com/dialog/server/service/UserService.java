@@ -45,12 +45,6 @@ public class UserService {
                 .orElseGet(() -> saveTempUser(userInfo));
     }
 
-    @Transactional
-    public void withdraw(Long userId) {
-        User user = getUserById(userId);
-        user.withdraw();
-    }
-
     private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
         final User tempUser = User.builder()
                 .oauthId(oAuth2UserInfo.getOAuthUserId())
@@ -108,6 +102,12 @@ public class UserService {
         String customImageUri = profileImage.getCustomImageUri();
         String basicImageUri = profileImage.getBasicImageUri();
         return new ProfileImageGetResponse(customImageUri, basicImageUri);
+    }
+
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = getUserById(userId);
+        user.withdraw();
     }
 
     private void validateConflictProfileImage(User user) {

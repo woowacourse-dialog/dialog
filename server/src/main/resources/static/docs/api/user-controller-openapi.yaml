@@ -77,6 +77,30 @@ paths:
         'error-codes':
           description: "[1005, 5031]"
 
+    delete:
+      tags:
+        - User
+      summary: 회원 탈퇴
+      description: 사용자 계정을 탈퇴 처리합니다. deletedAt 필드에 현재 시각이 기록되며, 세션과 쿠키가 삭제됩니다.
+      operationId: deleteUser
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: 회원 탈퇴 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    nullable: true
+              example:
+                data: null
+        'error-codes':
+          description: "[1005, 5031]"
+
   /api/user/mine/notifications:
     patch:
       tags:

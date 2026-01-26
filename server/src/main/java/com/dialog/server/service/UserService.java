@@ -35,8 +35,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(Long userId) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User findUser = getUserById(userId);
         return UserInfoResponse.from(findUser);
     }
 
@@ -44,6 +43,12 @@ public class UserService {
     public User findOrCreateTempUser(GitHubOAuth2UserInfo userInfo) {
         return userRepository.findUserByOauthId(userInfo.getOAuthUserId())
                 .orElseGet(() -> saveTempUser(userInfo));
+    }
+
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = getUserById(userId);
+        user.withdraw();
     }
 
     private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
@@ -65,8 +70,7 @@ public class UserService {
     @Transactional
     public NotificationSettingResponse updateNotification(NotificationSettingRequest request, Long userId) {
         boolean notificationEnable = request.isNotificationEnable();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         user.updateNotificationSetting(notificationEnable);
         User updatedUser = userRepository.save(user);
         return NotificationSettingResponse.from(updatedUser);
@@ -74,7 +78,7 @@ public class UserService {
 
     @Transactional
     public BasicProfileImageResponse registerBasicProfileImage(String basicProfileUri, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         validateConflictProfileImage(user);
         ProfileImage profileImage = createBasicProfileFile(basicProfileUri, user);
         profileImageRepository.save(profileImage);
@@ -83,7 +87,7 @@ public class UserService {
 
     @Transactional
     public ProfileImageUpdateResponse updateProfileImage(MultipartFile imageFile, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         ProfileImage savedProfileImage = profileImageRepository.findByUser(user)
                 .orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         ProfileImage updateProfile = uploadAndSaveProfileImage(imageFile, savedProfileImage);
@@ -92,13 +96,13 @@ public class UserService {
 
     @Transactional
     public void modifyUserInfo(Long userId, UserMypageUpdateRequest userMypageUpdateRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         user.updateUser(userMypageUpdateRequest.nickname(), userMypageUpdateRequest.track());
     }
 
     @Transactional(readOnly = true)
     public ProfileImageGetResponse getProfileImage(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         ProfileImage profileImage = profileImageRepository.findByUser(user)
                 .orElseThrow(() -> new DialogException(ErrorCode.PROFILE_IMAGE_NOT_FOUND));
         String customImageUri = profileImage.getCustomImageUri();
@@ -134,7 +138,12 @@ public class UserService {
     }
 
     public MyTrackGetTrackResponse getTrack(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        User user = getUserById(userId);
         return MyTrackGetTrackResponse.from(user);
+    }
+
+    private User getUserById(final Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
     }
 }

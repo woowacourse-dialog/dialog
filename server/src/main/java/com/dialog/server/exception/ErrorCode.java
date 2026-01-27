@@ -12,6 +12,7 @@ public enum ErrorCode {
     AUTHENTICATION_NOT_FOUND("1003", "인증 정보를 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_USER_ID_FORMAT("1004", "유효하지 않은 인증 정보입니다.", HttpStatus.BAD_REQUEST),
     LOGIN_REQUIRED("1005", "로그인 후 이용할 수 있습니다.", HttpStatus.UNAUTHORIZED),
+    WITHDRAW_USER("1006", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
 
     /**
      * 5XXX - 비즈니스 로직 관련

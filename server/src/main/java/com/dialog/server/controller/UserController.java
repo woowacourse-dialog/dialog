@@ -1,5 +1,7 @@
 package com.dialog.server.controller;
 
+import static com.dialog.server.controller.AuthController.SESSION_PARAM;
+
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
 import com.dialog.server.dto.auth.response.NotificationSettingResponse;
@@ -10,9 +12,17 @@ import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,5 +81,36 @@ public class UserController {
     public ResponseEntity<ApiSuccessResponse<MyTrackGetTrackResponse>> getTrack(@AuthenticatedUserId Long userId) {
         MyTrackGetTrackResponse response = userService.getTrack(userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+    @DeleteMapping("/mine")
+    public ResponseEntity<ApiSuccessResponse<Void>> deleteUser(
+            @AuthenticatedUserId Long userId,
+            @CookieValue(name = SESSION_PARAM, required = false) String sessionId,
+            HttpServletRequest request
+    ) {
+        userService.withdraw(userId);
+        clearLoginInfo(sessionId, request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void clearLoginInfo(String sessionId, HttpServletRequest request) {
+        SecurityContextHolder.clearContext();
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        BodyBuilder responseBuilder = ResponseEntity.ok();
+        if (sessionId != null) {
+            ResponseCookie cookie = ResponseCookie.from(SESSION_PARAM, "")
+                    .path("/")
+                    .maxAge(0)
+                    .httpOnly(true)
+                    .build();
+            responseBuilder.header(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
     }
 }

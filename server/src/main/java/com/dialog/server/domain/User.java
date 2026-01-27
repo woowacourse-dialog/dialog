@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class User extends BaseEntity {
 
     private String oauthId;
 
+    @Getter(AccessLevel.NONE)
     private String nickname;
 
     private String githubId;
@@ -40,7 +42,7 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private boolean isDeleted;
+    private LocalDateTime deletedAt;
 
     @Builder
     private User(String oauthId,
@@ -60,6 +62,8 @@ public class User extends BaseEntity {
     public void register(Track track,
                          boolean webPushNotification,
                          Role role) {
+        validateWithDrawUser();
+
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;
@@ -74,7 +78,30 @@ public class User extends BaseEntity {
     }
 
     public void updateNotificationSetting(boolean settingValue) {
+        validateWithDrawUser();
+
         webPushNotification = settingValue;
+    }
+
+    public void updateUser(String nickname, Track track) {
+        validateWithDrawUser();
+
+        if (nickname.length() < 2 || nickname.length() > 15) {
+            throw new DialogException(ErrorCode.INVALID_NICKNAME_LENGTH);
+        }
+        this.nickname = nickname;
+        this.track = track;
+    }
+
+    public void withdraw() {
+        deletedAt = LocalDateTime.now();
+    }
+
+    public String getNickname() {
+        if (deletedAt != null) {
+            return "탈퇴한 사용자";
+        }
+        return nickname;
     }
 
     @Override
@@ -93,11 +120,9 @@ public class User extends BaseEntity {
         return id != null ? id.hashCode() : 0;
     }
 
-    public void updateUser(String nickname, Track track) {
-        if (nickname.length() < 2 || nickname.length() > 15) {
-            throw new DialogException(ErrorCode.INVALID_NICKNAME_LENGTH);
+    private void validateWithDrawUser() {
+        if (deletedAt != null) {
+            throw new DialogException(ErrorCode.WITHDRAW_USER);
         }
-        this.nickname = nickname;
-        this.track = track;
     }
 }

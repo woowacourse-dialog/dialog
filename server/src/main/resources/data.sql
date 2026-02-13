@@ -1,13 +1,13 @@
-INSERT INTO users (user_id, oauth_id, nickname, github_id, social_type, track, role, web_push_notification, created_at, modified_at, is_deleted)
-VALUES (1, 'oauth_1', '김개발', 'kimdev', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), false),
-       (2, 'oauth_2', '홍길동', 'hong', 'GITHUB', 'BACKEND', 'USER', false, NOW(), NOW(), false),
-       (3, 'oauth_3', '박코딩', 'parkcoding', 'GITHUB', 'FRONTEND', 'USER', true, NOW(), NOW(), false),
-       (4, 'oauth_4', '한스', 'hans', 'GITHUB', 'FRONTEND', 'USER', true, NOW(), NOW(), false),
-       (5, 'oauth_5', '다로', 'daro', 'GITHUB', 'FRONTEND', 'USER', false, NOW(), NOW(), false),
-       (6, 'oauth_6', '밍곰', 'minggom', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), false),
-       (7, 'oauth_7', '히포', 'hippo', 'GITHUB', 'ANDROID', 'USER', true, NOW(), NOW(), false),
-       (8, 'oauth_8', '서프귀여워', 'surfcute', 'GITHUB', 'ANDROID', 'USER', false, NOW(), NOW(), false),
-       (9, 'oauth_9', '차니', 'chani', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), false)
+INSERT INTO users (user_id, oauth_id, nickname, github_id, social_type, track, role, web_push_notification, created_at, modified_at, deleted_at)
+VALUES (1, 'oauth_1', '김개발', 'kimdev', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), NULL),
+       (2, 'oauth_2', '홍길동', 'hong', 'GITHUB', 'BACKEND', 'USER', false, NOW(), NOW(), NULL),
+       (3, 'oauth_3', '박코딩', 'parkcoding', 'GITHUB', 'FRONTEND', 'USER', true, NOW(), NOW(), NULL),
+       (4, 'oauth_4', '한스', 'hans', 'GITHUB', 'FRONTEND', 'USER', true, NOW(), NOW(), NULL),
+       (5, 'oauth_5', '다로', 'daro', 'GITHUB', 'FRONTEND', 'USER', false, NOW(), NOW(), NULL),
+       (6, 'oauth_6', '밍곰', 'minggom', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), NULL),
+       (7, 'oauth_7', '히포', 'hippo', 'GITHUB', 'ANDROID', 'USER', true, NOW(), NOW(), NULL),
+       (8, 'oauth_8', '서프귀여워', 'surfcute', 'GITHUB', 'ANDROID', 'USER', false, NOW(), NOW(), NULL),
+       (9, 'oauth_9', '차니', 'chani', 'GITHUB', 'BACKEND', 'USER', true, NOW(), NOW(), NULL)
 ;
 
 -- 오프라인 토론 완료 상태 (과거)

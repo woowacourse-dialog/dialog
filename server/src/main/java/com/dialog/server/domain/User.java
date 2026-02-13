@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,7 +19,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_oauth_social", columnNames = {"oauth_id", "social_type"})
+})
 @Entity
 public class User extends BaseEntity {
 
@@ -35,6 +38,7 @@ public class User extends BaseEntity {
     private String githubId;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(255) DEFAULT 'GITHUB'")
     private SocialType socialType;
 
     @Enumerated(EnumType.STRING)
@@ -75,7 +79,7 @@ public class User extends BaseEntity {
     }
 
     public boolean isRegistered() {
-        return !role.equals(Role.TEMP_USER);
+        return role != null && !role.equals(Role.TEMP_USER);
     }
 
     public boolean isNotSameId(Long id) {

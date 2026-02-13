@@ -50,7 +50,7 @@ class MobileAuthControllerTest {
         Map<String, Object> claims = Map.of("sub", "apple_user_001", "email", "test@icloud.com");
         when(appleTokenVerifier.verify(anyString(), anyString())).thenReturn(claims);
 
-        MvcResult result = mockMvc.perform(post("/api/auth/mobile/apple")
+        MvcResult result = mockMvc.perform(post("/api/auth/mobile/apple/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"identityToken":"valid.jwt.token","nonce":"test-nonce"}
@@ -79,7 +79,7 @@ class MobileAuthControllerTest {
         Map<String, Object> claims = Map.of("sub", "apple_user_002");
         when(appleTokenVerifier.verify(anyString(), anyString())).thenReturn(claims);
 
-        mockMvc.perform(post("/api/auth/mobile/apple")
+        mockMvc.perform(post("/api/auth/mobile/apple/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"identityToken":"valid.jwt.token","nonce":"test-nonce"}
@@ -96,7 +96,7 @@ class MobileAuthControllerTest {
         when(appleTokenVerifier.verify(anyString(), anyString()))
                 .thenThrow(new DialogException(ErrorCode.INVALID_IDENTITY_TOKEN));
 
-        mockMvc.perform(post("/api/auth/mobile/apple")
+        mockMvc.perform(post("/api/auth/mobile/apple/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"identityToken":"valid.jwt.token","nonce":"wrong-nonce"}
@@ -107,7 +107,7 @@ class MobileAuthControllerTest {
     @Test
     @DisplayName("identityToken 빈값 — 400 응답")
     void emptyIdentityToken() throws Exception {
-        mockMvc.perform(post("/api/auth/mobile/apple")
+        mockMvc.perform(post("/api/auth/mobile/apple/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"identityToken":"","nonce":"test-nonce"}
@@ -118,7 +118,7 @@ class MobileAuthControllerTest {
     @Test
     @DisplayName("nonce 빈값 — 400 응답")
     void emptyNonce() throws Exception {
-        mockMvc.perform(post("/api/auth/mobile/apple")
+        mockMvc.perform(post("/api/auth/mobile/apple/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"identityToken":"valid.jwt.token","nonce":""}

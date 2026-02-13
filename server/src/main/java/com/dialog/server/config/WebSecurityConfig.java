@@ -28,11 +28,8 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
-                                // TODO: 개발 완료 시 아래 행 삭제
-                                .anyRequest().permitAll()
-                        // TODO: 개발 완료 시 아래 주석 해제
-//                        .requestMatchers("/", "/api/signup", "/api/signup/check").permitAll()
-//                        .anyRequest().authenticated()
+                        .requestMatchers("/", "/api/signup", "/api/signup/check", "/api/auth/mobile/apple").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer
                         .authorizationEndpoint(authorization -> authorization.baseUri("/api/oauth2/authorization"))

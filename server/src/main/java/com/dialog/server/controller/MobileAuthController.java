@@ -28,7 +28,7 @@ public class MobileAuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/apple")
+    @PostMapping("/apple/login")
     public ResponseEntity<ApiSuccessResponse<OAuthLoginResponse>> appleLogin(
             @Valid @RequestBody AppleLoginRequest request,
             HttpServletRequest httpRequest) {

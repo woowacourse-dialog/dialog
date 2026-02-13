@@ -40,6 +40,11 @@ spring:
           temperature: 0.7
           max-tokens: 2000
 
+apple:
+  oauth2:
+    allowed-audiences: ${APPLE_ALLOWED_AUDIENCES}
+    default-profile-image-url: ${APPLE_DEFAULT_PROFILE_IMAGE_URL:https://dialog-profile.s3.ap-northeast-2.amazonaws.com/default-apple-profile.png}
+
 app:
   frontend:
     url: ${FRONTEND_URL}

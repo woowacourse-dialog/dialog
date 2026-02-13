@@ -28,14 +28,22 @@ public class AppleOAuth2UserInfo implements OAuth2UserInfo {
         String firstName = (String) claims.get("firstName");
         if (firstName != null && !firstName.isBlank()) {
             String lastName = (String) claims.get("lastName");
-            return lastName != null ? firstName + " " + lastName : firstName;
+            String nickname = lastName != null ? firstName + " " + lastName : firstName;
+            return truncate(nickname);
         }
         String email = (String) claims.get("email");
         if (email != null && !email.matches(".*@privaterelay\\.appleid\\.com$")) {
-            return email.split("@")[0];
+            return truncate(email.split("@")[0]);
         }
         String sub = getOAuthUserId();
         return "Apple_" + (sub != null ? sub.substring(0, Math.min(sub.length(), 8)) : "User");
+    }
+
+    private String truncate(String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.length() > 15 ? value.substring(0, 15) : value;
     }
 
     @Override

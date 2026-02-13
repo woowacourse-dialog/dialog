@@ -5,6 +5,11 @@ import java.util.Map;
 
 public class AppleOAuth2UserInfo implements OAuth2UserInfo {
 
+    private static final String CLAIM_SUB = "sub";
+    private static final String CLAIM_EMAIL = "email";
+    private static final String CLAIM_FIRST_NAME = "firstName";
+    private static final String CLAIM_LAST_NAME = "lastName";
+
     private final String defaultProfileImageUrl;
     private final Map<String, Object> claims;
 
@@ -15,7 +20,7 @@ public class AppleOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getOAuthUserId() {
-        return (String) claims.get("sub");
+        return (String) claims.get(CLAIM_SUB);
     }
 
     @Override
@@ -25,13 +30,13 @@ public class AppleOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getNickname() {
-        String firstName = (String) claims.get("firstName");
+        String firstName = (String) claims.get(CLAIM_FIRST_NAME);
         if (firstName != null && !firstName.isBlank()) {
-            String lastName = (String) claims.get("lastName");
+            String lastName = (String) claims.get(CLAIM_LAST_NAME);
             String nickname = lastName != null ? firstName + " " + lastName : firstName;
             return truncate(nickname);
         }
-        String email = (String) claims.get("email");
+        String email = (String) claims.get(CLAIM_EMAIL);
         if (email != null && !email.matches(".*@privaterelay\\.appleid\\.com$")) {
             return truncate(email.split("@")[0]);
         }

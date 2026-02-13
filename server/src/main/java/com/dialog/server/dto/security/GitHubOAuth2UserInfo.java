@@ -36,7 +36,7 @@ public class GitHubOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getNickname() {
-        return (String) attributes.get("login");
+        return getGithubUsername();
     }
 
     @Override
@@ -44,10 +44,6 @@ public class GitHubOAuth2UserInfo implements OAuth2UserInfo {
         return SocialType.GITHUB;
     }
 
-    /**
-     * GitHub 전용: githubId(login) 조회용
-     * Phase 2 Step 6에서 instanceof 패턴 매칭으로 사용
-     */
     public String getGithubUsername() {
         return (String) attributes.get("login");
     }

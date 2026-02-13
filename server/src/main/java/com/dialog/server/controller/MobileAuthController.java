@@ -47,7 +47,10 @@ public class MobileAuthController {
         Authentication authentication = authService.authenticate(user.getId());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        httpRequest.changeSessionId();
+        HttpSession oldSession = httpRequest.getSession(false);
+        if (oldSession != null) {
+            oldSession.invalidate();
+        }
         HttpSession session = httpRequest.getSession(true);
         session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 

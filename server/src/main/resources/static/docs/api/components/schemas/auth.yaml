@@ -44,16 +44,11 @@ components:
       type: object
       required:
         - identityToken
-        - nonce
       properties:
         identityToken:
           type: string
           description: Apple Sign In에서 발급받은 Identity Token (JWT)
           example: "eyJraWQiOiJXNldjT0..."
-        nonce:
-          type: string
-          description: 클라이언트에서 생성한 nonce 값 (토큰 재사용 방지)
-          example: "random-nonce-string"
         firstName:
           type: string
           nullable: true

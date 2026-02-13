@@ -38,39 +38,21 @@ class AppleTokenVerifierTest {
     }
 
     @Test
-    @DisplayName("유효한 토큰과 올바른 nonce로 claims를 반환한다")
-    void verify_validTokenAndNonce() {
+    @DisplayName("유효한 토큰으로 claims를 반환한다")
+    void verify_validToken() {
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "RS256")
                 .claim("sub", "apple_user_001")
                 .claim("email", "test@icloud.com")
-                .claim("nonce", "valid-nonce")
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(3600))
                 .build();
         when(jwtDecoder.decode(anyString())).thenReturn(jwt);
 
-        Map<String, Object> claims = appleTokenVerifier.verify("valid.jwt.token", "valid-nonce");
+        Map<String, Object> claims = appleTokenVerifier.verify("valid.jwt.token");
 
         assertThat(claims).containsEntry("sub", "apple_user_001");
         assertThat(claims).containsEntry("email", "test@icloud.com");
-    }
-
-    @Test
-    @DisplayName("nonce 불일치 시 INVALID_IDENTITY_TOKEN 예외를 던진다")
-    void verify_nonceMismatch() {
-        Jwt jwt = Jwt.withTokenValue("token")
-                .header("alg", "RS256")
-                .claim("sub", "apple_user_001")
-                .claim("nonce", "correct-nonce")
-                .issuedAt(Instant.now())
-                .expiresAt(Instant.now().plusSeconds(3600))
-                .build();
-        when(jwtDecoder.decode(anyString())).thenReturn(jwt);
-
-        assertThatThrownBy(() -> appleTokenVerifier.verify("valid.jwt.token", "wrong-nonce"))
-                .isInstanceOf(DialogException.class)
-                .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_IDENTITY_TOKEN.code);
     }
 
     @Test
@@ -81,7 +63,7 @@ class AppleTokenVerifierTest {
                 List.of(new OAuth2Error("invalid_token", "Token expired", null)));
         when(jwtDecoder.decode(anyString())).thenThrow(validationException);
 
-        assertThatThrownBy(() -> appleTokenVerifier.verify("expired.jwt.token", "nonce"))
+        assertThatThrownBy(() -> appleTokenVerifier.verify("expired.jwt.token"))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_IDENTITY_TOKEN.code);
     }
@@ -91,7 +73,7 @@ class AppleTokenVerifierTest {
     void verify_jwtDecodeFailed() {
         when(jwtDecoder.decode(anyString())).thenThrow(new JwtException("Decode failed"));
 
-        assertThatThrownBy(() -> appleTokenVerifier.verify("bad.jwt.token", "nonce"))
+        assertThatThrownBy(() -> appleTokenVerifier.verify("bad.jwt.token"))
                 .isInstanceOf(DialogException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.APPLE_AUTH_SERVER_ERROR.code);
     }

@@ -38,8 +38,7 @@ public class AuthService {
     }
 
     public User loginWithApple(AppleLoginRequest request) {
-        Map<String, Object> claims = appleTokenVerifier.verify(
-                request.identityToken(), request.nonce());
+        Map<String, Object> claims = appleTokenVerifier.verify(request.identityToken());
 
         if (request.firstName() != null) {
             claims = new HashMap<>(claims);

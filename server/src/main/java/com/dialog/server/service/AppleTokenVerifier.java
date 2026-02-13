@@ -51,19 +51,11 @@ public class AppleTokenVerifier {
         ));
     }
 
-    public Map<String, Object> verify(String identityToken, String expectedNonce) {
+    public Map<String, Object> verify(String identityToken) {
         try {
             Jwt jwt = jwtDecoder.decode(identityToken);
 
-            String tokenNonce = jwt.getClaimAsString("nonce");
-            if (!expectedNonce.equals(tokenNonce)) {
-                log.warn("Apple token nonce mismatch");
-                throw new DialogException(ErrorCode.INVALID_IDENTITY_TOKEN);
-            }
-
             return jwt.getClaims();
-        } catch (DialogException e) {
-            throw e;
         } catch (JwtValidationException e) {
             log.warn("Apple token validation failed: type={}", e.getClass().getSimpleName());
             throw new DialogException(ErrorCode.INVALID_IDENTITY_TOKEN);

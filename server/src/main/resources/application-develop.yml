@@ -80,6 +80,8 @@ springdoc:
     urls:
       - name: Auth API
         url: /docs/api/auth-controller-openapi.yaml
+      - name: Mobile Auth API
+        url: /docs/api/mobile-auth-controller-openapi.yaml
       - name: Discussion API
         url: /docs/api/discussion-controller-openapi.yaml
       - name: Discussion Comment API

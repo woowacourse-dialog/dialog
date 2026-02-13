@@ -13,6 +13,8 @@ public enum ErrorCode {
     INVALID_USER_ID_FORMAT("1004", "유효하지 않은 인증 정보입니다.", HttpStatus.BAD_REQUEST),
     LOGIN_REQUIRED("1005", "로그인 후 이용할 수 있습니다.", HttpStatus.UNAUTHORIZED),
     WITHDRAW_USER("1006", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
+    INVALID_IDENTITY_TOKEN("1007", "유효하지 않은 인증 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    APPLE_AUTH_SERVER_ERROR("1008", "인증에 실패했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.BAD_GATEWAY),
 
     /**
      * 5XXX - 비즈니스 로직 관련

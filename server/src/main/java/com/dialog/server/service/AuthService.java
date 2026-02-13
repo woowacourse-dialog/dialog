@@ -1,6 +1,7 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.SignupRequest;
 import com.dialog.server.exception.DialogException;
@@ -19,8 +20,8 @@ public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long registerUser(SignupRequest signupRequest, String oauthId) {
-        User user = userRepository.findUserByOauthId(oauthId)
+    public Long registerUser(SignupRequest signupRequest, String oauthId, SocialType socialType) {
+        User user = userRepository.findByOauthIdAndSocialType(oauthId, socialType)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
         if (user.getRole() != null && user.isRegistered()) {
             throw new DialogException(ErrorCode.REGISTERED_USER);

@@ -52,11 +52,4 @@ public class GitHubOAuth2UserInfo implements OAuth2UserInfo {
         return (String) attributes.get("login");
     }
 
-    /**
-     * @deprecated Phase 2 완료 후 삭제. {@link #getGithubUsername()} 사용.
-     */
-    @Deprecated
-    public String getUserId() {
-        return (String) attributes.get("login");
-    }
 }

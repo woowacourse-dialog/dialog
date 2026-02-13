@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doNothing;
 
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
@@ -187,6 +188,7 @@ public class UserServiceTest {
                 .track(Track.BACKEND)
                 .webPushNotification(true)
                 .oauthId("oauthId1")
+                .socialType(SocialType.GITHUB)
                 .build();
     }
 }

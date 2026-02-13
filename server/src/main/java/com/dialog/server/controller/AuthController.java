@@ -1,9 +1,11 @@
 package com.dialog.server.controller;
 
-import static com.dialog.server.controller.handler.OAuth2SuccessHandler.PENDING_OAUTH_ID;
+import static com.dialog.server.controller.constants.SessionConstants.PENDING_OAUTH_ID;
+import static com.dialog.server.controller.constants.SessionConstants.PENDING_SOCIAL_TYPE;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.dto.auth.request.SignupRequest;
 import com.dialog.server.dto.auth.response.LoginCheckResponse;
 import com.dialog.server.dto.auth.response.SignupResponse;
@@ -11,6 +13,7 @@ import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequestMapping("/api")
 @RestController
 public class AuthController {
@@ -42,7 +46,9 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<ApiSuccessResponse<SignupResponse>> signup(@RequestBody SignupRequest signupRequest, HttpServletRequest request) {
         final String oauthId = extractOAuthIdFromSession(request);
-        Long userId = authService.registerUser(signupRequest, oauthId);
+        final SocialType socialType = extractSocialTypeFromSession(request);
+
+        Long userId = authService.registerUser(signupRequest, oauthId, socialType);
 
         final Authentication authentication = authService.authenticate(userId);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -50,6 +56,7 @@ public class AuthController {
         HttpSession session = request.getSession(true);
         session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
         session.removeAttribute(PENDING_OAUTH_ID);
+        session.removeAttribute(PENDING_SOCIAL_TYPE);
         return ResponseEntity.ok(new ApiSuccessResponse<>(new SignupResponse(userId)));
     }
 
@@ -98,5 +105,18 @@ public class AuthController {
         }
 
         return oauthId;
+    }
+
+    private SocialType extractSocialTypeFromSession(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new DialogException(ErrorCode.INVALID_SIGNUP);
+        }
+        SocialType socialType = (SocialType) session.getAttribute(PENDING_SOCIAL_TYPE);
+        if (socialType == null) {
+            log.error("pending_social_type not found in session — 세션 불일치 감지");
+            throw new DialogException(ErrorCode.INVALID_SIGNUP);
+        }
+        return socialType;
     }
 }

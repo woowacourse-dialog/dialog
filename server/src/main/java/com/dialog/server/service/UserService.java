@@ -12,10 +12,12 @@ import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
+import com.dialog.server.dto.security.OAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import com.dialog.server.util.ImageFileExtractor;
 import com.dialog.server.util.ProfileImageFileInfo;
 import java.io.IOException;
@@ -40,21 +42,34 @@ public class UserService {
     }
 
     @Transactional
-    public User findOrCreateTempUser(GitHubOAuth2UserInfo userInfo) {
-        return userRepository.findUserByOauthId(userInfo.getOAuthUserId())
-                .orElseGet(() -> saveTempUser(userInfo));
+    public User findOrCreateTempUser(OAuth2UserInfo userInfo) {
+        try {
+            return userRepository.findByOauthIdAndSocialType(
+                            userInfo.getOAuthUserId(), userInfo.getSocialType())
+                    .orElseGet(() -> saveTempUser(userInfo));
+        } catch (DataIntegrityViolationException e) {
+            return userRepository.findByOauthIdAndSocialType(
+                            userInfo.getOAuthUserId(), userInfo.getSocialType())
+                    .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+        }
     }
 
-    private User saveTempUser(GitHubOAuth2UserInfo oAuth2UserInfo) {
+    private User saveTempUser(OAuth2UserInfo userInfo) {
+        String githubId = null;
+        if (userInfo instanceof GitHubOAuth2UserInfo gitHubInfo) {
+            githubId = gitHubInfo.getGithubUsername();
+        }
+
         final User tempUser = User.builder()
-                .oauthId(oAuth2UserInfo.getOAuthUserId())
-                .nickname(oAuth2UserInfo.getUserId())
-                .githubId(oAuth2UserInfo.getUserId())
+                .oauthId(userInfo.getOAuthUserId())
+                .nickname(userInfo.getNickname())
+                .githubId(githubId)
+                .socialType(userInfo.getSocialType())
                 .role(Role.TEMP_USER)
                 .build();
         final ProfileImage profileImage = ProfileImage.builder()
                 .user(tempUser)
-                .basicImageUri(oAuth2UserInfo.getProfileImageUrl())
+                .basicImageUri(userInfo.getProfileImageUrl())
                 .build();
         final User saved = userRepository.save(tempUser);
         profileImageRepository.save(profileImage);

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import static org.mockito.Mockito.mock;
+
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.SocialType;
@@ -39,7 +41,12 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository);
+        authService = new AuthService(
+                userRepository,
+                mock(UserService.class),
+                mock(AppleTokenVerifier.class),
+                "https://default-profile.png"
+        );
 
         user = userRepository.save(
                 User.builder()

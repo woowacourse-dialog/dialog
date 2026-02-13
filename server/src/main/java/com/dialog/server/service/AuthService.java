@@ -3,21 +3,53 @@ package com.dialog.server.service;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.auth.request.AppleLoginRequest;
 import com.dialog.server.dto.auth.request.SignupRequest;
+import com.dialog.server.dto.auth.response.OAuthLoginResponse;
+import com.dialog.server.dto.security.AppleOAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.UserRepository;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
+    private final AppleTokenVerifier appleTokenVerifier;
+    private final String appleDefaultProfileImageUrl;
+
+    public AuthService(UserRepository userRepository,
+                       UserService userService,
+                       AppleTokenVerifier appleTokenVerifier,
+                       @Value("${apple.oauth2.default-profile-image-url}") String appleDefaultProfileImageUrl) {
+        this.userRepository = userRepository;
+        this.userService = userService;
+        this.appleTokenVerifier = appleTokenVerifier;
+        this.appleDefaultProfileImageUrl = appleDefaultProfileImageUrl;
+    }
+
+    public User loginWithApple(AppleLoginRequest request) {
+        Map<String, Object> claims = appleTokenVerifier.verify(
+                request.identityToken(), request.nonce());
+
+        if (request.firstName() != null) {
+            claims = new HashMap<>(claims);
+            claims.put("firstName", request.firstName());
+            claims.put("lastName", request.lastName());
+        }
+
+        AppleOAuth2UserInfo userInfo = new AppleOAuth2UserInfo(claims, appleDefaultProfileImageUrl);
+        return userService.findOrCreateTempUser(userInfo);
+    }
 
     @Transactional
     public Long registerUser(SignupRequest signupRequest, String oauthId, SocialType socialType) {

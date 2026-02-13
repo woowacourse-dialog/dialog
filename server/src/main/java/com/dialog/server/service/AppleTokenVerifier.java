@@ -5,8 +5,7 @@ import com.dialog.server.exception.ErrorCode;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -19,10 +18,9 @@ import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class AppleTokenVerifier {
-
-    private static final Logger log = LoggerFactory.getLogger(AppleTokenVerifier.class);
 
     private final NimbusJwtDecoder jwtDecoder;
 
@@ -70,7 +68,7 @@ public class AppleTokenVerifier {
             log.warn("Apple token validation failed: type={}", e.getClass().getSimpleName());
             throw new DialogException(ErrorCode.INVALID_IDENTITY_TOKEN);
         } catch (JwtException e) {
-            log.error("Apple token decode failed", e);
+            log.error("Apple token decode failed: type={}", e.getClass().getSimpleName());
             throw new DialogException(ErrorCode.APPLE_AUTH_SERVER_ERROR);
         }
     }

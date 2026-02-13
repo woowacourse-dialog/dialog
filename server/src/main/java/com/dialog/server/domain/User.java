@@ -35,6 +35,9 @@ public class User extends BaseEntity {
     private String githubId;
 
     @Enumerated(EnumType.STRING)
+    private SocialType socialType;
+
+    @Enumerated(EnumType.STRING)
     private Track track;
 
     private boolean webPushNotification;
@@ -48,12 +51,14 @@ public class User extends BaseEntity {
     private User(String oauthId,
                  String nickname,
                  String githubId,
+                 SocialType socialType,
                  Track track,
                  boolean webPushNotification,
                  Role role) {
         this.oauthId = oauthId;
         this.nickname = nickname;
         this.githubId = githubId;
+        this.socialType = socialType != null ? socialType : SocialType.GITHUB;
         this.track = track;
         this.webPushNotification = webPushNotification;
         this.role = role;

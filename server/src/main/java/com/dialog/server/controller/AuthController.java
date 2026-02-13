@@ -93,30 +93,24 @@ public class AuthController {
         return responseBuilder.build();
     }
 
-    private String extractOAuthIdFromSession(HttpServletRequest request) {
+    private <T> T extractSessionAttribute(HttpServletRequest request, String attributeName, Class<T> type) {
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new DialogException(ErrorCode.INVALID_SIGNUP);
         }
-
-        String oauthId = (String) session.getAttribute(PENDING_OAUTH_ID);
-        if (oauthId == null) {
+        Object value = session.getAttribute(attributeName);
+        if (value == null) {
+            log.error("{} not found in session", attributeName);
             throw new DialogException(ErrorCode.INVALID_SIGNUP);
         }
+        return type.cast(value);
+    }
 
-        return oauthId;
+    private String extractOAuthIdFromSession(HttpServletRequest request) {
+        return extractSessionAttribute(request, PENDING_OAUTH_ID, String.class);
     }
 
     private SocialType extractSocialTypeFromSession(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            throw new DialogException(ErrorCode.INVALID_SIGNUP);
-        }
-        SocialType socialType = (SocialType) session.getAttribute(PENDING_SOCIAL_TYPE);
-        if (socialType == null) {
-            log.error("pending_social_type not found in session — 세션 불일치 감지");
-            throw new DialogException(ErrorCode.INVALID_SIGNUP);
-        }
-        return socialType;
+        return extractSessionAttribute(request, PENDING_SOCIAL_TYPE, SocialType.class);
     }
 }

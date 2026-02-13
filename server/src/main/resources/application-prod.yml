@@ -44,7 +44,7 @@ spring:
 apple:
   oauth2:
     allowed-audiences: ${APPLE_ALLOWED_AUDIENCES}
-    default-profile-image-url: ${APPLE_DEFAULT_PROFILE_IMAGE_URL:https://dialog-profile.s3.ap-northeast-2.amazonaws.com/default-apple-profile.png}
+    default-profile-image-url: ${APPLE_DEFAULT_PROFILE_IMAGE_URL:/images/default-profile.png}
 
 app:
   frontend:

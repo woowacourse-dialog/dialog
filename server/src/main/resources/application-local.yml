@@ -8,6 +8,11 @@ spring:
     username: ${DEVELOP_DB_USERNAME}
     password: ${DEVELOP_DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 10
+      connection-timeout: 30000
+      pool-name: DialogHikariPool
 
   jpa:
     defer-datasource-initialization: true

@@ -2,6 +2,7 @@ package com.dialog.server.service;
 
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
+import com.dialog.server.dto.security.OAuth2UserInfo;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +29,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = defaultOAuth2UserService.loadUser(userRequest);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        GitHubOAuth2UserInfo userInfo = new GitHubOAuth2UserInfo(attributes);
+        OAuth2UserInfo userInfo = new GitHubOAuth2UserInfo(attributes);
 
         User user = userService.findOrCreateTempUser(userInfo);
 

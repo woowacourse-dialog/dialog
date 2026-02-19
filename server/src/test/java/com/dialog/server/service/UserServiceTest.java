@@ -9,6 +9,7 @@ import static org.mockito.Mockito.doNothing;
 
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.NotificationSettingRequest;
@@ -17,14 +18,19 @@ import com.dialog.server.dto.request.UserMypageUpdateRequest;
 import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
+import com.dialog.server.dto.security.AppleOAuth2UserInfo;
+import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.UserRepository;
 import com.dialog.server.util.ImageFileExtractor;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -180,6 +186,58 @@ public class UserServiceTest {
     }
 
 
+    @Nested
+    @DisplayName("findOrCreateTempUser")
+    class FindOrCreateTempUserTest {
+
+        @Test
+        @DisplayName("기존 사용자가 있으면 조회하여 반환한다")
+        void 기존_사용자_조회_성공() {
+            AppleOAuth2UserInfo userInfo = new AppleOAuth2UserInfo(
+                    Map.of("sub", "oauthId1"),
+                    "https://default.png");
+            // socialType을 APPLE로 조회하면 GITHUB user와 매칭되지 않으므로,
+            // GitHub user와 동일한 조건으로 조회
+            GitHubOAuth2UserInfo gitHubUserInfo = new GitHubOAuth2UserInfo(
+                    Map.of("id", "oauthId1", "login", "minggom", "avatar_url", "https://img.com/1.png"));
+
+            User result = userService.findOrCreateTempUser(gitHubUserInfo);
+
+            assertThat(result.getId()).isEqualTo(user.getId());
+            assertThat(result.getOauthId()).isEqualTo("oauthId1");
+        }
+
+        @Test
+        @DisplayName("신규 사용자이면 TEMP_USER로 생성한다")
+        void 신규_사용자_생성() {
+            AppleOAuth2UserInfo userInfo = new AppleOAuth2UserInfo(
+                    Map.of("sub", "apple_new_user_001", "email", "test@icloud.com"),
+                    "https://default.png");
+
+            User result = userService.findOrCreateTempUser(userInfo);
+
+            assertAll(
+                    () -> assertThat(result.getId()).isNotNull(),
+                    () -> assertThat(result.getOauthId()).isEqualTo("apple_new_user_001"),
+                    () -> assertThat(result.getSocialType()).isEqualTo(SocialType.APPLE),
+                    () -> assertThat(result.getRole()).isEqualTo(Role.TEMP_USER)
+            );
+        }
+
+        @Test
+        @DisplayName("같은 oauthId로 재호출 시 기존 사용자를 반환한다")
+        void 동일_사용자_재호출시_기존_반환() {
+            AppleOAuth2UserInfo userInfo = new AppleOAuth2UserInfo(
+                    Map.of("sub", "apple_repeat_001"),
+                    "https://default.png");
+
+            User first = userService.findOrCreateTempUser(userInfo);
+            User second = userService.findOrCreateTempUser(userInfo);
+
+            assertThat(first.getId()).isEqualTo(second.getId());
+        }
+    }
+
     private User createUser() {
         return User.builder()
                 .nickname("minggom")
@@ -187,6 +245,7 @@ public class UserServiceTest {
                 .track(Track.BACKEND)
                 .webPushNotification(true)
                 .oauthId("oauthId1")
+                .socialType(SocialType.GITHUB)
                 .build();
     }
 }

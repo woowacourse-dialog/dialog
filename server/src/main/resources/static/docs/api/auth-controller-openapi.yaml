@@ -21,14 +21,15 @@ paths:
         - Auth
       summary: 회원가입
       description: |
-        GitHub OAuth 인증 후 회원가입을 진행합니다.
+        OAuth 인증 후 회원가입을 진행합니다.
 
         **로그인 및 회원가입 프로세스:**
-        - GitHub OAuth를 통해 인증을 진행합니다
+        - GitHub OAuth 또는 Apple 로그인을 통해 인증을 진행합니다
         - 사용자는 등록되지 않은 사용자(TEMP_USER)와 등록된 사용자(USER)로 구분됩니다
-        - TEMP_USER: GitHub 인증에 성공했지만 서비스를 처음 이용하여 회원가입이 되지 않은 사용자
+        - TEMP_USER: OAuth 인증에 성공했지만 서비스를 처음 이용하여 회원가입이 되지 않은 사용자
         - USER: 서비스에 회원가입한 사용자
-        - 리다이렉트 시 쿼리 파라미터로 사용자의 `OAUTH_ID`가 전달됩니다
+        - GitHub: 리다이렉트 시 쿼리 파라미터로 사용자의 `OAUTH_ID`가 전달됩니다
+        - Apple: `/api/auth/mobile/apple/login` 호출 후 미가입 사용자인 경우 세션에 OAuth 정보가 저장됩니다
         - 세션 로그인 방식을 사용합니다
       operationId: signup
       requestBody:

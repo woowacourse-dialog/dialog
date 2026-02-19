@@ -31,7 +31,7 @@ public class WebSecurityConfig {
                                 // TODO: 개발 완료 시 아래 행 삭제
                                 .anyRequest().permitAll()
                         // TODO: 개발 완료 시 아래 주석 해제
-//                        .requestMatchers("/", "/api/signup", "/api/signup/check").permitAll()
+//                        .requestMatchers("/", "/api/signup", "/api/signup/check", "/api/auth/mobile/apple").permitAll()
 //                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oAuth2LoginConfigurer -> oAuth2LoginConfigurer

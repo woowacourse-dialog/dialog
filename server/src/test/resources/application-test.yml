@@ -56,3 +56,8 @@ aws:
 firebase:
   config:
     path: src/test/resources/firebase-service-account-test.json
+
+apple:
+  oauth2:
+    allowed-audiences: test-bundle-id,test-service-id
+    default-profile-image-url: https://test-profile-image.example.com/default.png

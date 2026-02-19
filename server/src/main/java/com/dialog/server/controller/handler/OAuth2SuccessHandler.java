@@ -1,5 +1,7 @@
 package com.dialog.server.controller.handler;
 
+import static com.dialog.server.controller.constants.SessionConstants.PENDING_OAUTH_ID;
+import static com.dialog.server.controller.constants.SessionConstants.PENDING_SOCIAL_TYPE;
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
@@ -21,7 +23,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private static final String SIGNUP_PATH = "/signup";
     private static final String HOME_PATH = "/";
-    public static final String PENDING_OAUTH_ID = "pending_oauth_id";
 
     private final AuthService authService;
 
@@ -54,6 +55,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         OAuth2UserPrincipal principal) throws IOException {
         HttpSession session = request.getSession(true);
         session.setAttribute(PENDING_OAUTH_ID, principal.getName());
+        session.setAttribute(PENDING_SOCIAL_TYPE, principal.user().getSocialType());
 
         String redirectUrl = frontendUrl + SIGNUP_PATH;
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);

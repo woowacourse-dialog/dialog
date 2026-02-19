@@ -9,6 +9,7 @@ import com.dialog.server.config.JpaConfig;
 import com.dialog.server.config.S3Config;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.security.OAuth2UserPrincipal;
 import com.dialog.server.repository.ProfileImageRepository;
@@ -75,6 +76,7 @@ class CustomOAuth2UserServiceTest {
                         .oauthId(registeredOAuthId)
                         .nickname("test")
                         .webPushNotification(false)
+                        .socialType(SocialType.GITHUB)
                         .role(Role.USER)
                         .build()
         );

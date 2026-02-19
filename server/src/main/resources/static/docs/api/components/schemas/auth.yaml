@@ -39,3 +39,44 @@ components:
           type: boolean
           description: 로그인 여부
           example: true
+
+    AppleLoginRequest:
+      type: object
+      required:
+        - identityToken
+      properties:
+        identityToken:
+          type: string
+          description: Apple Sign In에서 발급받은 Identity Token (JWT)
+          example: "eyJraWQiOiJXNldjT0..."
+        firstName:
+          type: string
+          nullable: true
+          description: 사용자의 이름 (Apple 최초 로그인 시에만 제공)
+          example: "길동"
+        lastName:
+          type: string
+          nullable: true
+          description: 사용자의 성 (Apple 최초 로그인 시에만 제공)
+          example: "홍"
+
+    OAuthLoginResponse:
+      type: object
+      required:
+        - isRegistered
+      properties:
+        isRegistered:
+          type: boolean
+          description: 회원가입 완료 여부 (true → 기존 회원, false → 회원가입 필요)
+          example: true
+        userId:
+          type: integer
+          format: int64
+          nullable: true
+          description: 사용자 ID (가입된 사용자만 반환)
+          example: 123
+        nickname:
+          type: string
+          nullable: true
+          description: 사용자 닉네임 (가입된 사용자만 반환)
+          example: "홍길동"

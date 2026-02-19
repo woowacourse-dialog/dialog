@@ -11,7 +11,7 @@ public class LocalLockManager implements LockManager {
 
     @Override
     public void lock(Long key) {
-        lockMap.computeIfAbsent(key, k -> new ReentrantLock(true)).lock();
+        lockMap.computeIfAbsent(key, k -> new ReentrantLock()).lock();
     }
 
     @Override

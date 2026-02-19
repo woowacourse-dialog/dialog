@@ -1,7 +1,6 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ParticipationStatusResponse;
@@ -22,22 +21,31 @@ public class DiscussionParticipantService {
     private final DiscussionParticipantRepository discussionParticipantRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
+    private final DiscussionParticipationExecutor participationExecutor;
 
-    @Transactional
     public void participate(Long userId, Long discussionId) {
-        User participant = getUserById(userId);
-        Discussion discussion = getDiscussionByIdWithLock(discussionId);
-        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
-                .participant(participant)
-                .discussion(discussion)
-                .build();
+        // 1. 사전 검증: 이미 참여 중이면 락 없이 즉시 거부
+        if (discussionParticipantRepository.existsByDiscussion_IdAndParticipant_Id(discussionId, userId)) {
+            throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
+        }
 
+        // 2. 읽기 작업: 경합 없음 (락 바깥)
+        User participant = getUserById(userId);
+        Discussion discussion = getDiscussionById(discussionId);
+
+        // 3. 사전 검증: 오프라인 토론 여부 / 이미 시작 / 정원 초과
         if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
             throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
         }
-        offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
+        if (offlineDiscussion.getStartAt().isBefore(LocalDateTime.now())) {
+            throw new DialogException(ErrorCode.DISCUSSION_ALREADY_STARTED);
+        }
+        if (offlineDiscussion.getParticipantCount() >= offlineDiscussion.getMaxParticipantCount()) {
+            throw new DialogException(ErrorCode.PARTICIPATION_LIMIT_EXCEEDED);
+        }
 
-        discussionParticipantRepository.save(discussionParticipant);
+        // 4. 임계 구역 위임: 락 + 트랜잭션 (AOP 적용)
+        participationExecutor.execute(participant, discussionId);
     }
 
     @Transactional(readOnly = true)
@@ -56,11 +64,6 @@ public class DiscussionParticipantService {
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private Discussion getDiscussionByIdWithLock(Long discussionId) {
-        return discussionRepository.findByIdForUpdate(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
     }
 
     private Discussion getDiscussionById(Long discussionId) {

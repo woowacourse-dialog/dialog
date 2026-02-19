@@ -1,15 +1,11 @@
 package com.dialog.server.repository;
 
 import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
-import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -57,7 +53,4 @@ public interface DiscussionRepository extends JpaRepository<Discussion, Long>, D
             Pageable pageable
     );
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT d FROM OfflineDiscussion d WHERE d.id = :id")
-    Optional<OfflineDiscussion> findByIdForUpdate(@Param("id") Long id);
 }

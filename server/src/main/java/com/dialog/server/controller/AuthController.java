@@ -13,9 +13,9 @@ import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.service.AuthService;
-import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -100,7 +100,7 @@ public class AuthController {
         }
         Object value = session.getAttribute(attributeName);
         if (value == null) {
-            log.error("{} not found in session", attributeName);
+            log.info("{} not found in session", attributeName);
             throw new DialogException(ErrorCode.INVALID_SIGNUP);
         }
         return type.cast(value);

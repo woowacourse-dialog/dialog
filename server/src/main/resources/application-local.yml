@@ -20,9 +20,9 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: true
+        show_sql: false
     open-in-view: false
 
   sql:
@@ -58,6 +58,11 @@ management:
     web:
       exposure:
         include: "health,info,prometheus"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        hikaricp: true
+        http.server.requests: true
 
 server:
   servlet:

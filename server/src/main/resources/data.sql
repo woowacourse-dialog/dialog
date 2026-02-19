@@ -1,13 +1,13 @@
-INSERT INTO users (user_id, nickname, track, web_push_notification, created_at, modified_at, is_deleted)
-VALUES (1, '김개발','BACKEND', true, NOW(), NOW(), false),
-       (2, '홍길동','BACKEND', false, NOW(), NOW(), false),
-       (3, '박코딩','FRONTEND', true, NOW(), NOW(), false),
-       (4, '한스','FRONTEND', true, NOW(), NOW(), false),
-       (5, '다로','FRONTEND', false, NOW(), NOW(), false),
-       (6, '밍곰','BACKEND', true, NOW(), NOW(), false),
-       (7, '히포','ANDROID', true, NOW(), NOW(), false),
-       (8, '서프귀여워','ANDROID', false, NOW(), NOW(), false),
-       (9, '차니','BACKEND', true, NOW(), NOW(), false)
+INSERT INTO users (user_id, nickname, track, web_push_notification, created_at, modified_at, deleted_at)
+VALUES (1, '김개발','BACKEND', true, NOW(), NOW(), NULL),
+       (2, '홍길동','BACKEND', false, NOW(), NOW(), NULL),
+       (3, '박코딩','FRONTEND', true, NOW(), NOW(), NULL),
+       (4, '한스','FRONTEND', true, NOW(), NOW(), NULL),
+       (5, '다로','FRONTEND', false, NOW(), NOW(), NULL),
+       (6, '밍곰','BACKEND', true, NOW(), NOW(), NULL),
+       (7, '히포','ANDROID', true, NOW(), NOW(), NULL),
+       (8, '서프귀여워','ANDROID', false, NOW(), NOW(), NULL),
+       (9, '차니','BACKEND', true, NOW(), NOW(), NULL)
 ;
 
 -- 오프라인 토론 완료 상태 (과거)

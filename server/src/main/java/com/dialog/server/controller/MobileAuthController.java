@@ -37,9 +37,9 @@ public class MobileAuthController {
 
         if (user.isRegistered()) {
             return handleRegisteredUser(httpRequest, user);
-        } else {
-            return handleUnregisteredUser(httpRequest, user);
         }
+
+        return handleUnregisteredUser(httpRequest, user);
     }
 
     private ResponseEntity<ApiSuccessResponse<OAuthLoginResponse>> handleRegisteredUser(

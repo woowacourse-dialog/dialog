@@ -24,27 +24,12 @@ public class DiscussionParticipantService {
     private final DiscussionParticipationExecutor participationExecutor;
 
     public void participate(Long userId, Long discussionId) {
-        // 1. 사전 검증: 이미 참여 중이면 락 없이 즉시 거부
-        if (discussionParticipantRepository.existsByDiscussion_IdAndParticipant_Id(discussionId, userId)) {
-            throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
-        }
+        validateNotAlreadyParticipating(discussionId, userId);
 
-        // 2. 읽기 작업: 경합 없음 (락 바깥)
         User participant = getUserById(userId);
-        Discussion discussion = getDiscussionById(discussionId);
+        OfflineDiscussion offlineDiscussion = getOfflineDiscussion(discussionId);
+        validateParticipable(offlineDiscussion);
 
-        // 3. 사전 검증: 오프라인 토론 여부 / 이미 시작 / 정원 초과
-        if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
-            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
-        }
-        if (offlineDiscussion.getStartAt().isBefore(LocalDateTime.now())) {
-            throw new DialogException(ErrorCode.DISCUSSION_ALREADY_STARTED);
-        }
-        if (offlineDiscussion.getParticipantCount() >= offlineDiscussion.getMaxParticipantCount()) {
-            throw new DialogException(ErrorCode.PARTICIPATION_LIMIT_EXCEEDED);
-        }
-
-        // 4. 임계 구역 위임: 락 + 트랜잭션 (AOP 적용)
         participationExecutor.execute(participant, discussionId);
     }
 
@@ -59,6 +44,29 @@ public class DiscussionParticipantService {
         );
 
         return new ParticipationStatusResponse(isParticipation);
+    }
+
+    private void validateNotAlreadyParticipating(Long discussionId, Long userId) {
+        if (discussionParticipantRepository.existsByDiscussion_IdAndParticipant_Id(discussionId, userId)) {
+            throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
+        }
+    }
+
+    private OfflineDiscussion getOfflineDiscussion(Long discussionId) {
+        Discussion discussion = getDiscussionById(discussionId);
+        if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
+            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
+        }
+        return offlineDiscussion;
+    }
+
+    private void validateParticipable(OfflineDiscussion offlineDiscussion) {
+        if (offlineDiscussion.getStartAt().isBefore(LocalDateTime.now())) {
+            throw new DialogException(ErrorCode.DISCUSSION_ALREADY_STARTED);
+        }
+        if (offlineDiscussion.getParticipantCount() >= offlineDiscussion.getMaxParticipantCount()) {
+            throw new DialogException(ErrorCode.PARTICIPATION_LIMIT_EXCEEDED);
+        }
     }
 
     private User getUserById(Long userId) {

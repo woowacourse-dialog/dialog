@@ -1,5 +1,7 @@
 package com.dialog.server.service;
 
+import static com.dialog.server.domain.SocialType.GITHUB;
+
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Role;
 import com.dialog.server.domain.User;
@@ -11,17 +13,16 @@ import com.dialog.server.dto.response.BasicProfileImageResponse;
 import com.dialog.server.dto.response.MyTrackGetTrackResponse;
 import com.dialog.server.dto.response.ProfileImageGetResponse;
 import com.dialog.server.dto.response.ProfileImageUpdateResponse;
-import com.dialog.server.dto.security.GitHubOAuth2UserInfo;
 import com.dialog.server.dto.security.OAuth2UserInfo;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import com.dialog.server.util.ImageFileExtractor;
 import com.dialog.server.util.ProfileImageFileInfo;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -56,8 +57,8 @@ public class UserService {
 
     private User saveTempUser(OAuth2UserInfo userInfo) {
         String githubId = null;
-        if (userInfo instanceof GitHubOAuth2UserInfo gitHubInfo) {
-            githubId = gitHubInfo.getGithubUsername();
+        if (userInfo.getSocialType() == GITHUB) {
+            githubId = userInfo.getNickname();
         }
 
         final User tempUser = User.builder()

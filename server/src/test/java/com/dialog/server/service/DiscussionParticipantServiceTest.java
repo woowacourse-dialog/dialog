@@ -35,14 +35,20 @@ class DiscussionParticipantServiceTest {
     @Autowired
     private DiscussionParticipantRepository discussionParticipantRepository;
 
+    private DiscussionParticipationExecutor participationExecutor;
     private DiscussionParticipantService discussionParticipantService;
 
     @BeforeEach
     void setUp() {
+        participationExecutor = new DiscussionParticipationExecutor(
+                discussionRepository,
+                discussionParticipantRepository
+        );
         discussionParticipantService = new DiscussionParticipantService(
                 discussionParticipantRepository,
                 userRepository,
-                discussionRepository
+                discussionRepository,
+                participationExecutor
         );
     }
 

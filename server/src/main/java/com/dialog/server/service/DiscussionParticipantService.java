@@ -1,7 +1,6 @@
 package com.dialog.server.service;
 
 import com.dialog.server.domain.Discussion;
-import com.dialog.server.domain.DiscussionParticipant;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ParticipationStatusResponse;
@@ -22,22 +21,16 @@ public class DiscussionParticipantService {
     private final DiscussionParticipantRepository discussionParticipantRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
+    private final DiscussionParticipationExecutor participationExecutor;
 
-    @Transactional
     public void participate(Long userId, Long discussionId) {
+        validateNotAlreadyParticipating(discussionId, userId);
+
         User participant = getUserById(userId);
-        Discussion discussion = getDiscussionByIdWithLock(discussionId);
-        DiscussionParticipant discussionParticipant = DiscussionParticipant.builder()
-                .participant(participant)
-                .discussion(discussion)
-                .build();
+        OfflineDiscussion offlineDiscussion = getOfflineDiscussion(discussionId);
+        validateParticipable(offlineDiscussion);
 
-        if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
-            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
-        }
-        offlineDiscussion.participate(LocalDateTime.now(), discussionParticipant);
-
-        discussionParticipantRepository.save(discussionParticipant);
+        participationExecutor.execute(participant, discussionId);
     }
 
     @Transactional(readOnly = true)
@@ -53,14 +46,32 @@ public class DiscussionParticipantService {
         return new ParticipationStatusResponse(isParticipation);
     }
 
+    private void validateNotAlreadyParticipating(Long discussionId, Long userId) {
+        if (discussionParticipantRepository.existsByDiscussion_IdAndParticipant_Id(discussionId, userId)) {
+            throw new DialogException(ErrorCode.ALREADY_PARTICIPATION_DISCUSSION);
+        }
+    }
+
+    private OfflineDiscussion getOfflineDiscussion(Long discussionId) {
+        Discussion discussion = getDiscussionById(discussionId);
+        if (!(discussion instanceof OfflineDiscussion offlineDiscussion)) {
+            throw new DialogException(ErrorCode.NOT_OFFLINE_DISCUSSION);
+        }
+        return offlineDiscussion;
+    }
+
+    private void validateParticipable(OfflineDiscussion offlineDiscussion) {
+        if (offlineDiscussion.getStartAt().isBefore(LocalDateTime.now())) {
+            throw new DialogException(ErrorCode.DISCUSSION_ALREADY_STARTED);
+        }
+        if (offlineDiscussion.getParticipantCount() >= offlineDiscussion.getMaxParticipantCount()) {
+            throw new DialogException(ErrorCode.PARTICIPATION_LIMIT_EXCEEDED);
+        }
+    }
+
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    private Discussion getDiscussionByIdWithLock(Long discussionId) {
-        return discussionRepository.findByIdForUpdate(discussionId)
-                .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
     }
 
     private Discussion getDiscussionById(Long discussionId) {

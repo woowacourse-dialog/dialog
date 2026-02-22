@@ -13,4 +13,6 @@ public interface DiscussionParticipantRepository extends JpaRepository<Discussio
     List<DiscussionParticipant> findByDiscussion(Discussion discussion);
 
     boolean existsByDiscussionAndParticipant(Discussion discussion, User participant);
+
+    boolean existsByDiscussion_IdAndParticipant_Id(Long discussionId, Long participantId);
 }

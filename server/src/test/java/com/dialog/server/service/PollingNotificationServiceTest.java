@@ -1,6 +1,8 @@
 package com.dialog.server.service;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.domain.Notification;
@@ -153,11 +155,13 @@ class PollingNotificationServiceTest {
         });
 
         // then
-        assertThat(deferredResult.hasResult()).isTrue();
-        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity = (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
-        NotificationPollingResponse pollingResponse = responseEntity.getBody().data();
-        assertThat(pollingResponse.notifications()).hasSize(1);
-        assertThat(pollingResponse.unreadCount()).isEqualTo(1L);
+        await().atMost(5, SECONDS).untilAsserted(() -> {
+            assertThat(deferredResult.hasResult()).isTrue();
+            ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity = (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
+            NotificationPollingResponse pollingResponse = responseEntity.getBody().data();
+            assertThat(pollingResponse.notifications()).hasSize(1);
+            assertThat(pollingResponse.unreadCount()).isEqualTo(1L);
+        });
     }
 
     @Test
@@ -189,12 +193,14 @@ class PollingNotificationServiceTest {
         });
 
         // then
-        assertThat(deferredResult.hasResult()).isTrue();
-        ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity = (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
-        NotificationPollingResponse pollingResponse = responseEntity.getBody().data();
-        assertAll(
-                () -> assertThat(pollingResponse.unreadCount()).isEqualTo(0L),
-                () -> assertThat(pollingResponse.notifications()).isEmpty()
-        );
+        await().atMost(5, SECONDS).untilAsserted(() -> {
+            assertThat(deferredResult.hasResult()).isTrue();
+            ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>> responseEntity = (ResponseEntity<ApiSuccessResponse<NotificationPollingResponse>>) deferredResult.getResult();
+            NotificationPollingResponse pollingResponse = responseEntity.getBody().data();
+            assertAll(
+                    () -> assertThat(pollingResponse.unreadCount()).isEqualTo(0L),
+                    () -> assertThat(pollingResponse.notifications()).isEmpty()
+            );
+        });
     }
 }

@@ -12,6 +12,7 @@ import com.dialog.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -57,6 +58,7 @@ public class PollingNotificationService {
         waitingRequests.put(connectionKey, deferredResult);
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationEvent(NotificationCreatedEvent event) {
         Notification savedNotification = event.getNotification();
@@ -65,6 +67,7 @@ public class PollingNotificationService {
         notifyToActivePollers(receiver.getId(), NotificationPollingResponse.of(savedNotification, unreadCount));
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleNotificationsReadEvent(NotificationsReadEvent event) {
         notifyToActivePollers(event.getUserId(), NotificationPollingResponse.createBulkReadResponse(event.getUnreadCount()));

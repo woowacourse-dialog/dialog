@@ -1,26 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import dialogIcon from '../assets/dialog_icon.png';
 import commentIcon from '../assets/comment-icon.svg';
 import { getDiscussionStatus, getDiscussionStatusStyle } from '../utils/discussionStatus';
+import { getTrackDisplayName } from '../constants/tracks';
+import { getProfileImageSrc } from '../utils/profileImage';
 import styles from './DiscussionCard.module.css';
-
-const TRACKS = [
-  { id: 'COMMON', name: 'ALL' },
-  { id: 'FRONTEND', name: 'FE' },
-  { id: 'BACKEND', name: 'BE' },
-  { id: 'ANDROID', name: 'AN' },
-];
-
-// 프로필 이미지 URL을 가져오는 함수
-const getProfileImageSrc = (profileImage) => {
-  if (!profileImage) return dialogIcon;
-  if (profileImage.customImageUri) {
-    return profileImage.customImageUri;
-  }
-  return profileImage.basicImageUri || dialogIcon;
-};
 
 export default function DiscussionCard({
   id,
@@ -30,12 +15,6 @@ export default function DiscussionCard({
   onlineDiscussionInfo
 }) {
   const navigate = useNavigate();
-
-  // 트랙 ID를 한글 이름으로 변환
-  const getTrackName = (trackId) => {
-    const track = TRACKS.find(t => t.id === trackId);
-    return track ? track.name : trackId;
-  };
 
   // 토론 상태 계산
   const discussion = {
@@ -71,7 +50,7 @@ export default function DiscussionCard({
 
       {/* 제목 영역 */}
       <div className={styles.titleRow}>
-        <span className={styles.categoryBadge}>{getTrackName(commonDiscussionInfo.category)}</span>
+        <span className={styles.categoryBadge}>{getTrackDisplayName(commonDiscussionInfo.category)}</span>
         <div className={styles.title}>
           {commonDiscussionInfo.title}
         </div>

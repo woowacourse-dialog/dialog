@@ -2,24 +2,13 @@ import React, { useState } from 'react';
 import styles from './DiscussionFilter.module.css';
 import filterClose from '../assets/filter-close.png';
 import filterOpen from '../assets/filter-open.png';
+import { STATUS_OPTIONS, DISCUSSION_TYPE_OPTIONS } from '../constants/filters';
 
 const CATEGORY_OPTIONS = [
   { label: 'Frontend', value: 'frontend' },
   { label: 'Backend', value: 'backend' },
   { label: 'Android', value: 'android' },
   { label: '공통', value: 'common' },
-];
-
-const STATUS_OPTIONS = [
-  { label: '모집 중', value: 'recruiting' },
-  { label: '모집 완료', value: 'recruitComplete' },
-  { label: '토론 중', value: 'inDiscussion' },
-  { label: '토론 완료', value: 'discussionComplete' },
-];
-
-const DISCUSSION_TYPE_OPTIONS = [
-  { label: '온라인', value: 'online' },
-  { label: '오프라인', value: 'offline' },
 ];
 
 const DiscussionFilter = ({

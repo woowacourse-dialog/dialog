@@ -2,28 +2,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import './MyPage.css';
 import { useNavigate } from 'react-router-dom';
+import { getTrackDisplayName } from '../../constants/tracks';
+import { getProfileImageSrc } from '../../utils/profileImage';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true
 });
-
-const getProfileImageSrc = (profileImage) => {
-  if (!profileImage) return '';
-  if (profileImage.customImageUri) {
-    return profileImage.customImageUri;
-  }
-  return profileImage.basicImageUri;
-};
-
-const getTrackDisplayName = (track) => {
-  const trackMapping = {
-    'BACKEND': 'BE',
-    'FRONTEND': 'FE',
-    'ANDROID': 'AN'
-  };
-  return trackMapping[track] || track;
-};
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);

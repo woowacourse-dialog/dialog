@@ -5,13 +5,8 @@ import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 import { createOfflineDiscussion, createOnlineDiscussion } from '../../../api/discussion';
 import { userApi } from '../../../api/userApi';
-
-const TRACKS = [
-  { id: 'FRONTEND', name: '프론트엔드' },
-  { id: 'BACKEND', name: '백엔드' },
-  { id: 'ANDROID', name: '안드로이드' },
-  { id: 'COMMON', name: '공통' }
-];
+import { TRACKS, getTrackFullName } from '../../../constants/tracks';
+import { formatDateTime } from '../../../utils/dateUtils';
 
 const DiscussionCreateFormPage = () => {
   const navigate = useNavigate();
@@ -61,16 +56,11 @@ const DiscussionCreateFormPage = () => {
       }
 
       const discussionId = res.data.discussionId;
-      const trackName = (TRACKS.find(t => t.id === track)?.name) || track;
+      const trackName = getTrackFullName(track);
       navigate(`/discussion/${discussionId}/complete`, { state: { title, content, trackName } });
     } catch (error) {
       alert(error.response.data.message);
     }
-  };
-
-  const formatDateTime = (date, time) => {
-    const dt = new Date(`${date}T${time}`);
-    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
   };
 
   const getEndDate = (daysOffset) => {

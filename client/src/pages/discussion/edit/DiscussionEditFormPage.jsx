@@ -5,13 +5,8 @@ import TitleInput from '../../../components/TitleInput/TitleInput';
 import MarkdownEditor from '../../../components/MarkdownEditor/MarkdownEditor';
 
 import { findDiscussionById, updateOfflineDiscussion, updateOnlineDiscussion } from '../../../api/discussion';
-
-const TRACKS = [
-  { id: 'FRONTEND', name: '프론트엔드' },
-  { id: 'BACKEND', name: '백엔드' },
-  { id: 'ANDROID', name: '안드로이드' },
-  { id: 'COMMON', name: '공통' }
-];
+import { TRACKS } from '../../../constants/tracks';
+import { formatDateTime } from '../../../utils/dateUtils';
 
 const DiscussionEditFormPage = () => {
   const navigate = useNavigate();
@@ -94,11 +89,6 @@ const DiscussionEditFormPage = () => {
     } catch (error) {
       alert(error.response.data.message);
     }
-  };
-
-  const formatDateTime = (date, time) => {
-    const dt = new Date(`${date}T${time}`);
-    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
   };
 
   const handleParticipantCountChange = (e) => {

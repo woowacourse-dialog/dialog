@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
 import styles from './DiscussionFilterBar.module.css';
+import { STATUS_OPTIONS, DISCUSSION_TYPE_OPTIONS } from '../constants/filters';
 
 const TRACK_OPTIONS = [
   { label: '공통', value: 'common' },
   { label: 'BE', value: 'backend' },
   { label: 'FE', value: 'frontend' },
   { label: 'AN', value: 'android' },
-];
-
-const TYPE_OPTIONS = [
-  { label: '온라인', value: 'online' },
-  { label: '오프라인', value: 'offline' },
-];
-
-const STATUS_OPTIONS = [
-  { label: '모집 중', value: 'recruiting' },
-  { label: '모집 완료', value: 'recruitComplete' },
-  { label: '토론 중', value: 'inDiscussion' },
-  { label: '토론 완료', value: 'discussionComplete' },
 ];
 
 const DiscussionFilterBar = ({
@@ -91,7 +80,7 @@ const DiscussionFilterBar = ({
         <div className={styles.filterGroup}>
           <span className={styles.filterLabel}>토론 타입</span>
           <div className={styles.filterOptions}>
-            {TYPE_OPTIONS.map((option) => (
+            {DISCUSSION_TYPE_OPTIONS.map((option) => (
               <button
                 key={option.value}
                 className={`${styles.filterChip} ${

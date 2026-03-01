@@ -4,19 +4,8 @@ import CommentForm from './CommentForm';
 import { updateComment, deleteComment } from '../../api/discussion';
 import { useAuth } from '../../context/AuthContext';
 import { formatCommentDate } from '../../utils/dateUtils';
+import { getProfileImageSrc } from '../../utils/profileImage';
 import './CommentItem.css';
-
-const getAuthorProfileImageSrc = (author) => {
-  if (!author || !author.profileImage) return '/src/assets/dialog_icon.png';
-  const { basicImageUri, customImageUri } = author.profileImage;
-  if (customImageUri) {
-    return customImageUri;
-  }
-  if (basicImageUri) {
-    return basicImageUri;
-  }
-  return '/src/assets/dialog_icon.png';
-};
 
 
 const CommentItem = ({
@@ -95,7 +84,7 @@ const CommentItem = ({
         <div className="comment-header">
           <div className="comment-author">
             <img
-              src={getAuthorProfileImageSrc(comment.author)}
+              src={getProfileImageSrc(comment.author?.profileImage)}
               alt={comment.author.nickname}
               className="author-avatar"
             />

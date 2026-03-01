@@ -1,17 +1,14 @@
-import React, { useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 import DiscussionList from '../../../components/DiscussionList';
 import useScrapDiscussionList from '../../../hooks/useScrapDiscussionList';
+import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import '../my/MyDiscussionPage.css';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 const ScrapDiscussionPage = () => {
-  const navigate = useNavigate();
-  const loaderRef = useRef(null);
-
   const {
     items,
     loading,
@@ -23,16 +20,7 @@ const ScrapDiscussionPage = () => {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  useEffect(() => {
-    if (!loaderRef.current || !hasMore || loading || isFetchingMore) return;
-    const observer = new window.IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading && !isFetchingMore) {
-        loadMore();
-      }
-    }, { threshold: 1 });
-    observer.observe(loaderRef.current);
-    return () => observer.disconnect();
-  }, [loadMore, hasMore, loading, isFetchingMore]);
+  const loaderRef = useInfiniteScroll({ loadMore, hasMore, loading, isFetchingMore });
 
   return (
     <>

@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import DiscussionList from '../../../components/DiscussionList';
 import useMyDiscussionList from '../../../hooks/useMyDiscussionList';
+import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 import { FaCrown, FaRegSmileBeam } from 'react-icons/fa';
 import './MyDiscussionPage.css';
 
@@ -10,7 +11,6 @@ const DEFAULT_PAGE_SIZE = 10;
 
 const MyDiscussionPage = () => {
   const navigate = useNavigate();
-  const loaderRef = useRef(null);
 
   // useMyDiscussionList 훅 사용
   const {
@@ -24,17 +24,7 @@ const MyDiscussionPage = () => {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  // Intersection Observer로 무한 스크롤 트리거
-  useEffect(() => {
-    if (!loaderRef.current || !hasMore || loading || isFetchingMore) return;
-    const observer = new window.IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading && !isFetchingMore) {
-        loadMore();
-      }
-    }, { threshold: 1 });
-    observer.observe(loaderRef.current);
-    return () => observer.disconnect();
-  }, [loadMore, hasMore, loading, isFetchingMore]);
+  const loaderRef = useInfiniteScroll({ loadMore, hasMore, loading, isFetchingMore });
 
   return (
     <>

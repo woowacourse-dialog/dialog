@@ -31,7 +31,7 @@ const ProfileImageUploadModal = ({ isOpen, onClose, profileImage, onUpload }) =>
     try {
       await onUpload(selectedFile);
       handleClose();
-    } catch (_e) {
+    } catch {
       setError('이미지 업로드에 실패했습니다.');
     } finally {
       setUploading(false);

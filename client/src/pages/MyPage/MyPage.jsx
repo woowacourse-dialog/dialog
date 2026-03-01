@@ -33,7 +33,7 @@ const MyPage = () => {
       const data = await fetchMyInfo();
       setUserInfo(data);
       setIsNotificationEnable(data.isNotificationEnabled);
-    } catch (_e) {
+    } catch {
       setError('유저 정보를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
@@ -44,7 +44,7 @@ const MyPage = () => {
     try {
       const data = await fetchMyProfileImage();
       setProfileImage(data);
-    } catch (_e) {
+    } catch {
       setProfileImage(null);
     }
   };
@@ -55,7 +55,7 @@ const MyPage = () => {
     setSaving(true);
     try {
       await updateNotificationSetting(nextValue);
-    } catch (_e) {
+    } catch {
       setError('알림 설정 저장에 실패했습니다.');
     } finally {
       setSaving(false);

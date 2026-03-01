@@ -23,7 +23,7 @@ export default function usePaginatedList({ fetchFn, deps = [], deduplicate = fal
         setItems(result.items);
         setCursor(result.nextCursor);
         setHasMore(result.hasNext);
-      } catch (_e) {
+      } catch {
         setError('목록을 불러오지 못했습니다.');
         setHasMore(false);
       } finally {
@@ -50,7 +50,7 @@ export default function usePaginatedList({ fetchFn, deps = [], deduplicate = fal
       });
       setCursor(result.nextCursor);
       setHasMore(result.hasNext);
-    } catch (_e) {
+    } catch {
       setError('목록을 추가로 불러오지 못했습니다.');
       setHasMore(false);
     } finally {

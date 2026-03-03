@@ -16,22 +16,22 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
     void deleteByUserAndDiscussion(User user, Discussion discussion);
 
     @Query("""
-            SELECT s.discussion
+            SELECT s
             FROM Scrap s
-            inner join s.discussion
+            join fetch s.discussion
             WHERE s.user = :user AND s.id <= :lastScrapId
             ORDER BY s.id DESC
             """)
-    List<Discussion> findScrapDiscussionByUser(Pageable pageable,
-                                               @Param("user") User user,
-                                               @Param("lastScrapId") Long lastScrapId);
+    List<Scrap> findScrapsByUser(Pageable pageable,
+                                @Param("user") User user,
+                                @Param("lastScrapId") Long lastScrapId);
 
     @Query("""
-            SELECT s.discussion
+            SELECT s
             FROM Scrap s
-            inner join s.discussion
+            join fetch s.discussion
             WHERE s.user = :user
             ORDER BY s.id DESC
             """)
-    List<Discussion> findFirstPageScrapDiscussionByUser(Pageable pageable, @Param("user") User user);
+    List<Scrap> findFirstPageScrapsByUser(Pageable pageable, @Param("user") User user);
 }

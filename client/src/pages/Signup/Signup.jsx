@@ -40,7 +40,7 @@ const Signup = () => {
 
     setIsLoading(true);
     try {
-      await api.post('/api/signup', {
+      await api.post('/signup', {
         track: formData.track,
         webPushNotification: formData.webPushNotification,
       }, {

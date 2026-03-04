@@ -55,7 +55,7 @@ describe('Signup', () => {
     await userEvent.click(screen.getByRole('button', { name: '회원가입' }));
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(
-        '/api/signup',
+        '/signup',
         expect.objectContaining({ track: 'BACKEND' }),
         expect.any(Object)
       );

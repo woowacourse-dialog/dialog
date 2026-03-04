@@ -1,11 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Crown, Bookmark } from 'lucide-react';
+import clsx from 'clsx';
 import { fetchMyInfo, fetchMyProfileImage, updateNotificationSetting, updateProfileImage, updateUserInfo } from '../../api/userApi';
 import { getProfileImageSrc } from '../../utils/profileImage';
 import { getTrackDisplayName } from '../../constants/tracks';
+import LoadingSpinner from '../../components/ui/LoadingSpinner/LoadingSpinner';
+import ToggleSwitch from '../../components/ui/ToggleSwitch/ToggleSwitch';
+import Button from '../../components/ui/Button/Button';
 import ProfileImageUploadModal from './ProfileImageUploadModal';
 import ProfileEditModal from './ProfileEditModal';
-import './MyPage.css';
+import styles from './MyPage.module.css';
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -49,8 +54,7 @@ const MyPage = () => {
     }
   };
 
-  const handleNotificationChange = async (e) => {
-    const nextValue = e.target.checked;
+  const handleNotificationChange = async (nextValue) => {
     setIsNotificationEnable(nextValue);
     setSaving(true);
     try {
@@ -72,31 +76,36 @@ const MyPage = () => {
     await loadUserInfo();
   };
 
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <LoadingSpinner message="로딩 중..." fullPage />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.error}>{error}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mypage-container">
-      <div className="mypage-content" style={{ background: '#fff', padding: '2rem 0' }}>
-        {loading ? (
-          <div>로딩 중...</div>
-        ) : error ? (
-          <div style={{ color: 'red' }}>{error}</div>
-        ) : userInfo && (
-          <div
-            className="mypage-profile-card-vertical"
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem',
-              padding: '2.5rem 2rem', border: '1px solid #eee', borderRadius: '1.5rem',
-              background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-              maxWidth: '350px', margin: '2rem auto',
-            }}
-          >
-            <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        {userInfo && (
+          <div className={styles.card}>
+            <div className={styles.avatarWrapper} onClick={() => setIsModalOpen(true)} title="프로필 이미지 변경">
               <img
-                src={getProfileImageSrc(profileImage) + `?t=${Date.now()}`}
+                src={getProfileImageSrc(profileImage)}
                 alt="프로필 이미지"
-                className="mypage-profile-avatar-horizontal"
-                style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%', background: '#f0f0f0', cursor: 'pointer', border: '2px solid #303e4f' }}
-                onClick={() => setIsModalOpen(true)}
-                title="프로필 이미지 변경"
+                className={styles.avatar}
               />
             </div>
 
@@ -114,51 +123,53 @@ const MyPage = () => {
               onSave={handleInfoSave}
             />
 
-            <div className="mypage-profile-info-horizontal" style={{ width: '100%' }}>
-              <div className="mypage-profile-nickname-horizontal" style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {userInfo.nickname}
+            <div className={styles.infoSection}>
+              <div className={styles.nicknameRow}>
+                <span className={styles.nickname}>{userInfo.nickname}</span>
                 {userInfo.track && (
-                  <span style={{ color: '#9ca3af', fontSize: '0.9rem', fontWeight: '400' }}>
+                  <span className={styles.trackLabel}>
                     {getTrackDisplayName(userInfo.track)}
                   </span>
                 )}
                 <button
                   onClick={() => setIsEditModalOpen(true)}
-                  className="nickname-edit-btn"
-                  style={{ background: 'none', border: '1px solid #ddd', borderRadius: '4px', padding: '2px 8px', fontSize: '0.8rem', cursor: 'pointer', color: '#666', fontWeight: '400' }}
+                  className={styles.editButton}
                 >
                   수정
                 </button>
               </div>
               {userInfo.githubId && (
-                <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '0.8rem' }}>
+                <div className={styles.githubId}>
                   Github Id: {userInfo.githubId}
                 </div>
               )}
-              <div className="mypage-info-row" style={{ display: 'flex', alignItems: 'center', gap: '0.7rem', marginBottom: '1rem' }}>
-                <span className="mypage-label" style={{ color: '#888', fontSize: '1rem' }}>웹 푸시 알림</span>
-                <label className="switch">
-                  <input type="checkbox" checked={isNotificationEnable} onChange={handleNotificationChange} disabled={saving} />
-                  <span className="slider round"></span>
-                </label>
+              <div className={styles.notificationRow}>
+                <span className={styles.notificationLabel}>웹 푸시 알림</span>
+                <ToggleSwitch
+                  checked={isNotificationEnable}
+                  onChange={handleNotificationChange}
+                  disabled={saving}
+                />
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '1rem', width: '100%' }}>
-              <button
-                className="mypage-my-discussion-btn"
-                style={{ background: '#303e4f', color: 'white', border: 'none', borderRadius: '8px', padding: '0.8rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(60,64,67,0.08)', width: '100%' }}
+            <div className={styles.actions}>
+              <Button
+                variant="primary"
+                fullWidth
+                leftIcon={<Crown size={16} />}
                 onClick={() => navigate('/discussion/my')}
               >
                 내가 개설한 토론 보기
-              </button>
-              <button
-                className="mypage-my-scrap-btn"
-                style={{ background: '#303e4f', color: 'white', border: 'none', borderRadius: '8px', padding: '0.8rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(60,64,67,0.08)', width: '100%' }}
+              </Button>
+              <Button
+                variant="primary"
+                fullWidth
+                leftIcon={<Bookmark size={16} />}
                 onClick={() => navigate('/discussion/scrap')}
               >
                 내가 스크랩한 토론 보기
-              </button>
+              </Button>
             </div>
           </div>
         )}

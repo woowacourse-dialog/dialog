@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import Modal from '../../components/Modal/Modal';
+import Modal from '../../components/ui/Modal/Modal';
+import Button from '../../components/ui/Button/Button';
+import styles from './ProfileEditModal.module.css';
 
 const ProfileEditModal = ({ isOpen, onClose, userInfo, onSave }) => {
   const [nickname, setNickname] = useState('');
@@ -53,37 +55,28 @@ const ProfileEditModal = ({ isOpen, onClose, userInfo, onSave }) => {
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="정보 수정">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.9rem', color: '#666', fontWeight: '500' }}>
-            닉네임
-          </label>
+      <div className={styles.form}>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>닉네임</label>
           <input
             type="text"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="닉네임을 입력하세요"
-            style={{
-              width: '100%', padding: '0.6rem 0.8rem', border: '1px solid #ddd',
-              borderRadius: '6px', fontSize: '1rem', boxSizing: 'border-box',
-            }}
+            className={styles.input}
             disabled={updating}
           />
         </div>
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.9rem', color: '#666', fontWeight: '500' }}>
-            트랙
-          </label>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>트랙</label>
           <select
             value={track}
             onChange={(e) => setTrack(e.target.value)}
-            style={{
-              width: '100%', padding: '0.6rem 0.8rem', border: '1px solid #ddd',
-              borderRadius: '6px', fontSize: '1rem', background: '#fff',
-              cursor: 'pointer', boxSizing: 'border-box',
-            }}
+            className={styles.select}
             disabled={updating}
           >
             <option value="">트랙 선택</option>
@@ -93,34 +86,23 @@ const ProfileEditModal = ({ isOpen, onClose, userInfo, onSave }) => {
           </select>
         </div>
       </div>
-      {error && (
-        <div style={{ color: 'red', fontSize: '0.9rem', textAlign: 'center' }}>
-          {error}
-        </div>
-      )}
-      <div style={{ display: 'flex', gap: '0.8rem', marginTop: '0.5rem' }}>
-        <button
+      {error && <div className={styles.error}>{error}</div>}
+      <div className={styles.actions}>
+        <Button
+          variant="primary"
           onClick={handleSave}
           disabled={updating}
-          style={{
-            flex: 1, padding: '0.7rem 1.2rem', background: '#303e4f', color: '#fff',
-            border: 'none', borderRadius: '6px', fontWeight: '600', fontSize: '1rem',
-            cursor: updating ? 'not-allowed' : 'pointer', opacity: updating ? 0.6 : 1,
-          }}
+          loading={updating}
         >
-          {updating ? '저장 중...' : '저장'}
-        </button>
-        <button
+          저장
+        </Button>
+        <Button
+          variant="secondary"
           onClick={handleClose}
           disabled={updating}
-          style={{
-            flex: 1, padding: '0.7rem 1.2rem', background: '#fff', color: '#666',
-            border: '1px solid #ddd', borderRadius: '6px', fontWeight: '600', fontSize: '1rem',
-            cursor: updating ? 'not-allowed' : 'pointer',
-          }}
         >
           취소
-        </button>
+        </Button>
       </div>
     </Modal>
   );

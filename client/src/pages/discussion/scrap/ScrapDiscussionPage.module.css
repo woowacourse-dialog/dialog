@@ -1,0 +1,11 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-body);
+  padding-top: var(--app-header-height, 64px);
+}
+
+.listContainer {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}

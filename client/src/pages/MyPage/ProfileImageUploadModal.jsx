@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import Modal from '../../components/Modal/Modal';
+import Modal from '../../components/ui/Modal/Modal';
+import Button from '../../components/ui/Button/Button';
 import { getProfileImageSrc } from '../../utils/profileImage';
+import styles from './ProfileImageUploadModal.module.css';
 
 const ProfileImageUploadModal = ({ isOpen, onClose, profileImage, onUpload }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -45,35 +47,35 @@ const ProfileImageUploadModal = ({ isOpen, onClose, profileImage, onUpload }) =>
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem' }}>
-        <div style={{ width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className={styles.content}>
+        <div className={styles.previewWrapper}>
           <img
             src={previewUrl || getProfileImageSrc(profileImage)}
             alt="미리보기"
-            style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%', background: '#f0f0f0' }}
+            className={styles.previewImage}
           />
         </div>
-        <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
-        <button
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={uploading}
+          className={styles.fileInput}
+        />
+        <Button
+          variant="primary"
+          fullWidth
           onClick={handleUpload}
           disabled={uploading || !selectedFile}
-          style={{
-            padding: '0.5rem 1.2rem',
-            background: '#303e4f',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '0.5rem',
-            fontWeight: 'bold',
-            cursor: uploading || !selectedFile ? 'not-allowed' : 'pointer',
-            opacity: uploading || !selectedFile ? 0.6 : 1,
-            width: '100%',
-          }}
+          loading={uploading}
         >
-          {uploading ? '업로드 중...' : '프로필 변경'}
-        </button>
-        {error && <div style={{ color: 'red', fontSize: '0.9rem' }}>{error}</div>}
+          프로필 변경
+        </Button>
+        {error && <div className={styles.error}>{error}</div>}
       </div>
     </Modal>
   );

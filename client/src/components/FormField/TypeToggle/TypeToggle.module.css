@@ -1,0 +1,53 @@
+.field {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.segmentGroup {
+  display: flex;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.segment {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: var(--color-bg-input);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.segment.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+.segment:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.readOnly {
+  opacity: 0.8;
+}
+
+.readOnlyHint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}

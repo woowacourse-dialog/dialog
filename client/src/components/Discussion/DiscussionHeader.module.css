@@ -1,0 +1,37 @@
+.header {
+  padding: 24px;
+  background: var(--color-bg-card);
+  border-bottom: 1px solid var(--color-border-separator);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.authorSuffix {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}

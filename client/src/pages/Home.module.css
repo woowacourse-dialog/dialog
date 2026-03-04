@@ -8,24 +8,6 @@
   padding: 24px 0;
 }
 
-.resultHeader {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.resultTitle {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.resultQuery {
-  font-size: 16px;
-  color: var(--color-text-secondary);
-}
-
 .mobileFilterButton {
   display: none;
 }
@@ -45,23 +27,14 @@
 
 .main {
   flex: 1;
-  min-width: 0;
+  min-width: 0; /* flex item overflow 방지 */
 }
 
+/* 모바일 */
 @media (max-width: 768px) {
   .page {
     padding-left: 16px;
     padding-right: 16px;
-  }
-
-  .resultHeader {
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
-  }
-
-  .resultTitle {
-    font-size: 20px;
   }
 
   .mobileFilterButton {

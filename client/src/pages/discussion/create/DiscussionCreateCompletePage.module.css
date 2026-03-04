@@ -1,0 +1,130 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-body, #f8fafb);
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  background: var(--color-bg-card, #ffffff);
+  border-radius: var(--radius-md, 8px);
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary, #1a2b3d);
+  margin: 0 0 8px;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: var(--color-text-tertiary, #6b7e8f);
+  margin: 0 0 24px;
+}
+
+.previewCard {
+  background: var(--color-bg-sidebar, #f5f7fa);
+  border: 1px solid var(--color-border-default, rgba(48, 62, 79, 0.12));
+  border-radius: var(--radius-md, 8px);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.previewHeader {
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--color-text-primary, #1a2b3d);
+}
+
+.previewRow {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--color-text-primary, #1a2b3d);
+}
+
+.previewRow:last-child {
+  margin-bottom: 0;
+}
+
+.previewRow a {
+  color: var(--color-accent-blue, #42a5f5);
+  text-decoration: none;
+}
+
+.previewRow a:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.slackBtn {
+  background-color: #4A154B !important;
+  border-color: #4A154B !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.slackBtn:hover {
+  background-color: #3b1040 !important;
+}
+
+.discordBtn {
+  background-color: #5865F2 !important;
+  border-color: #5865F2 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.discordBtn:hover {
+  background-color: #4752c4 !important;
+}
+
+.toast {
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-status-success-text, #2e7d32);
+  border-radius: var(--radius-md, 8px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: 24px 8px;
+  }
+
+  .container {
+    padding: 20px 16px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+}

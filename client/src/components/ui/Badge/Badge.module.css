@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-default);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sm { padding: 2px 6px; font-size: 11px; gap: 4px; }
+.md { padding: 4px 10px; font-size: 12px; gap: 6px; }
+
+.statusActive { background: var(--color-status-active-bg); color: var(--color-status-active-text); font-weight: 500; }
+.statusCompleted { background: var(--color-status-completed-bg); color: var(--color-status-completed-text); font-weight: 500; }
+.statusRecruiting { background: var(--color-status-recruiting-bg); color: var(--color-status-recruiting-text); font-weight: 500; }
+.statusRecruitComplete { background: var(--color-status-warning-bg); color: var(--color-status-warning-text); font-weight: 500; }
+
+.trackBe { background: var(--color-track-be-bg); color: var(--color-track-be-text); font-weight: 600; }
+.trackFe { background: var(--color-track-fe-bg); color: var(--color-track-fe-text); font-weight: 600; }
+.trackAn { background: var(--color-track-an-bg); color: var(--color-track-an-text); font-weight: 600; }
+.trackCommon { background: var(--color-track-common-bg); color: var(--color-track-common-text); font-weight: 600; }
+
+.typeOnline { background: var(--color-accent-blue-light); color: var(--color-accent-blue); font-weight: 500; }
+.typeOffline { background: var(--color-status-warning-bg); color: var(--color-accent-orange); font-weight: 500; }

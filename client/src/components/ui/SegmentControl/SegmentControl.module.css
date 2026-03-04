@@ -1,0 +1,52 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.container {
+  display: flex;
+  background: var(--color-bg-input);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.segment {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.active {
+  background: var(--color-bg-card);
+  color: var(--color-brand-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+.segment:not(.active):hover:not(:disabled) {
+  background: var(--color-bg-card-hover);
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.disabled .segment {
+  cursor: not-allowed;
+}
+
+.helperText {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}

@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.delete('/api/logout');
+      await api.delete('/logout');
     } catch (error) {
       console.error('Failed to logout:', error);
     } finally {

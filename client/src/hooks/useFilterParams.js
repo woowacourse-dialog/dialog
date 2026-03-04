@@ -12,34 +12,34 @@ export default function useFilterParams(basePath) {
   const query = searchParams.get('query') || '';
 
   const handleCategoryChange = useCallback((newCategories) => {
-    const newParams = new URLSearchParams(searchParams);
+    const newParams = new URLSearchParams(window.location.search);
     if (newCategories.length > 0) {
       newParams.set('categories', newCategories.join(','));
     } else {
       newParams.delete('categories');
     }
     navigate(`${basePath}?${newParams.toString()}`);
-  }, [searchParams, navigate, basePath]);
+  }, [navigate, basePath]);
 
   const handleStatusChange = useCallback((newStatuses) => {
-    const newParams = new URLSearchParams(searchParams);
+    const newParams = new URLSearchParams(window.location.search);
     if (newStatuses.length > 0) {
       newParams.set('statuses', newStatuses.join(','));
     } else {
       newParams.delete('statuses');
     }
     navigate(`${basePath}?${newParams.toString()}`);
-  }, [searchParams, navigate, basePath]);
+  }, [navigate, basePath]);
 
   const handleDiscussionTypeChange = useCallback((newTypes) => {
-    const newParams = new URLSearchParams(searchParams);
+    const newParams = new URLSearchParams(window.location.search);
     if (newTypes.length > 0) {
       newParams.set('discussionTypes', newTypes.join(','));
     } else {
       newParams.delete('discussionTypes');
     }
     navigate(`${basePath}?${newParams.toString()}`);
-  }, [searchParams, navigate, basePath]);
+  }, [navigate, basePath]);
 
   return {
     categories,

@@ -4,7 +4,7 @@ import { getPollingNotifications, updateNotificationAsRead, updateAllNotificatio
 const useNotificationPolling = (isLoggedIn) => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    const [lastNotificationId, setLastNotificationId] = useState(null);
+    const lastNotificationIdRef = useRef(null);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,7 @@ const useNotificationPolling = (isLoggedIn) => {
             // Reset state on logout
             setNotifications([]);
             setUnreadCount(0);
-            setLastNotificationId(null);
+            lastNotificationIdRef.current = null;
             setPage(0);
             setHasMore(true);
         }
@@ -49,7 +49,7 @@ const useNotificationPolling = (isLoggedIn) => {
 
             if (data.notifications && data.notifications.length > 0) {
                 const newestId = Math.max(...data.notifications.map(n => n.id));
-                setLastNotificationId(newestId);
+                lastNotificationIdRef.current = newestId;
             }
         } catch (error) {
             console.error('Failed to load initial notifications:', error);
@@ -100,7 +100,7 @@ const useNotificationPolling = (isLoggedIn) => {
 
         try {
             const response = await getPollingNotifications(
-                lastNotificationId,
+                lastNotificationIdRef.current,
                 sessionIdRef.current,
                 abortController.signal
             );
@@ -122,7 +122,7 @@ const useNotificationPolling = (isLoggedIn) => {
                     });
 
                     const newestId = Math.max(...data.notifications.map(n => n.id));
-                    setLastNotificationId(newestId);
+                    lastNotificationIdRef.current = newestId;
                 }
             }
         } catch (error) {
@@ -142,11 +142,9 @@ const useNotificationPolling = (isLoggedIn) => {
                 poll(controller);
             }
         }
-    }, [isLoggedIn, lastNotificationId]);
+    }, [isLoggedIn]);
 
-    // Polling effect: only start/stop on login status change
-    // Note: 'poll' is intentionally excluded from dependencies to prevent
-    // infinite loop when lastNotificationId updates
+    // Polling effect
     useEffect(() => {
         if (isLoggedIn) {
             // Start polling with a small delay to avoid conflicts with StrictMode double mounting
@@ -169,8 +167,7 @@ const useNotificationPolling = (isLoggedIn) => {
                 }
             };
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoggedIn]);
+    }, [isLoggedIn, poll]);
 
     const markAsRead = async (id) => {
         try {

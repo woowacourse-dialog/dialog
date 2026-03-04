@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import clsx from 'clsx';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
+import Avatar from '../ui/Avatar/Avatar';
+import ConfirmModal from '../ui/ConfirmModal/ConfirmModal';
 import { updateComment, deleteComment } from '../../api/discussion';
 import { useAuth } from '../../context/AuthContext';
 import { formatCommentDate } from '../../utils/dateUtils';
 import { getProfileImageSrc } from '../../utils/profileImage';
-import './CommentItem.css';
-
+import styles from './CommentItem.module.css';
 
 const CommentItem = ({
   comment,
@@ -21,94 +23,72 @@ const CommentItem = ({
   const [isReplying, setIsReplying] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const isAuthor = me && me.id === comment.author.authorId;
-  const hasReplies = comment.childComments && comment.childComments.length > 0;
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
+  const hasReplies = comment.childComments?.length > 0;
 
   const handleSaveEdit = async (content) => {
     setIsUpdating(true);
     try {
       await updateComment(comment.discussionCommentId, { content });
       setIsEditing(false);
-      onUpdate && onUpdate();
+      onUpdate?.();
     } catch (error) {
       console.error('Failed to update comment:', error);
-      alert(error.response?.data?.message || '댓글 수정에 실패했습니다.');
     }
     setIsUpdating(false);
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
-
     setIsDeleting(true);
     try {
       await deleteComment(comment.discussionCommentId);
-      onDelete && onDelete();
+      onDelete?.();
     } catch (error) {
       console.error('Failed to delete comment:', error);
-      alert(error.response?.data?.message || '댓글 삭제에 실패했습니다.');
     }
     setIsDeleting(false);
-  };
-
-  const handleReply = () => {
-    setIsReplying(true);
-  };
-
-  const handleCancelReply = () => {
-    setIsReplying(false);
+    setShowDeleteModal(false);
   };
 
   const handleSaveReply = async (content) => {
-    try {
-      await onReply(content, comment.discussionCommentId);
-      setIsReplying(false);
-    } catch (error) {
-      console.error('Failed to create reply:', error);
-      alert(error.response?.data?.message || '답글 작성에 실패했습니다.');
-    }
+    await onReply(content, comment.discussionCommentId);
+    setIsReplying(false);
   };
 
   return (
-    <div id={`comment-${comment.discussionCommentId}`} className={`comment-item ${depth > 0 ? 'comment-reply' : ''}`}>
-      <div className="comment-content">
-        <div className="comment-header">
-          <div className="comment-author">
-            <img
+    <div
+      id={`comment-${comment.discussionCommentId}`}
+      className={clsx(styles.item, depth > 0 && styles.reply)}
+    >
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div className={styles.authorInfo}>
+            <Avatar
               src={getProfileImageSrc(comment.author?.profileImage)}
               alt={comment.author.nickname}
-              className="author-avatar"
+              size="sm"
             />
-            <span className="author-name">{comment.author.nickname}</span>
-            <span className="comment-date">{formatCommentDate(comment.createdAt)}</span>
+            <span className={styles.authorName}>{comment.author.nickname}</span>
+            <span className={styles.date}>{formatCommentDate(comment.createdAt)}</span>
             {comment.createdAt !== comment.modifiedAt && (
-              <span className="comment-modified">(수정됨)</span>
+              <span className={styles.modified}>(수정됨)</span>
             )}
           </div>
           {isAuthor && (
-            <div className="comment-owner-actions">
+            <div className={styles.ownerActions}>
               <button
-                className="edit-button"
-                onClick={handleEdit}
+                className={styles.editBtn}
+                onClick={() => setIsEditing(true)}
                 disabled={isEditing || isUpdating}
               >
                 수정
               </button>
-              <span className="edit-button-separator">
-                |
-              </span>
+              <span className={styles.separator}>|</span>
               <button
-                className="delete-button"
-                onClick={handleDelete}
+                className={styles.deleteBtn}
+                onClick={() => setShowDeleteModal(true)}
                 disabled={isDeleting}
               >
                 {isDeleting ? '삭제 중...' : '삭제'}
@@ -117,41 +97,39 @@ const CommentItem = ({
           )}
         </div>
 
-        <div className="comment-body">
+        <div className={styles.body}>
           {isEditing ? (
             <CommentForm
               initialContent={comment.content}
               onSave={handleSaveEdit}
-              onCancel={handleCancelEdit}
+              onCancel={() => setIsEditing(false)}
               submitText={isUpdating ? '수정 중...' : '수정'}
               disabled={isUpdating}
             />
           ) : (
-            <div className="comment-text">
+            <div className={styles.text}>
               <MarkdownRender content={comment.content} />
             </div>
           )}
         </div>
 
-        {!isEditing && depth === 0 && (
-          <div className="comment-footer">
-            {me && (
-              <button
-                className="reply-button"
-                onClick={handleReply}
-                disabled={isReplying}
-              >
-                답글쓰기
-              </button>
-            )}
+        {!isEditing && depth === 0 && me && (
+          <div className={styles.footer}>
+            <button
+              className={styles.replyBtn}
+              onClick={() => setIsReplying(true)}
+              disabled={isReplying}
+            >
+              답글쓰기
+            </button>
           </div>
         )}
 
         {isReplying && (
-          <div className="reply-form">
+          <div className={styles.replyForm}>
             <CommentForm
               onSave={handleSaveReply}
-              onCancel={handleCancelReply}
+              onCancel={() => setIsReplying(false)}
               submitText="답글 등록"
               placeholder="답글을 작성해주세요..."
             />
@@ -160,7 +138,7 @@ const CommentItem = ({
       </div>
 
       {hasReplies && (
-        <div className="comment-replies">
+        <div className={styles.replies}>
           {comment.childComments.map(reply => (
             <CommentItem
               key={reply.discussionCommentId}
@@ -174,6 +152,14 @@ const CommentItem = ({
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="댓글 삭제"
+        message="댓글을 삭제하시겠습니까?"
+        onConfirm={handleDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };

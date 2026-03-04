@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CodeBlock from '../ui/CodeBlock/CodeBlock';
 import '../../styles/markdown.css';
 
 const MarkdownRender = ({ content }) => {
@@ -11,24 +10,27 @@ const MarkdownRender = ({ content }) => {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, inline, className, children, ...props }) {
+          code({ inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
-              <SyntaxHighlighter
-                style={vscDarkPlus}
-                language={match[1]}
-                PreTag="div"
+            if (!inline && match) {
+              return (
+                <CodeBlock
+                  language={match[1]}
+                  code={String(children).replace(/\n$/, '')}
+                  {...props}
+                />
+              );
+            }
+            return (
+              <CodeBlock
+                inline
+                code={String(children)}
+                className={className}
                 {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
-            ) : (
-              <code className={className} {...props}>
-                {children}
-              </code>
+              />
             );
           },
-          a({ node, children, ...props }) {
+          a({ children, ...props }) {
             return (
               <a {...props} target="_blank" rel="noopener noreferrer">
                 {children}

@@ -1,5 +1,4 @@
 import React from 'react';
-import './NotificationGuideModal.css';
 
 const NotificationGuideModal = ({ onClose }) => {
   return (

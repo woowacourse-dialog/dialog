@@ -5,7 +5,6 @@ import { generateDiscussionSummary } from '../../api/discussion';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import { getDiscussionStatus as getDiscussionStatusUtil } from '../../utils/discussionStatus';
 import { getCurrentKST } from '../../utils/dateUtils';
-import './DiscussionSummary.css';
 
 const DiscussionSummary = ({ discussionId, discussion, me, initialSummary, onSummaryUpdate }) => {
   const [summary, setSummary] = useState(initialSummary || '');

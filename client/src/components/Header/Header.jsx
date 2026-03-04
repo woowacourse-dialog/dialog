@@ -5,7 +5,6 @@ import dialogIcon from '../../assets/favicon_navy.ico'
 import githubLogo from '../../assets/github-mark-white.svg';
 import useNotificationPolling from '../../hooks/useNotificationPolling';
 import NotificationDropdown from '../Notification/NotificationDropdown';
-import './Header.css';
 
 const GITHUB_AUTH_URL = import.meta.env.VITE_GITHUB_AUTH_URL;
 

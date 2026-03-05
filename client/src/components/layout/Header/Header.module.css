@@ -11,11 +11,12 @@
   right: 0;
   z-index: 1000;
   height: var(--app-header-height, 64px);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.97);
   border-bottom: 1px solid var(--color-border-separator, rgba(48, 62, 79, 0.08));
   display: flex;
   align-items: center;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .container {

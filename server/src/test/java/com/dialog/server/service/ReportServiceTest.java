@@ -91,7 +91,8 @@ class ReportServiceTest {
 
         //when
         //then
-        assertThatThrownBy(() -> reportService.reportDiscussion(reporter.getId(), discussion.getId(), ReportReason.SPAM))
+        assertThatThrownBy(
+                () -> reportService.reportDiscussion(reporter.getId(), discussion.getId(), ReportReason.SPAM))
                 .isInstanceOf(DialogException.class)
                 .hasMessage(ErrorCode.ALREADY_REPORTED.message);
     }
@@ -194,3 +195,4 @@ class ReportServiceTest {
         return discussionCommentRepository.save(comment);
     }
 }
+

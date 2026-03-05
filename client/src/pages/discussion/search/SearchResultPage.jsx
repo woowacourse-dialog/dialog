@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 import useDiscussionList from '../../../hooks/useDiscussionList';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
 import useFilterParams from '../../../hooks/useFilterParams';
@@ -8,13 +9,13 @@ import FilterCard from '../../../components/Filter/FilterCard';
 import FilterBottomSheet from '../../../components/Filter/FilterBottomSheet';
 import DiscussionList from '../../../components/Discussion/DiscussionList';
 import FloatingActionButton from '../../../components/FloatingActionButton/FloatingActionButton';
-import Button from '../../../components/ui/Button/Button';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import styles from './SearchResultPage.module.css';
 
 const DEFAULT_PAGE_SIZE = 10;
 
 const SearchResultPage = () => {
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
@@ -51,6 +52,10 @@ const SearchResultPage = () => {
     navigate(`/discussion/search?${newParams.toString()}`);
   };
 
+  const handleSearchReset = () => {
+    navigate('/');
+  };
+
   const handleFilterReset = () => {
     handleCategoryChange([]);
     handleStatusChange([]);
@@ -65,36 +70,9 @@ const SearchResultPage = () => {
 
   return (
     <div className={styles.page}>
-      {/* 검색바 (프리필) */}
-      <div className={styles.searchSection}>
-        <SearchBar
-          onSearch={handleSearch}
-          initialType={searchType}
-          initialQuery={query}
-        />
-      </div>
-
-      {/* 검색 결과 헤더 */}
-      <div className={styles.resultHeader}>
-        <h2 className={styles.resultTitle}>검색 결과</h2>
-        {query && (
-          <span className={styles.resultQuery}>&ldquo;{query}&rdquo;</span>
-        )}
-      </div>
-
-      {/* 모바일 필터 버튼 */}
-      <div className={styles.mobileFilterButton}>
-        <Button
-          variant="secondary"
-          leftIcon={<SlidersHorizontal size={16} />}
-          onClick={() => setShowFilterSheet(true)}
-        >
-          필터
-        </Button>
-      </div>
-
       {/* 메인 레이아웃: 사이드바 + 콘텐츠 */}
       <div className={styles.layout}>
+        {/* 데스크톱 사이드바 */}
         <aside className={styles.sidebar}>
           <FilterCard
             selectedCategories={categories}
@@ -107,7 +85,35 @@ const SearchResultPage = () => {
           />
         </aside>
 
+        {/* 메인 콘텐츠 */}
         <main className={styles.main}>
+          {/* 검색바 (sticky) */}
+          <div className={styles.searchSection}>
+            <SearchBar
+              onSearch={handleSearch}
+              initialType={searchType}
+              initialQuery={query}
+            />
+          </div>
+
+          {/* 검색 결과 헤더 */}
+          {query && (
+            <div className={styles.resultHeader}>
+              <div className={styles.resultInfo}>
+                <h2 className={styles.resultTitle}>검색 결과</h2>
+                <span className={styles.resultQuery}>&ldquo;{query}&rdquo;</span>
+              </div>
+              <button
+                className={styles.resetButton}
+                onClick={handleSearchReset}
+                aria-label="검색 초기화"
+              >
+                <X size={16} />
+                초기화
+              </button>
+            </div>
+          )}
+
           <DiscussionList
             items={items}
             loading={loading}
@@ -132,8 +138,19 @@ const SearchResultPage = () => {
         onClose={() => setShowFilterSheet(false)}
       />
 
-      {/* FAB — 항상 표시 */}
-      <FloatingActionButton onClick={() => navigate('/discussion/new')} />
+      {/* 모바일 필터 FAB */}
+      <button
+        className={styles.filterFab}
+        onClick={() => setShowFilterSheet(true)}
+        aria-label="필터"
+      >
+        <SlidersHorizontal size={20} />
+      </button>
+
+      {/* FAB — 로그인 시만 */}
+      {isLoggedIn && (
+        <FloatingActionButton onClick={() => navigate('/discussion/new')} />
+      )}
     </div>
   );
 };

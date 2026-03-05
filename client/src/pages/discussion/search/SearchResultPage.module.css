@@ -5,28 +5,57 @@
 }
 
 .searchSection {
-  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 24px;
 }
 
 .resultHeader {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-left: 4px;
+}
+
+.resultInfo {
+  display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-bottom: 24px;
 }
 
 .resultTitle {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .resultQuery {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-text-secondary);
 }
 
-.mobileFilterButton {
+.resetButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.resetButton:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.filterFab {
   display: none;
 }
 
@@ -34,6 +63,7 @@
   display: flex;
   gap: 32px;
   align-items: flex-start;
+  padding-top: 24px;
 }
 
 .sidebar {
@@ -48,6 +78,7 @@
   min-width: 0;
 }
 
+/* 모바일 */
 @media (max-width: 768px) {
   .page {
     padding-left: 16px;
@@ -55,18 +86,42 @@
   }
 
   .resultHeader {
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .resultInfo {
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
+    gap: 2px;
   }
 
   .resultTitle {
-    font-size: 20px;
+    font-size: 18px;
   }
 
-  .mobileFilterButton {
-    display: block;
-    margin-bottom: 16px;
+  .filterFab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 76px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+    cursor: pointer;
+    z-index: var(--z-fab, 900);
+    padding: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filterFab:hover {
+    transform: scale(1.1);
   }
 
   .sidebar {

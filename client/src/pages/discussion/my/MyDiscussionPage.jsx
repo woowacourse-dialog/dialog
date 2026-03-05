@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { Crown } from 'lucide-react';
 import DiscussionList from '../../../components/Discussion/DiscussionList';
 import useMyDiscussionList from '../../../hooks/useMyDiscussionList';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
@@ -28,12 +27,11 @@ const MyDiscussionPage = () => {
 
   return (
     <div className={styles.page}>
-      <PageBanner
-        icon={<Crown size={28} />}
-        title="내가 개설한 토론"
-        subtitle="내가 만든 토론을 한눈에 관리해보세요!"
-      />
-      <div className={styles.listContainer}>
+      <div className={styles.mainContent}>
+        <PageBanner
+          title="내가 개설한 토론"
+          onBack={() => navigate(-1)}
+        />
         {loading ? (
           <LoadingSpinner message="토론을 불러오는 중..." />
         ) : error ? (

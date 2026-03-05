@@ -1,4 +1,4 @@
-import { Bookmark } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import DiscussionList from '../../../components/Discussion/DiscussionList';
 import useScrapDiscussionList from '../../../hooks/useScrapDiscussionList';
 import useInfiniteScroll from '../../../hooks/useInfiniteScroll';
@@ -10,6 +10,7 @@ import styles from './ScrapDiscussionPage.module.css';
 const DEFAULT_PAGE_SIZE = 10;
 
 const ScrapDiscussionPage = () => {
+  const navigate = useNavigate();
   const {
     items,
     loading,
@@ -25,12 +26,11 @@ const ScrapDiscussionPage = () => {
 
   return (
     <div className={styles.page}>
-      <PageBanner
-        icon={<Bookmark size={28} />}
-        title="내가 스크랩한 토론"
-        subtitle="관심있는 토론을 한눈에 모아보세요!"
-      />
-      <div className={styles.listContainer}>
+      <div className={styles.mainContent}>
+        <PageBanner
+          title="스크랩한 토론"
+          onBack={() => navigate(-1)}
+        />
         {loading ? (
           <LoadingSpinner message="토론을 불러오는 중..." />
         ) : error ? (

@@ -9,6 +9,15 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        headers: {
+          Cookie: 'JSESSIONID=E7EFF655FBA9D90268210ED575C5116A',
+        },
+      },
+    },
   },
   test: {
     globals: true,

@@ -14,9 +14,6 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        headers: {
-          Cookie: 'JSESSIONID=3DEDBBECE1D57354F037B755434CDC3F',
-        },
       },
     },
   },

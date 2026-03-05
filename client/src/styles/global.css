@@ -26,6 +26,7 @@ ul, ol {
 html {
   scroll-behavior: smooth;
   scroll-snap-type: y proximity;
+  scroll-padding-top: var(--app-header-height, 64px);
 }
 
 img, picture {

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import clsx from 'clsx';
-import { Heart, Bookmark, Share2 } from 'lucide-react';
+import { Heart, Bookmark } from 'lucide-react';
 import { likeDiscussion, deleteLikeDiscussion } from '../../api/like';
 import { scrapDiscussion, deleteScrapDiscussion } from '../../api/scrap';
 import styles from './ActionBar.module.css';
@@ -46,15 +46,6 @@ const ActionBar = ({
     }
   }, [isLoggedIn, isBookmarked, discussionId]);
 
-  const handleShare = useCallback(async () => {
-    const url = `${window.location.origin}/discussion/${discussionId}`;
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch (err) {
-      console.error('Failed to copy URL:', err);
-    }
-  }, [discussionId]);
-
   return (
     <div className={styles.bar}>
       <button
@@ -73,11 +64,6 @@ const ActionBar = ({
       >
         <Bookmark size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
         <span>{isBookmarked ? '스크랩됨' : '스크랩'}</span>
-      </button>
-
-      <button className={styles.action} onClick={handleShare} aria-label="공유">
-        <Share2 size={18} />
-        <span>공유</span>
       </button>
     </div>
   );

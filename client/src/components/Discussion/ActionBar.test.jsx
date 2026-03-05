@@ -187,36 +187,4 @@ describe('ActionBar', () => {
     });
   });
 
-  describe('공유 버튼', () => {
-    it('공유 버튼을 렌더링한다', () => {
-      render(
-        <ActionBar
-          discussionId={1}
-          initialLiked={false}
-          initialLikeCount={0}
-          initialBookmarked={false}
-          isLoggedIn={true}
-        />
-      );
-      expect(screen.getByText('공유')).toBeInTheDocument();
-    });
-
-    it('공유 버튼 클릭 시 클립보드에 URL을 복사한다', async () => {
-      Object.assign(navigator, {
-        clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
-      });
-
-      render(
-        <ActionBar
-          discussionId={1}
-          initialLiked={false}
-          initialLikeCount={0}
-          initialBookmarked={false}
-          isLoggedIn={true}
-        />
-      );
-      await userEvent.click(screen.getByText('공유'));
-      expect(navigator.clipboard.writeText).toHaveBeenCalled();
-    });
-  });
 });

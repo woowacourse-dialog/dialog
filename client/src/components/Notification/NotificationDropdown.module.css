@@ -140,3 +140,14 @@
 .viewAllLink:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+  .dropdown {
+    position: fixed;
+    top: var(--app-header-height, 64px);
+    left: 16px;
+    right: 16px;
+    width: auto;
+    margin-top: 0;
+  }
+}

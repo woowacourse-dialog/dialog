@@ -25,6 +25,7 @@ ul, ol {
 
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
 }
 
 img, picture {

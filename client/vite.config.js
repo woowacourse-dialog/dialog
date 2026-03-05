@@ -8,13 +8,14 @@ export default defineConfig({
     include: ['lucide-react'],
   },
   server: {
+    host: true,
     port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         headers: {
-          Cookie: 'JSESSIONID=E7EFF655FBA9D90268210ED575C5116A',
+          Cookie: 'JSESSIONID=3DEDBBECE1D57354F037B755434CDC3F',
         },
       },
     },

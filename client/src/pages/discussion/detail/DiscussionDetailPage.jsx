@@ -3,10 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DiscussionHeader from '../../../components/Discussion/DiscussionHeader';
 import DiscussionContent from '../../../components/Discussion/DiscussionContent';
 import ActionBar from '../../../components/Discussion/ActionBar';
-import OnlineInfoCard from '../../../components/Discussion/OnlineInfoCard';
 import AISummary from '../../../components/Discussion/AISummary';
 import CommentList from '../../../components/Comment/CommentList';
-import Button from '../../../components/ui/Button/Button';
 import ConfirmModal from '../../../components/ui/ConfirmModal/ConfirmModal';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner/LoadingSpinner';
 import {
@@ -17,7 +15,6 @@ import {
 } from '../../../api/discussion';
 import { getLikeStatus } from '../../../api/like';
 import { getScrapStatus } from '../../../api/scrap';
-import { formatDiscussionDate, formatTimeOnly } from '../../../utils/dateUtils';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './DiscussionDetailPage.module.css';
 
@@ -174,37 +171,22 @@ const DiscussionDetailPage = () => {
   }
 
   const isAuthor = me?.id === discussion.commonDiscussionInfo.author.id;
-  const isOffline = discussion.discussionType === 'OFFLINE';
   const isOnline = discussion.discussionType === 'ONLINE';
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <DiscussionHeader discussion={discussion} />
-
-          {isOnline && (
-            <OnlineInfoCard endDate={discussion.onlineDiscussionInfo.endDate} />
-          )}
-
-          {isOffline && discussion.offlineDiscussionInfo && (
-            <OfflineInfoSection
-              info={discussion.offlineDiscussionInfo}
-              isParticipating={isParticipatingState}
-              isAuthor={isAuthor}
-              onJoin={handleJoin}
-            />
-          )}
+          <DiscussionHeader
+            discussion={discussion}
+            isAuthor={isAuthor}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            isParticipating={isParticipatingState}
+            onJoin={handleJoin}
+          />
 
           <DiscussionContent content={discussion.commonDiscussionInfo.content} />
-
-          <ActionBar
-            discussionId={discussion.id}
-            initialLiked={isLiked}
-            initialLikeCount={likeCount}
-            initialBookmarked={isBookmarked}
-            isLoggedIn={!!me}
-          />
 
           {isOnline && (
             <AISummary
@@ -216,16 +198,13 @@ const DiscussionDetailPage = () => {
             />
           )}
 
-          {isAuthor && (
-            <div className={styles.authorActions}>
-              <Button variant="secondary" onClick={handleEdit}>
-                수정
-              </Button>
-              <Button variant="danger" onClick={handleDeleteClick}>
-                삭제
-              </Button>
-            </div>
-          )}
+          <ActionBar
+            discussionId={discussion.id}
+            initialLiked={isLiked}
+            initialLikeCount={likeCount}
+            initialBookmarked={isBookmarked}
+            isLoggedIn={!!me}
+          />
 
           <CommentList discussionId={id} />
         </div>
@@ -242,69 +221,6 @@ const DiscussionDetailPage = () => {
         variant="danger"
         loading={deleting}
       />
-    </div>
-  );
-};
-
-// Inline OfflineInfoSection since OfflineInfoCard may not yet exist as a separate component
-const OfflineInfoSection = ({ info, isParticipating, isAuthor, onJoin }) => {
-  const isFull = info.participantCount >= info.maxParticipantCount;
-
-  const getButtonLabel = () => {
-    if (isParticipating) return '참여 완료';
-    if (isFull) return '인원 마감';
-    return '참여하기';
-  };
-
-  return (
-    <div className={styles.offlineSection}>
-      <div className={styles.metaGrid}>
-        <div className={styles.metaItem}>
-          <span className={styles.metaLabel}>장소</span>
-          <span className={styles.metaValue}>{info.place}</span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.metaLabel}>일시</span>
-          <span className={styles.metaValue}>{formatDiscussionDate(info.startAt)}</span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.metaLabel}>시간</span>
-          <span className={styles.metaValue}>
-            {formatTimeOnly(info.startAt)} ~ {formatTimeOnly(info.endAt)}
-          </span>
-        </div>
-        <div className={styles.metaItem}>
-          <span className={styles.metaLabel}>인원</span>
-          <span className={styles.metaValue}>
-            {info.participantCount}/{info.maxParticipantCount}명
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.participants}>
-        <h3 className={styles.participantsTitle}>
-          참여자
-          <span className={styles.participantCount}>
-            {info.participants?.length || 0}/{info.maxParticipantCount}명
-          </span>
-        </h3>
-        <div className={styles.participantsList}>
-          {info.participants?.map(p => (
-            <span key={p.id} className={styles.participantChip}>{p.name}</span>
-          ))}
-        </div>
-      </div>
-
-      {!isAuthor && (
-        <Button
-          variant="primary"
-          className={styles.joinBtn}
-          onClick={onJoin}
-          disabled={isParticipating || isFull}
-        >
-          {getButtonLabel()}
-        </Button>
-      )}
     </div>
   );
 };

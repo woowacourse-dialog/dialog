@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 import styles from './ProfileDropdown.module.css';
 
 const ProfileDropdown = ({ onNavigate, onLogout, onClose }) => {
@@ -27,10 +27,6 @@ const ProfileDropdown = ({ onNavigate, onLogout, onClose }) => {
       <button className={styles.menuItem} onClick={() => onNavigate('/mypage')}>
         <User size={16} />
         <span>마이페이지</span>
-      </button>
-      <button className={styles.menuItem} onClick={() => onNavigate('/settings')}>
-        <Settings size={16} />
-        <span>설정</span>
       </button>
       <div className={styles.divider} />
       <button className={styles.menuItemDanger} onClick={onLogout}>

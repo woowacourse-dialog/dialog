@@ -4,6 +4,7 @@ import { Bell, Github } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import useNotificationPolling from '../../../hooks/useNotificationPolling';
 import Avatar from '../../ui/Avatar/Avatar';
+import NotificationDropdown from '../../Notification/NotificationDropdown';
 import ProfileDropdown from './ProfileDropdown';
 import dialogLogo from '../../../assets/background_removed_logo.png';
 import styles from './Header.module.css';
@@ -54,15 +55,19 @@ const Header = () => {
                 >
                   <Bell size={20} />
                   {unreadCount > 0 && (
-                    <span className={styles.badge}>
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </span>
+                    <span className={styles.badge} />
                   )}
                 </button>
                 {showNotifications && (
-                  <div data-testid="notification-dropdown">
-                    {/* NotificationDropdown will be integrated in 3-4 */}
-                  </div>
+                  <NotificationDropdown
+                    notifications={notifications}
+                    onRead={markAsRead}
+                    onReadAll={markAllAsRead}
+                    onClose={() => setShowNotifications(false)}
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                    isLoading={isLoading}
+                  />
                 )}
               </div>
 

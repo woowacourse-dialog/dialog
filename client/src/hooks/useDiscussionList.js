@@ -1,128 +1,45 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { fetchDiscussions, fetchSearchDiscussions } from '../api/discussion';
+import usePaginatedList from './usePaginatedList';
 
-/**
- * @param {Object} options
- * @param {Object|null} options.searchParams - { searchType, query, categories, statuses, discussionTypes } or null
- * @param {number} [options.pageSize=10]
- */
 export default function useDiscussionList({ searchParams = null, pageSize = 10 } = {}) {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [cursor, setCursor] = useState(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const hasFetched = useRef(false);
+  const fetchFn = useCallback(async (cursor) => {
+    const commonParams = {
+      categories: searchParams?.categories,
+      statuses: searchParams?.statuses,
+      discussionTypes: searchParams?.discussionTypes,
+      cursor,
+      size: pageSize,
+    };
 
-  // 최초 데이터 로드 or 검색 파라미터 변경 시
-  useEffect(() => {
-    hasFetched.current = false;
-    setItems([]);
-    setCursor(null);
-    setHasMore(true);
-    setError(null);
-    setLoading(true);
-    async function load() {
-      try {
-        let result;
-        const commonParams = {
-          categories: searchParams?.categories,
-          statuses: searchParams?.statuses,
-          discussionTypes: searchParams?.discussionTypes,
-          cursor: null,
-          size: pageSize,
-        };
-
-        // 검색어(query)의 존재 여부로 API를 분기
-        if (searchParams && typeof searchParams.query === 'string') {
-          result = await fetchSearchDiscussions({
-            ...commonParams,
-            searchBy: searchParams.searchType,
-            query: searchParams.query,
-          });
-        } else {
-          result = await fetchDiscussions(commonParams);
-        }
-        setItems(result.content);
-        setCursor(result.nextCursor);
-        setHasMore(result.hasNext);
-      } catch (e) {
-        setError('목록을 불러오지 못했습니다.');
-      } finally {
-        setLoading(false);
-        hasFetched.current = true;
-      }
-    }
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    searchParams?.searchType,
-    searchParams?.query,
-    JSON.stringify(searchParams?.categories),
-    JSON.stringify(searchParams?.statuses),
-    JSON.stringify(searchParams?.discussionTypes),
-    pageSize
-  ]);
-
-  // 추가 데이터 로드
-  const loadMore = useCallback(async () => {
-    if (!hasMore || isFetchingMore || loading || !cursor) return;
-    setIsFetchingMore(true);
-    try {
-      let result;
-      const commonParams = {
-        categories: searchParams?.categories,
-        statuses: searchParams?.statuses,
-        discussionTypes: searchParams?.discussionTypes,
-        cursor,
-        size: pageSize,
-      };
-
-      // 검색어(query)의 존재 여부로 API를 분기
-      if (searchParams && typeof searchParams.query === 'string') {
-        result = await fetchSearchDiscussions({
-          ...commonParams,
-          searchBy: searchParams.searchType,
-          query: searchParams.query,
-        });
-      } else {
-        result = await fetchDiscussions(commonParams);
-      }
-      // Deduplicate items by id
-      setItems((prev) => {
-        const existingIds = new Set(prev.map(item => item.id));
-        const newItems = result.content.filter(item => !existingIds.has(item.id));
-        return [...prev, ...newItems];
+    let result;
+    if (searchParams && typeof searchParams.query === 'string') {
+      result = await fetchSearchDiscussions({
+        ...commonParams,
+        searchBy: searchParams.searchType,
+        query: searchParams.query,
       });
-      setCursor(result.nextCursor);
-      setHasMore(result.hasNext);
-    } catch (e) {
-      setError('목록을 추가로 불러오지 못했습니다.');
-      setHasMore(false);
-    } finally {
-      setIsFetchingMore(false);
+    } else {
+      result = await fetchDiscussions(commonParams);
     }
-  }, [hasMore, isFetchingMore, loading, searchParams, cursor, pageSize]);
 
-  // 검색/목록 리셋
-  const reset = useCallback(() => {
-    setItems([]);
-    setCursor(null);
-    setHasMore(true);
-    setError(null);
-    setLoading(false);
-    hasFetched.current = false;
-  }, []);
+    return {
+      items: result.content,
+      nextCursor: result.nextCursor,
+      hasNext: result.hasNext,
+    };
+  }, [searchParams, pageSize]);
 
-  return {
-    items,
-    loading,
-    error,
-    hasMore,
-    isFetchingMore,
-    loadMore,
-    reset,
-    hasFetched: hasFetched.current,
-  };
+  return usePaginatedList({
+    fetchFn,
+    deps: [
+      searchParams?.searchType,
+      searchParams?.query,
+      JSON.stringify(searchParams?.categories),
+      JSON.stringify(searchParams?.statuses),
+      JSON.stringify(searchParams?.discussionTypes),
+      pageSize,
+    ],
+    deduplicate: true,
+  });
 }

@@ -1,0 +1,43 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  font-family: var(--font-family-default);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.action:hover {
+  border-color: var(--color-border-emphasis);
+  color: var(--color-text-secondary);
+}
+
+.liked {
+  color: var(--color-accent-red);
+  border-color: var(--color-accent-red);
+}
+
+.liked:hover {
+  color: var(--color-accent-red);
+}
+
+.bookmarked {
+  color: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+}
+
+.bookmarked:hover {
+  color: var(--color-brand-primary);
+}

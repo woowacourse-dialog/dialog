@@ -1,0 +1,24 @@
+.divider {
+  border: none;
+  background: var(--color-border-separator);
+  flex-shrink: 0;
+}
+
+.horizontal {
+  width: 100%;
+  height: 1px;
+}
+
+.vertical {
+  width: 1px;
+  height: 100%;
+}
+
+.spacingNone { margin: 0; }
+.spacingSm { margin: 8px 0; }
+.spacingMd { margin: 16px 0; }
+.spacingLg { margin: 24px 0; }
+
+.vertical.spacingSm { margin: 0 8px; }
+.vertical.spacingMd { margin: 0 16px; }
+.vertical.spacingLg { margin: 0 24px; }

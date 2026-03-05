@@ -1,0 +1,35 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+}
+
+.error {
+  color: var(--color-accent-red, #d1242f);
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+}
+
+.sentinel {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.fetchingMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.endMessage {
+  text-align: center;
+  color: var(--color-text-tertiary, #656d76);
+  font-size: 14px;
+  padding: 16px 0;
+}

@@ -1,0 +1,36 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-body);
+  padding: calc(var(--app-header-height, 64px) + 32px) 0 32px;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.error {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page {
+    padding: calc(var(--app-header-height, 64px) + 16px) 0 16px;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+}
+

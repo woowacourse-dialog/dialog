@@ -1,0 +1,62 @@
+/* ============================================
+   CodeBlock -- CSS Module + Design Tokens
+   ============================================ */
+
+.block {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 1px solid var(--color-border-default);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #1e1e1e; /* matches vscDarkPlus header */
+  border-bottom: 1px solid #333;
+}
+
+.language {
+  font-size: 12px;
+  color: #999;
+  font-family: 'JetBrains Mono', var(--font-family-code);
+  text-transform: lowercase;
+}
+
+.copyBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid #555;
+  color: #ccc;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-family-default);
+}
+
+.copyBtn:hover {
+  background: #333;
+  color: #fff;
+  border-color: #777;
+}
+
+.code {
+  font-family: 'JetBrains Mono', var(--font-family-code) !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.inline {
+  background-color: var(--color-bg-subtle);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', var(--font-family-code);
+  font-size: 0.9em;
+  color: var(--color-text-primary);
+}

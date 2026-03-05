@@ -1,0 +1,105 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-body);
+  padding-top: var(--app-header-height, 64px);
+}
+
+.container {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2.5rem 2rem;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl, 24px);
+  box-shadow: var(--shadow-md);
+}
+
+.avatarWrapper {
+  cursor: pointer;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-brand-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.infoSection {
+  width: 100%;
+}
+
+.nicknameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.nickname {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-text-primary);
+}
+
+.trackLabel {
+  color: var(--color-text-tertiary);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.editButton {
+  background: none;
+  border: 1px solid var(--color-border-primary);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
+.editButton:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+.githubId {
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  margin-bottom: 0.8rem;
+}
+
+.notificationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.notificationLabel {
+  color: var(--color-text-tertiary);
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.error {
+  text-align: center;
+  color: var(--color-text-danger, #d32f2f);
+  padding: 2rem;
+}

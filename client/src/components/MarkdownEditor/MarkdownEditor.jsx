@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
 import MarkdownRender from '../Markdown/MarkdownRender';
-import './MarkdownEditor.css';
+import styles from './MarkdownEditor.module.css';
 import iconBold from '../../assets/markdown/bold.svg';
 import iconItalic from '../../assets/markdown/italic.svg';
 import iconLink from '../../assets/markdown/link.svg';
@@ -349,12 +350,12 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
   ]), [applyBlockquote, applyOrderedList, applyUnorderedList, insertCodeBlock, insertLink, toggleWrap]);
 
   return (
-    <div className="markdown-editor">
-      <div className="editor-header">
-        <div className="editor-tabs">
+    <div className={styles.editor}>
+      <div className={styles.header}>
+        <div className={styles.tabs}>
           <button
             type="button"
-            className={`editor-tab ${mode === 'write' ? 'active' : ''}`}
+            className={clsx(styles.tab, mode === 'write' && styles.tabActive)}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { setMode('write'); focusEditorIfWritable(); }}
           >
@@ -362,7 +363,7 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
           </button>
           <button
             type="button"
-            className={`editor-tab ${mode === 'preview' ? 'active' : ''}`}
+            className={clsx(styles.tab, mode === 'preview' && styles.tabActive)}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setMode('preview')}
           >
@@ -370,7 +371,7 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
           </button>
           <button
             type="button"
-            className={`editor-tab ${mode === 'split' ? 'active' : ''}`}
+            className={clsx(styles.tab, mode === 'split' && styles.tabActive)}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => { setMode('split'); focusEditorIfWritable(); }}
             title="분할 보기"
@@ -378,16 +379,16 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
             분할
           </button>
         </div>
-        <div className="editor-toolbar">
+        <div className={styles.toolbar}>
           {toolbar.map((btn, idx) => (
-            <button key={idx} type="button" className="toolbar-btn" title={btn.title} onMouseDown={(e) => e.preventDefault()} onClick={() => { btn.onClick(); focusEditorIfWritable(); }}>
-              <img src={btn.icon} alt={btn.alt} className="toolbar-icon" />
+            <button key={idx} type="button" className={styles.toolbarBtn} title={btn.title} onMouseDown={(e) => e.preventDefault()} onClick={() => { btn.onClick(); focusEditorIfWritable(); }}>
+              <img src={btn.icon} alt={btn.alt} className={styles.toolbarIcon} />
             </button>
           ))}
         </div>
       </div>
 
-      <div className={`editor-content ${mode === 'split' ? 'split' : ''}`}>
+      <div className={clsx(styles.content, mode === 'split' && styles.contentSplit)}>
         {(mode === 'write' || mode === 'split') && (
           <textarea
             ref={textareaRef}
@@ -397,11 +398,11 @@ const MarkdownEditor = ({ value, onChange, placeholder }) => {
             onCompositionEnd={() => { isComposingRef.current = false; }}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder || defaultPlaceholder}
-            className="markdown-input"
+            className={styles.input}
           />
         )}
         {(mode === 'preview' || mode === 'split') && (
-          <div className="markdown-preview">
+          <div className={styles.preview}>
             <MarkdownRender content={value || '내용을 입력해주세요.'} />
           </div>
         )}

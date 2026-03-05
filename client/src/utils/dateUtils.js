@@ -79,3 +79,8 @@ export const getCurrentKST = () => {
   // 브라우저의 현재 시간을 사용 (이미 사용자의 로컬 시간대)
   return new Date();
 };
+
+export function formatDateTime(date, time) {
+  const dt = new Date(`${date}T${time}`);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+}

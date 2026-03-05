@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './Signup.css';
+import { Info } from 'lucide-react';
+import clsx from 'clsx';
+import api from '../../api/axios';
+import Button from '../../components/ui/Button/Button';
+import Tooltip from '../../components/ui/Tooltip/Tooltip';
+import styles from './Signup.module.css';
 
-// 슬랙 안내 페이지 활성화 여부 (나중에 다시 활성화하려면 true로 변경)
 const ENABLE_SLACK_GUIDE_PAGE = false;
 
 const Signup = () => {
   const navigate = useNavigate();
-  const checkUserCalled = useRef(false);
 
   const [formData, setFormData] = useState({
     track: '',
@@ -17,13 +19,6 @@ const Signup = () => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  useEffect(() => {
-    if (!checkUserCalled.current) {
-      checkUserCalled.current = true;
-    }
-  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -38,30 +33,20 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     try {
-      // track 값을 백엔드 형식으로 변환
-      const trackMapping = {
-        '백엔드': 'BACKEND',
-        '프론트엔드': 'FRONTEND',
-        '안드로이드': 'ANDROID'
-      };
-      
-      const submitData = {
-        ...formData,
-        track: trackMapping[formData.track]
-      };
-
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/signup`, submitData, {
-        withCredentials: true
+      await api.post('/signup', {
+        track: formData.track,
+        webPushNotification: formData.webPushNotification,
+      }, {
+        withCredentials: true,
       });
-      
-      // 슬랙 안내 페이지 활성화 여부에 따라 라우팅
+
       if (ENABLE_SLACK_GUIDE_PAGE) {
         navigate('/signup/complete');
       } else {
@@ -79,75 +64,79 @@ const Signup = () => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   return (
-    <div className="signup-wrapper">
-      <div className="signup-container">
-        <h1>회원가입</h1>
-        <form className="signup-form" onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="track">
+    <div className={styles.wrapper}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>회원가입</h1>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <label htmlFor="track" className={styles.label}>
               트랙
-              <span className="required-mark">*</span>
+              <span className={styles.requiredMark}>*</span>
             </label>
             <select
               id="track"
               name="track"
               value={formData.track}
               onChange={handleChange}
-              className="input-field"
+              className={styles.selectField}
             >
-              <option value="">트랙을 선택해주세요</option>
-              <option value="백엔드">백엔드</option>
-              <option value="프론트엔드">프론트엔드</option>
-              <option value="안드로이드">안드로이드</option>
+              <option value="">선택</option>
+              <option value="BACKEND">백엔드</option>
+              <option value="FRONTEND">프론트엔드</option>
+              <option value="ANDROID">안드로이드</option>
             </select>
-            {errors.track && <span className="error-message">{errors.track}</span>}
+            {errors.track && <span className={styles.errorMessage}>{errors.track}</span>}
           </div>
 
-          <div className="notification-group">
-            <div className="checkbox-group">
+          <div className={styles.notificationGroup}>
+            <div className={styles.checkboxGroup}>
               <input
                 type="checkbox"
                 id="webPushNotification"
                 name="webPushNotification"
                 checked={formData.webPushNotification}
                 onChange={handleChange}
+                className={styles.checkbox}
               />
-              <label htmlFor="webPushNotification">
+              <label htmlFor="webPushNotification" className={styles.checkboxLabel}>
                 웹 푸시 알림 수신
-                <span className="optional-mark">(선택)</span>
+                <span className={styles.optionalMark}>(선택)</span>
               </label>
-              <div 
-                className="info-icon"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="#6c757d" strokeWidth="2" fill="none"/>
-                  <path d="M12 16v-4" stroke="#6c757d" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="12" cy="8" r="1" fill="#6c757d"/>
-                </svg>
-                {showTooltip && (
-                  <div className="tooltip">
+              <Tooltip
+                content={
+                  <>
                     <p>크루들이 토론을 올리면 알림을 받을 수 있습니다.</p>
                     <p>추후 마이페이지에서 언제든지 알림을 해제할 수 있습니다.</p>
-                  </div>
-                )}
-              </div>
+                  </>
+                }
+                position="right"
+              >
+                <span
+                  className={styles.infoIcon}
+                  data-testid="notification-info-icon"
+                >
+                  <Info size={16} />
+                </span>
+              </Tooltip>
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="submit-button" 
-            disabled={isLoading}
-          >
-            {isLoading ? '처리중...' : '회원가입'}
-          </button>
+          <div className={styles.submitWrapper}>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={isLoading}
+              disabled={isLoading}
+            >
+              회원가입
+            </Button>
+          </div>
         </form>
       </div>
     </div>

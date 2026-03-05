@@ -1,0 +1,107 @@
+/* ============================================
+   Dialog Design Tokens
+   Source: dialog.pen 디자인 시스템
+   Scope: [data-color-mode="light"]
+   ============================================ */
+
+[data-color-mode="light"] {
+  /* ---- Brand Colors ---- */
+  --color-brand-primary: #3d5a80;          /* 메인 브랜드 컬러 */
+  --color-brand-primary-dark: #2c4464;     /* 호버/액티브 상태 */
+  --color-brand-primary-light: #5b7faa;    /* 밝은 변형 */
+  --color-brand-primary-muted: rgba(61, 90, 128, 0.12);   /* 포커스 링 등 */
+  --color-brand-primary-subtle: rgba(61, 90, 128, 0.06);  /* 미묘한 배경 */
+
+  /* ---- Background Colors ---- */
+  --color-bg-body: #f8fafb;               /* 페이지 전체 배경 */
+  --color-bg-card: #ffffff;               /* 카드/패널 배경 */
+  --color-bg-card-hover: #f5f7fa;         /* 카드 호버 상태 */
+  --color-bg-input: #f1f4f8;             /* 입력 필드 배경 */
+  --color-bg-overlay: #f1f4f8;           /* 오버레이 배경 */
+  --color-bg-raised: #ffffff;            /* 팝업/드롭다운 배경 */
+  --color-bg-sidebar: #f5f7fa;           /* 사이드바 배경 */
+  --color-bg-surface: #ffffff;           /* 기본 표면 배경 */
+
+  /* ---- Text Colors ---- */
+  --color-text-primary: #1a2b3d;         /* 제목, 주요 텍스트 */
+  --color-text-secondary: #3d5166;       /* 본문, 라벨 */
+  --color-text-tertiary: #6b7e8f;        /* 부가 정보, 아이콘 */
+  --color-text-muted: #94a3b3;           /* 비활성, 힌트 텍스트 */
+  --color-text-placeholder: #a8b5c2;     /* 입력 placeholder */
+  --color-text-inverse: #ffffff;         /* 어두운 배경 위 텍스트 */
+
+  /* ---- Border Colors ---- */
+  --color-border-default: rgba(48, 62, 79, 0.12);   /* 기본 테두리 */
+  --color-border-separator: rgba(48, 62, 79, 0.08);  /* 구분선 (Divider) */
+  --color-border-strong: rgba(48, 62, 79, 0.20);    /* 강조 테두리 */
+  --color-border-subtle: rgba(48, 62, 79, 0.06);    /* 미묘한 테두리 */
+
+  /* ---- Accent Colors ---- */
+  --color-accent-blue: #42a5f5;
+  --color-accent-blue-light: #e3f2fd;
+  --color-accent-green: #4caf50;
+  --color-accent-green-light: #e8f5e9;
+  --color-accent-orange: #fb8c00;
+  --color-accent-purple: #7e57c2;
+  --color-accent-purple-light: #ede7f6;
+  --color-accent-red: #e53935;
+  --color-accent-red-light: #ffebee;
+  --color-accent-teal: #26a69a;
+  --color-accent-teal-light: #e0f2f1;
+
+  /* ---- Status Colors (토론 상태 배지) ---- */
+  --color-status-active-bg: #e3f2fd;           /* 토론 중 배경 */
+  --color-status-active-text: #1565c0;         /* 토론 중 텍스트 */
+  --color-status-active-border: #bbdefb;       /* 토론 중 테두리 */
+  --color-status-completed-bg: #f1f4f8;        /* 토론 완료 배경 */
+  --color-status-completed-text: #78909c;      /* 토론 완료 텍스트 */
+  --color-status-recruiting-bg: #e0f2f1;       /* 모집 중 배경 */
+  --color-status-recruiting-text: #00796b;     /* 모집 중 텍스트 */
+  --color-status-warning-bg: #fff3e0;          /* 모집 완료 배경 */
+  --color-status-warning-text: #e65100;        /* 모집 완료 텍스트 */
+  --color-status-error-bg: #ffebee;            /* 에러 배경 */
+  --color-status-error-text: #c62828;          /* 에러 텍스트 */
+  --color-status-success-bg: #e8f5e9;          /* 성공 배경 */
+  --color-status-success-text: #2e7d32;        /* 성공 텍스트 */
+
+  /* ---- Track Colors (트랙 배지) ---- */
+  --color-track-be-bg: #e8edf4;               /* 백엔드 배경 */
+  --color-track-be-text: #3d5a80;             /* 백엔드 텍스트 */
+  --color-track-fe-bg: #e0f2f1;               /* 프론트엔드 배경 */
+  --color-track-fe-text: #00796b;             /* 프론트엔드 텍스트 */
+  --color-track-an-bg: #ede7f6;               /* 안드로이드 배경 */
+  --color-track-an-text: #5e35b1;             /* 안드로이드 텍스트 */
+  --color-track-common-bg: #f1f4f8;           /* 공통 배경 */
+  --color-track-common-text: #546e7a;         /* 공통 텍스트 */
+
+  /* ---- Radius (dialog.pen number 변수) ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 100px;
+
+  /* ---- Typography ---- */
+  --font-family-default: 'Pretendard Variable', Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI',
+    'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+  --font-family-code: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas,
+    'Courier New', monospace;
+
+  /* ---- Shadows (dialog.pen 컴포넌트에서 추출) ---- */
+  --shadow-sm: 0 1px 3px rgba(48, 62, 79, 0.08);
+  --shadow-md: 0 4px 16px rgba(48, 62, 79, 0.12);
+  --shadow-lg: 0 8px 24px rgba(48, 62, 79, 0.12);
+  --shadow-xl: 0 8px 32px rgba(48, 62, 79, 0.20);
+
+  /* ---- Layout ---- */
+  --app-header-height: 64px;
+  --content-max-width: 700px;
+  --sidebar-width: 260px;
+  --layout-gap: 32px;
+
+  /* ---- Transitions ---- */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}

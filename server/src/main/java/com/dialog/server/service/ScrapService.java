@@ -7,12 +7,14 @@ import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.ScrapRepository;
 import com.dialog.server.repository.UserRepository;
@@ -35,9 +37,10 @@ public class ScrapService {
     private final DiscussionRepository discussionRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
-    public void create(Long userId, Long discussionId) {
+    public DiscussionDetailResponse create(Long userId, Long discussionId) {
         User user = getUserById(userId);
         Discussion discussion = getDiscussionById(discussionId);
         if (isScraped(user, discussion)) {
@@ -48,6 +51,8 @@ public class ScrapService {
                 .discussion(discussion)
                 .build();
         scrapRepository.save(scrap);
+
+        return getDiscussionDetailResponse(discussion);
     }
 
     @Transactional
@@ -152,8 +157,29 @@ public class ScrapService {
         List<Long> discussionIds = discussions.stream().map(Discussion::getId).toList();
         return discussionIds.stream()
                 .collect(Collectors.toMap(
-                    Function.identity(),
-                    discussionCommentRepository::countByDiscussionId
+                        Function.identity(),
+                        discussionCommentRepository::countByDiscussionId
                 ));
+    }
+
+    private DiscussionDetailResponse getDiscussionDetailResponse(final Discussion discussion) {
+        ProfileImage profileImage = profileImageRepository.findByUser(discussion.getAuthor()).orElse(null);
+        long likeCount = likeRepository.countByDiscussion(discussion);
+
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return DiscussionDetailResponse.fromOfflineDiscussion(
+                    offlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+            return DiscussionDetailResponse.fromOnlineDiscussion(
+                    onlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        }
+
+        throw new DialogException(ErrorCode.BAD_REQUEST);
     }
 }

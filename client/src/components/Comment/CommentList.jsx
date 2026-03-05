@@ -122,20 +122,6 @@ const CommentList = ({ discussionId }) => {
         <h3>댓글 {commentCount}개</h3>
       </div>
 
-      {me ? (
-        <div className={styles.formSection}>
-          <CommentForm
-            onSave={(content) => handleCreateComment(content)}
-            submitText="댓글 등록"
-            placeholder="댓글을 작성해주세요..."
-          />
-        </div>
-      ) : (
-        <div className={styles.loginRequired}>
-          댓글을 작성하려면 로그인이 필요합니다.
-        </div>
-      )}
-
       <div className={styles.list}>
         {comments.length === 0 ? (
           <div className={styles.empty}>
@@ -154,6 +140,20 @@ const CommentList = ({ discussionId }) => {
           ))
         )}
       </div>
+
+      {me ? (
+        <div className={styles.formSection}>
+          <CommentForm
+            onSave={(content) => handleCreateComment(content)}
+            submitText="댓글 등록"
+            placeholder="댓글을 작성해주세요..."
+          />
+        </div>
+      ) : (
+        <div className={styles.loginRequired}>
+          댓글을 작성하려면 로그인이 필요합니다.
+        </div>
+      )}
     </div>
   );
 };

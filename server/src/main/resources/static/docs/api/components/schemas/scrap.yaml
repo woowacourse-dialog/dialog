@@ -33,7 +33,7 @@ components:
           type: integer
           format: int64
           nullable: true
-          description: 다음 페이지 커서 (토론 ID, 없으면 null)
+          description: 다음 페이지 커서 (스크랩 ID, 없으면 null)
           example: 78
         hasNext:
           type: boolean

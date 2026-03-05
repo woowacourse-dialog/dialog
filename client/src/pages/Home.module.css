@@ -5,7 +5,15 @@
 }
 
 .searchSection {
-  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 24px;
+  position: sticky;
+  top: var(--app-header-height);
+  z-index: 5;
+  background: var(--color-bg-body, #f8fafb);
+  padding-top: 24px;
+  margin-top: -24px;
 }
 
 .mobileFilterButton {
@@ -16,6 +24,7 @@
   display: flex;
   gap: 32px;
   align-items: flex-start;
+  padding-top: 24px;
 }
 
 .sidebar {

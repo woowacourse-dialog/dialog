@@ -3,7 +3,7 @@
   background: var(--color-bg-body, #f8fafb);
   display: flex;
   justify-content: center;
-  padding: 48px 16px;
+  padding: calc(var(--app-header-height, 64px) + 48px) 16px 48px;
 }
 
 .container {

@@ -1,3 +1,8 @@
+/* ============================================
+   DiscussionCreateCompletePage
+   Design: dialog.pen node LH2aU
+   ============================================ */
+
 .page {
   min-height: 100vh;
   background: var(--color-bg-body, #f8fafb);
@@ -8,123 +13,204 @@
 
 .container {
   width: 100%;
-  max-width: 640px;
-  background: var(--color-bg-card, #ffffff);
-  border-radius: var(--radius-md, 8px);
-  padding: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* ---- TitleArea ---- */
+
 .title {
-  font-size: 24px;
+  font-family: var(--font-family-default);
+  font-size: 32px;
   font-weight: 700;
   color: var(--color-text-primary, #1a2b3d);
   margin: 0 0 8px;
+  text-align: center;
 }
 
 .subtitle {
-  font-size: 15px;
-  color: var(--color-text-tertiary, #6b7e8f);
+  font-family: var(--font-family-default);
+  font-size: 16px;
+  color: var(--color-text-secondary, #4a5e73);
   margin: 0 0 24px;
+  text-align: center;
 }
 
+/* ---- PreviewCard ---- */
+
 .previewCard {
-  background: var(--color-bg-sidebar, #f5f7fa);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--color-bg-card, #ffffff);
   border: 1px solid var(--color-border-default, rgba(48, 62, 79, 0.12));
-  border-radius: var(--radius-md, 8px);
-  white-space: pre-wrap;
+  border-radius: 16px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trackCircle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-accent-blue, #42a5f5);
+  flex-shrink: 0;
+}
+
+.discussionTitle {
+  font-family: var(--font-family-default);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a2b3d);
+}
+
+/* ---- MetaInfo ---- */
+
+.metaInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--color-bg-sidebar, #f5f7fa);
+  border-radius: 8px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-family-default);
+  font-size: 13px;
+  color: var(--color-text-secondary, #4a5e73);
+}
+
+.metaLabel {
+  font-weight: 600;
+  color: var(--color-text-tertiary, #6b7e8f);
+  min-width: 32px;
+}
+
+.metaIcon {
+  color: var(--color-text-tertiary, #6b7e8f);
+  flex-shrink: 0;
+}
+
+.metaValue {
+  color: var(--color-text-primary, #1a2b3d);
+}
+
+.previewBody {
+  font-family: var(--font-family-default);
+  font-size: 14px;
+  color: var(--color-text-secondary, #4a5e73);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   word-break: break-word;
 }
 
-.previewHeader {
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: var(--color-text-primary, #1a2b3d);
-}
-
-.previewRow {
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: var(--color-text-primary, #1a2b3d);
-}
-
-.previewRow:last-child {
-  margin-bottom: 0;
-}
-
-.previewRow a {
-  color: var(--color-accent-blue, #42a5f5);
-  text-decoration: none;
-}
-
-.previewRow a:hover {
-  text-decoration: underline;
-}
-
-.actions {
+.linkArea {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 24px;
-  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: var(--color-bg-sidebar, #f5f7fa);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--transition-fast, 0.15s ease);
+  color: var(--color-text-tertiary, #6b7e8f);
 }
 
-.slackBtn {
-  background-color: #4A154B !important;
-  border-color: #4A154B !important;
-  color: #ffffff !important;
-  display: inline-flex !important;
+.linkArea:hover {
+  background: var(--color-bg-card-hover, #eef1f5);
+}
+
+.linkArea svg {
+  flex-shrink: 0;
+}
+
+.linkText {
+  font-family: var(--font-family-default);
+  font-size: 13px;
+  color: var(--color-text-tertiary, #6b7e8f);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- CopySuccessMessage ---- */
+
+.copySuccess {
+  display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.slackBtn:hover {
-  background-color: #3b1040 !important;
-}
-
-.discordBtn {
-  background-color: #5865F2 !important;
-  border-color: #5865F2 !important;
-  color: #ffffff !important;
-  display: inline-flex !important;
-  align-items: center;
-  gap: 8px;
-}
-
-.discordBtn:hover {
-  background-color: #4752c4 !important;
-}
-
-.toast {
+  padding: 8px 16px;
+  background: var(--color-accent-green-light, #e8f5e9);
+  color: var(--color-accent-green, #43a047);
+  border-radius: 8px;
   margin-top: 12px;
-  padding: 8px 12px;
+  font-family: var(--font-family-default);
   font-size: 14px;
-  color: var(--color-status-success-text, #2e7d32);
-  border-radius: var(--radius-md, 8px);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    padding: 24px 20px;
-  }
+.copySuccess svg {
+  flex-shrink: 0;
+}
 
-  .actions {
-    flex-direction: column;
-    align-items: stretch;
+/* ---- ButtonArea ---- */
+
+.goToPostBtn {
+  width: 100%;
+  height: 48px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-surface, #ffffff);
+  border: 1px solid var(--color-border-default, rgba(48, 62, 79, 0.12));
+  border-radius: 8px;
+  font-family: var(--font-family-default);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #4a5e73);
+  cursor: pointer;
+  transition: background var(--transition-fast, 0.15s ease);
+}
+
+.goToPostBtn:hover {
+  background: var(--color-bg-card-hover, #f5f7fa);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 768px) {
+  .page {
+    padding: calc(var(--app-header-height, 64px) + 32px) 16px 32px;
   }
 }
 
 @media (max-width: 480px) {
   .page {
-    padding: 24px 8px;
-  }
-
-  .container {
-    padding: 20px 16px;
+    padding: calc(var(--app-header-height, 64px) + 24px) 12px 24px;
   }
 
   .title {
-    font-size: 20px;
+    font-size: 24px;
+  }
+
+  .previewCard {
+    padding: 20px;
   }
 }

@@ -119,11 +119,20 @@ const DiscussionCreateFormPage = () => {
         });
       }
 
-      const discussionId = res.data.discussionId;
+      const discussionId = res.data.id || res.data.discussionId;
       const trackName = getTrackFullName(track);
-      navigate(`/discussion/${discussionId}/complete`, { state: { title, content, trackName } });
+      const completeState = {
+        title,
+        content,
+        trackName,
+        discussionType,
+        ...(discussionType === 'OFFLINE'
+          ? { location, date, startTime, endTime, participantCount }
+          : { endDate: getEndDate(endDateOffset) }),
+      };
+      navigate(`/discussion/${discussionId}/complete`, { state: completeState });
     } catch (error) {
-      alert(error.response.data.message);
+      alert(error.response?.data?.data?.message || error.response?.data?.message || '등록에 실패했습니다');
     }
   };
 

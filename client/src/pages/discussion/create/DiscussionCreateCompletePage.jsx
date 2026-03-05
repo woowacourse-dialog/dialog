@@ -1,35 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Button from '../../../components/ui/Button/Button';
-import Card from '../../../components/ui/Card/Card';
-import { generateShareText, generateShareHtml } from '../../../utils/shareMessage';
-import { copyRichText } from '../../../utils/clipboard';
-import slackLogo from '../../../assets/slack-logo.svg';
-import discordLogo from '../../../assets/discord-logo.svg';
+import { Link2, Check, MapPin, Calendar, Clock, Users } from 'lucide-react';
 import styles from './DiscussionCreateCompletePage.module.css';
-
-const SLACK_URL = import.meta.env.VITE_SLACK_CHANNEL_URL || 'https://app.slack.com/client';
-const DISCORD_URL = import.meta.env.VITE_DISCORD_CHANNEL_URL || 'https://discord.com/channels';
-
-const trackEmojis = {
-  '백엔드': '⚙️',
-  '프론트엔드': '🎨',
-  '안드로이드': '📱',
-  '공통': '🔄',
-};
 
 const DiscussionCreateCompletePage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { state } = useLocation();
-  const { title = '', content = '', trackName = '공통' } = state || {};
+  const {
+    title = '',
+    content = '',
+    trackName = '공통',
+    discussionType = 'ONLINE',
+    // 온라인
+    endDate = '',
+    // 오프라인
+    location: meetingLocation = '',
+    date = '',
+    startTime = '',
+    endTime = '',
+    participantCount = 0,
+  } = state || {};
 
   const [copied, setCopied] = useState(false);
-  const [countdown, setCountdown] = useState(null);
-  const [activePlatform, setActivePlatform] = useState(null);
-  const [hasOpenedSlack, setHasOpenedSlack] = useState(false);
-  const [hasOpenedDiscord, setHasOpenedDiscord] = useState(false);
   const timerRef = useRef(null);
+
+  const isOffline = discussionType === 'OFFLINE';
 
   const discussionUrl = useMemo(
     () => `${window.location.origin}/discussion/${id}`,
@@ -41,110 +37,113 @@ const DiscussionCreateCompletePage = () => {
     return content.length > 100 ? content.substring(0, 100) + '...' : content;
   }, [content]);
 
-  const emojiForTrack = useMemo(
-    () => trackEmojis[trackName || '공통'] || '💬',
-    [trackName],
-  );
-
   useEffect(() => () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
-  const openPlatform = (platform) => {
-    const url = platform === 'slack' ? SLACK_URL : DISCORD_URL;
-    window.open(url, '_blank', 'noopener,noreferrer');
-    if (platform === 'slack') setHasOpenedSlack(true);
-    else setHasOpenedDiscord(true);
-  };
-
-  const handleShare = async (platform) => {
-    const hasOpened = platform === 'slack' ? hasOpenedSlack : hasOpenedDiscord;
-
-    if (hasOpened) {
-      openPlatform(platform);
-      return;
-    }
-
-    if (activePlatform) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      setCountdown(null);
-      setActivePlatform(null);
-      openPlatform(platform);
-      return;
-    }
-
+  const handleCopyLink = async () => {
     try {
-      const shareArgs = {
-        track: trackName || '공통',
-        title: title || `토론 #${id}`,
-        content: content || '',
-        link: discussionUrl,
-      };
-      const html = generateShareHtml(shareArgs);
-      const plain = generateShareText(shareArgs);
-      await copyRichText(html, plain);
-
+      await navigator.clipboard.writeText(discussionUrl);
       setCopied(true);
-      setActivePlatform(platform);
-      setCountdown(3);
-      let current = 3;
-      timerRef.current = setInterval(() => {
-        current -= 1;
-        setCountdown(current);
-        if (current === 0) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-          openPlatform(platform);
-          setActivePlatform(null);
-        }
-      }, 1000);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 3000);
     } catch {
-      alert('클립보드 복사에 실패했습니다. 수동으로 복사해주세요.');
+      alert('클립보드 복사에 실패했습니다.');
     }
   };
-
-  const slackLabel = activePlatform === 'slack' && countdown !== null
-    ? `${countdown}초 뒤 슬랙으로 이동합니다.`
-    : hasOpenedSlack ? '슬랙 다시 열기' : '슬랙으로 공유하기';
-
-  const discordLabel = activePlatform === 'discord' && countdown !== null
-    ? `${countdown}초 뒤 디스코드로 이동합니다.`
-    : hasOpenedDiscord ? '디스코드 다시 열기' : '프리코스로 공유하기';
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
+        {/* TitleArea */}
         <h1 className={styles.title}>작성 완료</h1>
-        <p className={styles.subtitle}>이제 크루들과 공유해보세요.</p>
+        <p className={styles.subtitle}>아래 링크를 통해 토론에 참여해보세요.</p>
 
-        {/* 공유 미리보기 카드 */}
-        <Card className={styles.previewCard}>
-          <div className={styles.previewHeader}>
-            [{emojiForTrack} {trackName || '공통'}] 새로운 토론이 시작되었습니다!
+        {/* PreviewCard */}
+        <div className={styles.previewCard}>
+          <div className={styles.cardHeader}>
+            <span className={styles.trackCircle} />
+            <span className={styles.discussionTitle}>{title || `토론 #${id}`}</span>
           </div>
-          <div className={styles.previewRow}>📝 <strong>제목:</strong> {title || `토론 #${id}`}</div>
-          <div className={styles.previewRow}>💭 <strong>내용:</strong> {truncatedContent}</div>
-          <div className={styles.previewRow}>🔗 <strong>링크:</strong> <a href={discussionUrl}>{discussionUrl}</a></div>
-        </Card>
 
-        {/* 공유 버튼 */}
-        <div className={styles.actions}>
-          <Button onClick={() => handleShare('slack')} className={styles.slackBtn}>
-            <img src={slackLogo} alt="Slack" width={18} height={18} /> {slackLabel}
-          </Button>
-          <Button onClick={() => handleShare('discord')} className={styles.discordBtn}>
-            <img src={discordLogo} alt="Discord" width={18} height={18} /> {discordLabel}
-          </Button>
-          <Button variant="secondary" onClick={() => navigate(`/discussion/${id}`)}>
-            게시글로 이동
-          </Button>
+          {/* 메타 정보 */}
+          <div className={styles.metaInfo}>
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>트랙</span>
+              <span className={styles.metaValue}>{trackName}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>유형</span>
+              <span className={styles.metaValue}>{isOffline ? '오프라인' : '온라인'}</span>
+            </div>
+            {isOffline ? (
+              <>
+                {meetingLocation && (
+                  <div className={styles.metaItem}>
+                    <MapPin size={14} className={styles.metaIcon} />
+                    <span className={styles.metaValue}>{meetingLocation}</span>
+                  </div>
+                )}
+                {date && (
+                  <div className={styles.metaItem}>
+                    <Calendar size={14} className={styles.metaIcon} />
+                    <span className={styles.metaValue}>{date}</span>
+                  </div>
+                )}
+                {startTime && endTime && (
+                  <div className={styles.metaItem}>
+                    <Clock size={14} className={styles.metaIcon} />
+                    <span className={styles.metaValue}>{startTime} ~ {endTime}</span>
+                  </div>
+                )}
+                {participantCount > 0 && (
+                  <div className={styles.metaItem}>
+                    <Users size={14} className={styles.metaIcon} />
+                    <span className={styles.metaValue}>최대 {participantCount}명</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              endDate && (
+                <div className={styles.metaItem}>
+                  <Calendar size={14} className={styles.metaIcon} />
+                  <span className={styles.metaValue}>종료일 {endDate}</span>
+                </div>
+              )
+            )}
+          </div>
+
+          {truncatedContent && (
+            <p className={styles.previewBody}>{truncatedContent}</p>
+          )}
+
+          <button
+            type="button"
+            className={styles.linkArea}
+            onClick={handleCopyLink}
+            aria-label="링크 복사"
+          >
+            <Link2 size={16} />
+            <span className={styles.linkText}>{discussionUrl}</span>
+          </button>
         </div>
 
-        {/* 토스트 */}
-        {copied && <div className={styles.toast}>클립보드에 복사되었습니다</div>}
+        {/* ButtonArea */}
+        <button
+          type="button"
+          className={styles.goToPostBtn}
+          onClick={() => navigate(`/discussion/${id}`)}
+        >
+          게시글로 이동
+        </button>
+
+        {/* CopySuccessMessage */}
+        {copied && (
+          <div className={styles.copySuccess}>
+            <Check size={16} />
+            <span>클립보드에 복사되었습니다</span>
+          </div>
+        )}
       </div>
     </div>
   );

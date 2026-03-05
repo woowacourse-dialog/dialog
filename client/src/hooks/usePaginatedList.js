@@ -58,6 +58,10 @@ export default function usePaginatedList({ fetchFn, deps = [], deduplicate = fal
     }
   }, [hasMore, isFetchingMore, loading, cursor, fetchFn, deduplicate]);
 
+  const removeItem = useCallback((id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
   const reset = useCallback(() => {
     setItems([]);
     setCursor(null);
@@ -74,6 +78,7 @@ export default function usePaginatedList({ fetchFn, deps = [], deduplicate = fal
     hasMore,
     isFetchingMore,
     loadMore,
+    removeItem,
     reset,
     hasFetched: hasFetched.current,
   };

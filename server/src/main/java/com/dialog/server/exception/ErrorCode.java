@@ -70,7 +70,10 @@ public enum ErrorCode {
     FAILED_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
-    NOTIFICATION_NOT_FOUND("5090", "해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST);
+    NOTIFICATION_NOT_FOUND("5090", "해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    ALREADY_REPORTED("5091", "이미 신고한 콘텐츠입니다.", HttpStatus.BAD_REQUEST),
+    CANNOT_REPORT_OWN_CONTENT("5092", "본인의 콘텐츠는 신고할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     public final String code;
     public final String message;

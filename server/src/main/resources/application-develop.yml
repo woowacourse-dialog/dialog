@@ -96,4 +96,6 @@ springdoc:
         url: /docs/api/firebase-token-controller-openapi.yaml
       - name: User API
         url: /docs/api/user-controller-openapi.yaml
+      - name: Report API
+        url: /docs/api/report-controller-openapi.yaml
     urls-primary-name: Discussion API

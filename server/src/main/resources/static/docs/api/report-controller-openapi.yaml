@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Dialog Report API
+  description: 게시글 및 댓글 신고 기능 관리를 위한 API
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: Report
+    description: 신고 관리
+
+paths:
+  /api/discussions/{discussionId}/reports:
+    post:
+      tags:
+        - Report
+      summary: 게시글 신고
+      description: |
+        특정 토론 게시글을 신고합니다.
+        - 본인 게시글은 신고할 수 없습니다.
+        - 동일한 게시글을 중복 신고할 수 없습니다.
+      operationId: reportDiscussion
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 신고할 토론 ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/report.yaml#/components/schemas/ReportRequest'
+            examples:
+              spam:
+                summary: 스팸 신고
+                value:
+                  reason: SPAM
+              inappropriate:
+                summary: 부적절한 내용 신고
+                value:
+                  reason: INAPPROPRIATE
+              abuse:
+                summary: 욕설/비하 신고
+                value:
+                  reason: ABUSE
+              other:
+                summary: 기타 사유 신고
+                value:
+                  reason: OTHER
+      responses:
+        '201':
+          description: 게시글 신고 성공
+        'error-codes':
+          description: "[1005, 5022, 5091, 5092]"
+
+  /api/discussions/{discussionId}/comments/{commentId}/reports:
+    post:
+      tags:
+        - Report
+      summary: 댓글 신고
+      description: |
+        특정 토론의 댓글을 신고합니다.
+        - 본인 댓글은 신고할 수 없습니다.
+        - 동일한 댓글을 중복 신고할 수 없습니다.
+      operationId: reportComment
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: discussionId
+          in: path
+          required: true
+          description: 토론 ID
+          schema:
+            type: integer
+            format: int64
+        - name: commentId
+          in: path
+          required: true
+          description: 신고할 댓글 ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/report.yaml#/components/schemas/ReportRequest'
+            examples:
+              spam:
+                summary: 스팸 신고
+                value:
+                  reason: SPAM
+              inappropriate:
+                summary: 부적절한 내용 신고
+                value:
+                  reason: INAPPROPRIATE
+              abuse:
+                summary: 욕설/비하 신고
+                value:
+                  reason: ABUSE
+              other:
+                summary: 기타 사유 신고
+                value:
+                  reason: OTHER
+      responses:
+        '201':
+          description: 댓글 신고 성공
+        'error-codes':
+          description: "[1005, 5060, 5091, 5092]"
+
+components:
+  securitySchemes:
+    sessionAuth:
+      $ref: './components/security/schemes.yaml#/components/securitySchemes/sessionAuth'

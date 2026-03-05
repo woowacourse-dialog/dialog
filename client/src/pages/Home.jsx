@@ -11,7 +11,6 @@ import FilterBottomSheet from '../components/Filter/FilterBottomSheet';
 import DiscussionList from '../components/Discussion/DiscussionList';
 import ConfirmModal from '../components/ui/ConfirmModal/ConfirmModal';
 import FloatingActionButton from '../components/FloatingActionButton/FloatingActionButton';
-import Button from '../components/ui/Button/Button';
 import { SlidersHorizontal } from 'lucide-react';
 import styles from './Home.module.css';
 
@@ -87,17 +86,6 @@ const Home = () => {
 
   return (
     <div className={styles.page}>
-      {/* 모바일 필터 버튼 */}
-      <div className={styles.mobileFilterButton}>
-        <Button
-          variant="secondary"
-          leftIcon={<SlidersHorizontal size={16} />}
-          onClick={() => setShowFilterSheet(true)}
-        >
-          필터
-        </Button>
-      </div>
-
       {/* 메인 레이아웃: 사이드바 + 콘텐츠 */}
       <div className={styles.layout} data-testid="home-layout">
         {/* 데스크톱 사이드바 */}
@@ -157,6 +145,15 @@ const Home = () => {
         variant="danger"
         loading={deleting}
       />
+
+      {/* 모바일 필터 FAB */}
+      <button
+        className={styles.filterFab}
+        onClick={() => setShowFilterSheet(true)}
+        aria-label="필터"
+      >
+        <SlidersHorizontal size={20} />
+      </button>
 
       {/* FAB — 로그인 시만 */}
       {isLoggedIn && (

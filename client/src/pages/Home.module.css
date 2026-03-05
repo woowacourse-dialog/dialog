@@ -16,7 +16,7 @@
   margin-top: -24px;
 }
 
-.mobileFilterButton {
+.filterFab {
   display: none;
 }
 
@@ -46,9 +46,28 @@
     padding-right: 16px;
   }
 
-  .mobileFilterButton {
-    display: block;
-    margin-bottom: 16px;
+  .filterFab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 76px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+    cursor: pointer;
+    z-index: var(--z-fab, 900);
+    padding: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filterFab:hover {
+    transform: scale(1.1);
   }
 
   .sidebar {

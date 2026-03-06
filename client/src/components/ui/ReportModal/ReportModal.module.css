@@ -18,11 +18,11 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-pill);
-  background: #fff3e0;
+  background: var(--color-accent-orange-light);
 }
 
 .flagIcon {
-  color: #fb8c00;
+  color: var(--color-accent-orange);
 }
 
 .title {
@@ -54,7 +54,7 @@
 }
 
 .radioInput {
-  accent-color: #fb8c00;
+  accent-color: var(--color-accent-orange);
   width: 16px;
   height: 16px;
   margin: 0;

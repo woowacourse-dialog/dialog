@@ -70,26 +70,19 @@ const DiscussionDetailPage = () => {
     }
 
     const fetchStatuses = async () => {
-      try {
-        const likeStatusRes = await getLikeStatus(id);
-        setIsLiked(likeStatusRes.data.isLiked);
-      } catch {
-        setIsLiked(false);
-      }
+      const [likeResult, scrapResult, participationResult] = await Promise.allSettled([
+        getLikeStatus(id),
+        getScrapStatus(id),
+        checkIsParticipating(id),
+      ]);
 
-      try {
-        const scrapStatusRes = await getScrapStatus(id);
-        setIsBookmarked(scrapStatusRes.data.isScraped);
-      } catch {
-        setIsBookmarked(false);
-      }
-
-      try {
-        const participationRes = await checkIsParticipating(id);
-        setIsParticipatingState(participationRes.data?.isParticipation ?? false);
-      } catch {
-        setIsParticipatingState(false);
-      }
+      setIsLiked(likeResult.status === 'fulfilled' ? likeResult.value.data.isLiked : false);
+      setIsBookmarked(scrapResult.status === 'fulfilled' ? scrapResult.value.data.isScraped : false);
+      setIsParticipatingState(
+        participationResult.status === 'fulfilled'
+          ? participationResult.value.data?.isParticipation ?? false
+          : false
+      );
     };
 
     fetchStatuses();

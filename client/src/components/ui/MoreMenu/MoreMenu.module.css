@@ -61,8 +61,8 @@
 .disabled { opacity: 0.5; cursor: not-allowed; }
 .disabled:hover { background: none; }
 
-.warning { color: #fb8c00; }
-.warning:hover { background: #fff8e1; }
+.warning { color: var(--color-accent-orange); }
+.warning:hover { background: var(--color-accent-orange-light); }
 
 .separator {
   height: 1px;

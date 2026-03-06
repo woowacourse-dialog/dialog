@@ -14,6 +14,10 @@ import { formatCommentDate } from '../../utils/dateUtils';
 import { getProfileImageSrc } from '../../utils/profileImage';
 import styles from './CommentItem.module.css';
 
+const ICON_PENCIL = <Pencil size={16} />;
+const ICON_TRASH = <Trash2 size={16} />;
+const ICON_FLAG = <Flag size={16} />;
+
 const CommentItem = ({
   comment,
   onReply,
@@ -73,18 +77,15 @@ const CommentItem = ({
   };
 
   const buildCommentMenuItems = () => {
-    const items = [];
     if (isAuthor) {
-      items.push(
-        { icon: <Pencil size={16} />, label: '수정하기', onClick: () => setIsEditing(true), disabled: isEditing || isUpdating },
-        { icon: <Trash2 size={16} />, label: '삭제하기', variant: 'danger', onClick: () => setShowDeleteModal(true), disabled: isDeleting },
-        { separator: true },
-      );
+      return [
+        { icon: ICON_PENCIL, label: '수정하기', onClick: () => setIsEditing(true), disabled: isEditing || isUpdating },
+        { icon: ICON_TRASH, label: '삭제하기', variant: 'danger', onClick: () => setShowDeleteModal(true), disabled: isDeleting },
+      ];
     }
-    items.push({
-      icon: <Flag size={16} />, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true),
-    });
-    return items;
+    return [
+      { icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true) },
+    ];
   };
 
   const handleSaveReply = async (content) => {

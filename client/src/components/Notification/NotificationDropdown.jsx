@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import useClickOutside from '../../hooks/useClickOutside';
 import styles from './NotificationDropdown.module.css';
 
 const NotificationDropdown = ({
@@ -16,22 +17,7 @@ const NotificationDropdown = ({
   const listRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [onClose]);
+  useClickOutside(dropdownRef, onClose);
 
   const handleScroll = () => {
     if (listRef.current) {

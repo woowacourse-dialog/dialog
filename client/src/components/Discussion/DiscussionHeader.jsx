@@ -9,6 +9,10 @@ import { getTrackFullName } from '../../constants/tracks';
 import { formatDiscussionDate, formatTimeOnly } from '../../utils/dateUtils';
 import styles from './DiscussionHeader.module.css';
 
+const ICON_PENCIL = <Pencil size={16} />;
+const ICON_TRASH = <Trash2 size={16} />;
+const ICON_FLAG = <Flag size={16} />;
+
 // Map Korean status text to Badge type keys
 const STATUS_TO_TYPE = {
   '토론 중': 'active',
@@ -21,13 +25,13 @@ const buildMenuItems = ({ isAuthor, onEdit, onDelete, onReport }) => {
   const items = [];
   if (isAuthor) {
     items.push(
-      { icon: <Pencil size={16} />, label: '수정하기', onClick: onEdit },
-      { icon: <Trash2 size={16} />, label: '삭제하기', variant: 'danger', onClick: onDelete },
+      { icon: ICON_PENCIL, label: '수정하기', onClick: onEdit },
+      { icon: ICON_TRASH, label: '삭제하기', variant: 'danger', onClick: onDelete },
       { separator: true },
     );
   }
   items.push({
-    icon: <Flag size={16} />, label: '신고하기', variant: 'warning', onClick: onReport,
+    icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: onReport,
   });
   return items;
 };

@@ -47,6 +47,14 @@
   background: #c62828;
 }
 
+.warning {
+  background: #fb8c00;
+  color: var(--color-text-inverse);
+}
+.warning:hover:not(:disabled) {
+  background: #f57c00;
+}
+
 .fab {
   width: 56px;
   height: 56px;

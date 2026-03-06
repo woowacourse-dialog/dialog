@@ -79,6 +79,14 @@ describe('Input', () => {
     });
   });
 
+  describe('ref 전달', () => {
+    it('ref를 전달하면 input 요소에 연결된다', () => {
+      const ref = { current: null };
+      render(<Input ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    });
+  });
+
   describe('비활성화', () => {
     it('disabled 상태에서 입력이 불가능하다', () => {
       render(<Input disabled />);

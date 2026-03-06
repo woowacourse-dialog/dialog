@@ -13,10 +13,12 @@ export default function Button({
   onClick,
   type = 'button',
   className,
+  ref,
   ...rest
 }) {
   return (
     <button
+      ref={ref}
       className={clsx(
         styles.button,
         styles[variant],

@@ -12,6 +12,7 @@ export default function Select({
   disabled = false,
   error,
   className,
+  ref,
   ...rest
 }) {
   const selectId = id || (label ? `select-${label}` : undefined);
@@ -21,6 +22,7 @@ export default function Select({
       {label && <label htmlFor={selectId} className={styles.label}>{label}</label>}
       <div className={clsx(styles.selectContainer, error && styles.error)}>
         <select
+          ref={ref}
           id={selectId}
           className={styles.select}
           value={value}

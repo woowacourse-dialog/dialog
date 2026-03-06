@@ -14,6 +14,7 @@ export default function Input({
   leftIcon,
   rightIcon,
   className,
+  ref,
   ...rest
 }) {
   const inputId = id || (label ? `input-${label}` : undefined);
@@ -24,6 +25,7 @@ export default function Input({
       <div className={clsx(styles.inputContainer, error && styles.error)}>
         {leftIcon && <span className={styles.leftIcon}>{leftIcon}</span>}
         <input
+          ref={ref}
           id={inputId}
           className={styles.input}
           placeholder={placeholder}

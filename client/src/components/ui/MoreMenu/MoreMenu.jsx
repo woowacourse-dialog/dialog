@@ -35,22 +35,27 @@ export default function MoreMenu({ items = [], align = 'right', className }) {
       </button>
       {isOpen && (
         <div className={clsx(styles.menu, styles[align])} role="menu">
-          {items.map((item, index) => (
-            <button
-              key={index}
-              className={clsx(
-                styles.menuItem,
-                item.variant === 'danger' && styles.danger,
-                item.disabled && styles.disabled,
-              )}
-              role="menuitem"
-              onClick={(e) => handleItemClick(e, item)}
-              disabled={item.disabled}
-            >
-              {item.icon && <span className={styles.itemIcon}>{item.icon}</span>}
-              {item.label}
-            </button>
-          ))}
+          {items.map((item, index) =>
+            item.separator ? (
+              <hr key={index} className={styles.separator} />
+            ) : (
+              <button
+                key={index}
+                className={clsx(
+                  styles.menuItem,
+                  item.variant === 'danger' && styles.danger,
+                  item.variant === 'warning' && styles.warning,
+                  item.disabled && styles.disabled,
+                )}
+                role="menuitem"
+                onClick={(e) => handleItemClick(e, item)}
+                disabled={item.disabled}
+              >
+                {item.icon && <span className={styles.itemIcon}>{item.icon}</span>}
+                {item.label}
+              </button>
+            )
+          )}
         </div>
       )}
     </div>

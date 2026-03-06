@@ -61,4 +61,14 @@
 .disabled { opacity: 0.5; cursor: not-allowed; }
 .disabled:hover { background: none; }
 
+.warning { color: #fb8c00; }
+.warning:hover { background: #fff8e1; }
+
+.separator {
+  height: 1px;
+  border: none;
+  background: var(--color-border-subtle);
+  margin: 4px 0;
+}
+
 .itemIcon { display: flex; align-items: center; }

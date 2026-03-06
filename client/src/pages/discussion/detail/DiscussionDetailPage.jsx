@@ -6,6 +6,7 @@ import ActionBar from '../../../components/Discussion/ActionBar';
 import AISummary from '../../../components/Discussion/AISummary';
 import CommentList from '../../../components/Comment/CommentList';
 import ConfirmModal from '../../../components/ui/ConfirmModal/ConfirmModal';
+import ReportModal from '../../../components/ui/ReportModal/ReportModal';
 import LoadingSpinner from '../../../components/ui/LoadingSpinner/LoadingSpinner';
 import {
   findDiscussionById,
@@ -15,6 +16,7 @@ import {
 } from '../../../api/discussion';
 import { getLikeStatus } from '../../../api/like';
 import { getScrapStatus } from '../../../api/scrap';
+import { reportDiscussion } from '../../../api/report';
 import { useAuth } from '../../../context/AuthContext';
 import styles from './DiscussionDetailPage.module.css';
 
@@ -33,6 +35,8 @@ const DiscussionDetailPage = () => {
   const [isParticipatingState, setIsParticipatingState] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   // Fetch discussion data
   useEffect(() => {
@@ -97,6 +101,20 @@ const DiscussionDetailPage = () => {
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
+  };
+
+  const handleReport = async (reason) => {
+    setReporting(true);
+    try {
+      await reportDiscussion(id, reason);
+      alert('신고가 접수되었습니다.');
+    } catch (error) {
+      const msg = error.response?.data?.message;
+      alert(msg || '신고에 실패했습니다.');
+    } finally {
+      setReporting(false);
+      setShowReportModal(false);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -180,8 +198,10 @@ const DiscussionDetailPage = () => {
           <DiscussionHeader
             discussion={discussion}
             isAuthor={isAuthor}
+            me={me}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
+            onReport={() => setShowReportModal(true)}
             isParticipating={isParticipatingState}
             onJoin={handleJoin}
           />
@@ -220,6 +240,13 @@ const DiscussionDetailPage = () => {
         cancelLabel="취소"
         variant="danger"
         loading={deleting}
+      />
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onConfirm={handleReport}
+        loading={reporting}
       />
     </div>
   );

@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { Pencil, Trash2, Flag } from 'lucide-react';
 import clsx from 'clsx';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
 import Avatar from '../ui/Avatar/Avatar';
+import MoreMenu from '../ui/MoreMenu/MoreMenu';
 import ConfirmModal from '../ui/ConfirmModal/ConfirmModal';
+import ReportModal from '../ui/ReportModal/ReportModal';
 import { updateComment, deleteComment } from '../../api/discussion';
+import { reportComment } from '../../api/report';
 import { useAuth } from '../../context/AuthContext';
 import { formatCommentDate } from '../../utils/dateUtils';
 import { getProfileImageSrc } from '../../utils/profileImage';
@@ -24,6 +28,8 @@ const CommentItem = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   const isAuthor = me && me.id === comment.author.authorId;
   const hasReplies = comment.childComments?.length > 0;
@@ -52,6 +58,35 @@ const CommentItem = ({
     setShowDeleteModal(false);
   };
 
+  const handleReport = async (reason) => {
+    setReporting(true);
+    try {
+      await reportComment(discussionId, comment.discussionCommentId, reason);
+      alert('신고가 접수되었습니다.');
+    } catch (error) {
+      const msg = error.response?.data?.message;
+      alert(msg || '신고에 실패했습니다.');
+    } finally {
+      setReporting(false);
+      setShowReportModal(false);
+    }
+  };
+
+  const buildCommentMenuItems = () => {
+    const items = [];
+    if (isAuthor) {
+      items.push(
+        { icon: <Pencil size={16} />, label: '수정하기', onClick: () => setIsEditing(true), disabled: isEditing || isUpdating },
+        { icon: <Trash2 size={16} />, label: '삭제하기', variant: 'danger', onClick: () => setShowDeleteModal(true), disabled: isDeleting },
+        { separator: true },
+      );
+    }
+    items.push({
+      icon: <Flag size={16} />, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true),
+    });
+    return items;
+  };
+
   const handleSaveReply = async (content) => {
     await onReply(content, comment.discussionCommentId);
     setIsReplying(false);
@@ -76,24 +111,8 @@ const CommentItem = ({
               <span className={styles.modified}>(수정됨)</span>
             )}
           </div>
-          {isAuthor && (
-            <div className={styles.ownerActions}>
-              <button
-                className={styles.editBtn}
-                onClick={() => setIsEditing(true)}
-                disabled={isEditing || isUpdating}
-              >
-                수정
-              </button>
-              <span className={styles.separator}>|</span>
-              <button
-                className={styles.deleteBtn}
-                onClick={() => setShowDeleteModal(true)}
-                disabled={isDeleting}
-              >
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </button>
-            </div>
+          {me && (
+            <MoreMenu items={buildCommentMenuItems()} />
           )}
         </div>
 
@@ -159,6 +178,13 @@ const CommentItem = ({
         message="댓글을 삭제하시겠습니까?"
         onConfirm={handleDelete}
         onClose={() => setShowDeleteModal(false)}
+      />
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onConfirm={handleReport}
+        loading={reporting}
       />
     </div>
   );

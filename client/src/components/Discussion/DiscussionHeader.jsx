@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react';
+import { Calendar, Pencil, Trash2, Flag } from 'lucide-react';
 import Badge from '../ui/Badge/Badge';
 import Avatar from '../ui/Avatar/Avatar';
 import Button from '../ui/Button/Button';
@@ -17,11 +17,28 @@ const STATUS_TO_TYPE = {
   '모집 완료': 'recruitComplete',
 };
 
+const buildMenuItems = ({ isAuthor, onEdit, onDelete, onReport }) => {
+  const items = [];
+  if (isAuthor) {
+    items.push(
+      { icon: <Pencil size={16} />, label: '수정하기', onClick: onEdit },
+      { icon: <Trash2 size={16} />, label: '삭제하기', variant: 'danger', onClick: onDelete },
+      { separator: true },
+    );
+  }
+  items.push({
+    icon: <Flag size={16} />, label: '신고하기', variant: 'warning', onClick: onReport,
+  });
+  return items;
+};
+
 const DiscussionHeader = ({
   discussion,
   isAuthor,
+  me,
   onEdit,
   onDelete,
+  onReport,
   isParticipating,
   onJoin,
 }) => {
@@ -33,10 +50,7 @@ const DiscussionHeader = ({
   const isOnline = discussionType === 'ONLINE';
   const isOffline = discussionType === 'OFFLINE';
 
-  const menuItems = [
-    { label: '수정', onClick: () => onEdit?.() },
-    { label: '삭제', variant: 'danger', onClick: () => onDelete?.() },
-  ];
+  const menuItems = buildMenuItems({ isAuthor, onEdit, onDelete, onReport });
 
   return (
     <div className={styles.header}>
@@ -50,7 +64,7 @@ const DiscussionHeader = ({
             {trackName}
           </Badge>
         </div>
-        {isAuthor && (
+        {me && (
           <MoreMenu items={menuItems} />
         )}
       </div>

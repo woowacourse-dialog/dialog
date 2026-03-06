@@ -51,64 +51,6 @@
   margin-left: 4px;
 }
 
-.ownerActions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-}
-
-.editBtn {
-  color: var(--color-text-secondary, #656d76);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: 11px;
-  transition: text-decoration 0.2s ease;
-  text-decoration: none;
-  font-weight: normal;
-  box-shadow: none;
-  transform: none;
-}
-
-.editBtn:hover:not(:disabled) {
-  text-decoration: underline;
-}
-
-.editBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.deleteBtn {
-  color: var(--color-status-danger-text, #d1242f);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: 11px;
-  transition: text-decoration 0.2s ease;
-  text-decoration: none;
-  font-weight: normal;
-  box-shadow: none;
-  transform: none;
-}
-
-.deleteBtn:hover:not(:disabled) {
-  text-decoration: underline;
-}
-
-.deleteBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.separator {
-  color: var(--color-text-secondary, #656d76);
-  margin: 0 4px;
-}
-
 .body {
   margin-bottom: 8px;
 }
@@ -171,12 +113,6 @@
     font-size: 11px;
   }
 
-  .ownerActions {
-    font-size: 11px;
-  }
-
-  .editBtn,
-  .deleteBtn,
   .replyBtn {
     font-size: 11px;
   }

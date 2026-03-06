@@ -22,18 +22,15 @@ const STATUS_TO_TYPE = {
 };
 
 const buildMenuItems = ({ isAuthor, onEdit, onDelete, onReport }) => {
-  const items = [];
   if (isAuthor) {
-    items.push(
+    return [
       { icon: ICON_PENCIL, label: '수정하기', onClick: onEdit },
       { icon: ICON_TRASH, label: '삭제하기', variant: 'danger', onClick: onDelete },
-      { separator: true },
-    );
+    ];
   }
-  items.push({
-    icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: onReport,
-  });
-  return items;
+  return [
+    { icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: onReport },
+  ];
 };
 
 const DiscussionHeader = ({

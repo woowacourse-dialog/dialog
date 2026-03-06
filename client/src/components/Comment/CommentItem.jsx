@@ -77,18 +77,15 @@ const CommentItem = ({
   };
 
   const buildCommentMenuItems = () => {
-    const items = [];
     if (isAuthor) {
-      items.push(
+      return [
         { icon: ICON_PENCIL, label: '수정하기', onClick: () => setIsEditing(true), disabled: isEditing || isUpdating },
         { icon: ICON_TRASH, label: '삭제하기', variant: 'danger', onClick: () => setShowDeleteModal(true), disabled: isDeleting },
-        { separator: true },
-      );
+      ];
     }
-    items.push({
-      icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true),
-    });
-    return items;
+    return [
+      { icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true) },
+    ];
   };
 
   const handleSaveReply = async (content) => {

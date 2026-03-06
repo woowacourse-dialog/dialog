@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
+import useClickOutside from '../../hooks/useClickOutside';
 import magnifierImg from '../../assets/background_removed_logo.png';
 import styles from './SearchBar.module.css';
 
@@ -17,15 +18,7 @@ const SearchBar = ({ onSearch, initialType = 0, initialQuery = '' }) => {
 
   const currentType = SEARCH_TYPES.find((t) => t.value === searchType);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  useClickOutside(dropdownRef, () => setIsDropdownOpen(false));
 
   const handleSearch = () => {
     if (query.trim()) {

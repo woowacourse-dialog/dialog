@@ -97,6 +97,14 @@ describe('Button', () => {
     });
   });
 
+  describe('ref 전달', () => {
+    it('ref를 전달하면 button 요소에 연결된다', () => {
+      const ref = { current: null };
+      render(<Button ref={ref}>확인</Button>);
+      expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+    });
+  });
+
   describe('로딩', () => {
     it('loading 상태에서 버튼이 disabled된다', () => {
       render(<Button loading>확인</Button>);

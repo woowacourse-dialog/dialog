@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { MoreHorizontal } from 'lucide-react';
 import clsx from 'clsx';
+import useClickOutside from '../../../hooks/useClickOutside';
 import styles from './MoreMenu.module.css';
 
 export default function MoreMenu({ items = [], align = 'right', className }) {
@@ -19,23 +20,7 @@ export default function MoreMenu({ items = [], align = 'right', className }) {
     setIsOpen(false);
   };
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') setIsOpen(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen]);
+  useClickOutside(containerRef, () => setIsOpen(false), isOpen);
 
   return (
     <div className={clsx(styles.container, className)} ref={containerRef}>

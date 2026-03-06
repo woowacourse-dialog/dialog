@@ -70,6 +70,14 @@ describe('Select', () => {
     });
   });
 
+  describe('ref 전달', () => {
+    it('ref를 전달하면 select 요소에 연결된다', () => {
+      const ref = { current: null };
+      render(<Select options={options} ref={ref} />);
+      expect(ref.current).toBeInstanceOf(HTMLSelectElement);
+    });
+  });
+
   describe('비활성화', () => {
     it('disabled 상태에서 select가 비활성화된다', () => {
       render(<Select options={options} disabled />);

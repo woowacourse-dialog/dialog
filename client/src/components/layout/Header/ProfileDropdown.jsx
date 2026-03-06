@@ -1,26 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { User, LogOut } from 'lucide-react';
+import useClickOutside from '../../../hooks/useClickOutside';
 import styles from './ProfileDropdown.module.css';
 
 const ProfileDropdown = ({ onNavigate, onLogout, onClose }) => {
   const dropdownRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [onClose]);
+  useClickOutside(dropdownRef, onClose);
 
   return (
     <div className={styles.dropdown} ref={dropdownRef}>

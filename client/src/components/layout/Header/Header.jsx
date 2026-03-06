@@ -50,7 +50,7 @@ const Header = () => {
               <div className={styles.notificationWrapper}>
                 <button
                   className={styles.bellButton}
-                  onClick={() => setShowNotifications((prev) => !prev)}
+                  onClick={() => { setShowNotifications((prev) => !prev); setShowProfile(false); }}
                   aria-label="알림"
                 >
                   <Bell size={20} />
@@ -75,7 +75,7 @@ const Header = () => {
               <div className={styles.profileWrapper}>
                 <button
                   className={styles.avatarButton}
-                  onClick={() => setShowProfile((prev) => !prev)}
+                  onClick={() => { setShowProfile((prev) => !prev); setShowNotifications(false); }}
                   data-testid="user-avatar"
                 >
                   <Avatar

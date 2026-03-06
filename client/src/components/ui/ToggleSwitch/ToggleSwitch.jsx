@@ -8,13 +8,6 @@ export default function ToggleSwitch({ checked, onChange, disabled = false, labe
 
   return (
     <label className={clsx(styles.container, disabled && styles.disabled, className)}>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={() => {}}
-        className={styles.hiddenInput}
-        disabled={disabled}
-      />
       <button
         type="button"
         role="switch"

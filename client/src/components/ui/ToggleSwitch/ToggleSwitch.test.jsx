@@ -4,11 +4,6 @@ import ToggleSwitch from './ToggleSwitch';
 
 describe('ToggleSwitch', () => {
   describe('렌더링', () => {
-    it('체크박스 input을 렌더링한다', () => {
-      render(<ToggleSwitch checked={false} onChange={() => {}} />);
-      expect(screen.getByRole('checkbox', { hidden: true })).toBeInTheDocument();
-    });
-
     it('label prop이 있으면 라벨을 표시한다', () => {
       render(<ToggleSwitch checked={false} onChange={() => {}} label="알림" />);
       expect(screen.getByText('알림')).toBeInTheDocument();

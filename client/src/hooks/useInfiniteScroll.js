@@ -2,17 +2,20 @@ import { useRef, useEffect } from 'react';
 
 export default function useInfiniteScroll({ loadMore, hasMore, loading, isFetchingMore }) {
   const loaderRef = useRef(null);
+  const loadMoreRef = useRef(loadMore);
 
   useEffect(() => {
-    if (!loaderRef.current || !hasMore || loading || isFetchingMore) return;
-    const observer = new window.IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading && !isFetchingMore) {
-        loadMore();
-      }
+    loadMoreRef.current = loadMore;
+  });
+
+  useEffect(() => {
+    if (!loaderRef.current || !hasMore) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMoreRef.current();
     }, { threshold: 1 });
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [loadMore, hasMore, loading, isFetchingMore]);
+  }, [hasMore]);
 
   return loaderRef;
 }

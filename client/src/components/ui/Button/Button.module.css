@@ -44,15 +44,15 @@
   color: var(--color-text-inverse);
 }
 .danger:hover:not(:disabled) {
-  background: #c62828;
+  background: var(--color-status-error-text);
 }
 
 .warning {
-  background: #fb8c00;
+  background: var(--color-accent-orange);
   color: var(--color-text-inverse);
 }
 .warning:hover:not(:disabled) {
-  background: #f57c00;
+  background: var(--color-accent-orange-dark);
 }
 
 .fab {

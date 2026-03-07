@@ -26,10 +26,10 @@ public class DiscussionScrapController {
     private final ScrapService scrapService;
 
     @PostMapping("/discussions/{discussionId}/scraps")
-    public ResponseEntity<DiscussionDetailResponse> scrap(@PathVariable Long discussionId,
-                                                          @AuthenticatedUserId Long userId) {
+    public ResponseEntity<ApiSuccessResponse<DiscussionDetailResponse>> scrap(@PathVariable Long discussionId,
+                                                                              @AuthenticatedUserId Long userId) {
         DiscussionDetailResponse discussionDetailResponse = scrapService.create(userId, discussionId);
-        return ResponseEntity.ok(discussionDetailResponse);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(discussionDetailResponse));
     }
 
     @DeleteMapping("/discussions/{discussionId}/scraps")

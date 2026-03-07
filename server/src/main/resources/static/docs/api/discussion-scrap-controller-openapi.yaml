@@ -38,34 +38,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
               example:
-                id: 1
-                discussionType: "OFFLINE"
-                commonDiscussionInfo:
-                  title: "백엔드 아키텍처 토론"
-                  content: "마이크로서비스 아키텍처에 대해 논의합니다."
-                  summary: null
-                  category: "backend"
-                  createdAt: "2025-11-13T10:00:00"
-                  modifiedAt: "2025-11-14T15:30:00"
-                  likeCount: 15
-                  author:
-                    id: 123
-                    name: "홍길동"
-                    profileImage:
-                      basicImageUri: "https://avatars.githubusercontent.com/u/12345"
-                      customImageUri: null
-                offlineDiscussionInfo:
-                  startAt: "2025-11-20 14:00"
-                  endAt: "2025-11-20 16:00"
-                  place: "강남역 스터디룸"
-                  participantCount: 7
-                  maxParticipantCount: 10
-                  participants:
-                    - id: 456
-                      name: "김철수"
-                onlineDiscussionInfo: null
+                data:
+                  id: 1
+                  discussionType: "OFFLINE"
+                  commonDiscussionInfo:
+                    title: "백엔드 아키텍처 토론"
+                    content: "마이크로서비스 아키텍처에 대해 논의합니다."
+                    summary: null
+                    category: "backend"
+                    createdAt: "2025-11-13T10:00:00"
+                    modifiedAt: "2025-11-14T15:30:00"
+                    likeCount: 15
+                    author:
+                      id: 123
+                      name: "홍길동"
+                      profileImage:
+                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                        customImageUri: null
+                  offlineDiscussionInfo:
+                    startAt: "2025-11-20 14:00"
+                    endAt: "2025-11-20 16:00"
+                    place: "강남역 스터디룸"
+                    participantCount: 7
+                    maxParticipantCount: 10
+                    participants:
+                      - id: 456
+                        name: "김철수"
+                  onlineDiscussionInfo: null
         'error-codes':
           description: "[1005, 5022]"
 

@@ -1,0 +1,80 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--app-header-height) 20px 0;
+}
+
+.searchSection {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 24px;
+  position: sticky;
+  top: var(--app-header-height);
+  z-index: 5;
+  background: var(--color-bg-body, #f8fafb);
+  padding-top: 24px;
+  margin-top: -24px;
+}
+
+.filterFab {
+  display: none;
+}
+
+.layout {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--app-header-height) + 24px);
+}
+
+.main {
+  flex: 1;
+  min-width: 0; /* flex item overflow 방지 */
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .filterFab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 76px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.15));
+    cursor: pointer;
+    z-index: var(--z-fab, 900);
+    padding: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .filterFab:hover {
+    transform: scale(1.1);
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .layout {
+    gap: 0;
+  }
+}

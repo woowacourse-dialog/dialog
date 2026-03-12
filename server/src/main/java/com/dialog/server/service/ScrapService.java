@@ -7,12 +7,14 @@ import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.Scrap;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.LikeRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.ScrapRepository;
 import com.dialog.server.repository.UserRepository;
@@ -35,9 +37,10 @@ public class ScrapService {
     private final DiscussionRepository discussionRepository;
     private final ProfileImageRepository profileImageRepository;
     private final DiscussionCommentRepository discussionCommentRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
-    public void create(Long userId, Long discussionId) {
+    public DiscussionDetailResponse create(Long userId, Long discussionId) {
         User user = getUserById(userId);
         Discussion discussion = getDiscussionById(discussionId);
         if (isScraped(user, discussion)) {
@@ -48,6 +51,8 @@ public class ScrapService {
                 .discussion(discussion)
                 .build();
         scrapRepository.save(scrap);
+
+        return getDiscussionDetailResponse(discussion);
     }
 
     @Transactional
@@ -64,8 +69,8 @@ public class ScrapService {
     public ScrapCursorPageResponse<DiscussionPreviewResponse> getScrapedDiscussions(
             ScrapCursorPageRequest scrapCursorPageRequest, Long userId) {
         User user = getUserById(userId);
-        List<Discussion> discussions = findScrapDiscussionsByCursor(scrapCursorPageRequest, user);
-        return createCursorResponse(discussions, scrapCursorPageRequest.pageSize());
+        List<Scrap> scraps = findScrapsByCursor(scrapCursorPageRequest, user);
+        return createCursorResponse(scraps, scrapCursorPageRequest.pageSize());
     }
 
 
@@ -76,12 +81,12 @@ public class ScrapService {
         return isScraped(user, discussion);
     }
 
-    private List<Discussion> findScrapDiscussionsByCursor(ScrapCursorPageRequest scrapCursorPageRequest, User user) {
+    private List<Scrap> findScrapsByCursor(ScrapCursorPageRequest scrapCursorPageRequest, User user) {
         PageRequest pageRequest = PageRequest.of(0, scrapCursorPageRequest.pageSize() + 1);
         if (scrapCursorPageRequest.lastCursorId() == null) {
-            return scrapRepository.findFirstPageScrapDiscussionByUser(pageRequest, user);
+            return scrapRepository.findFirstPageScrapsByUser(pageRequest, user);
         }
-        return scrapRepository.findScrapDiscussionByUser(pageRequest, user, scrapCursorPageRequest.lastCursorId());
+        return scrapRepository.findScrapsByUser(pageRequest, user, scrapCursorPageRequest.lastCursorId());
     }
 
     private User getUserById(Long userId) {
@@ -99,17 +104,21 @@ public class ScrapService {
     }
 
     private ScrapCursorPageResponse<DiscussionPreviewResponse> createCursorResponse(
-            List<Discussion> discussions, int requestPageSize) {
-        boolean hasNext = discussions.size() > requestPageSize;
+            List<Scrap> scraps, int requestPageSize) {
+        boolean hasNext = scraps.size() > requestPageSize;
 
         Long nextCursorId = null;
 
-        List<Discussion> pagingDiscussions = new ArrayList<>(discussions);
-        if (!pagingDiscussions.isEmpty() && hasNext) {
-            Discussion cursorDiscussion = pagingDiscussions.getLast();
-            pagingDiscussions = pagingDiscussions.subList(0, requestPageSize);
-            nextCursorId = cursorDiscussion.getId();
+        List<Scrap> pagingScraps = new ArrayList<>(scraps);
+        if (!pagingScraps.isEmpty() && hasNext) {
+            Scrap cursorScrap = pagingScraps.getLast();
+            pagingScraps = pagingScraps.subList(0, requestPageSize);
+            nextCursorId = cursorScrap.getId();
         }
+
+        List<Discussion> pagingDiscussions = pagingScraps.stream()
+                .map(Scrap::getDiscussion)
+                .toList();
 
         Map<User, ProfileImage> userProfileImageMap = getAuthorProfileImages(pagingDiscussions);
         Map<Long, Long> commentCountMap = getDiscussionCommentCounts(pagingDiscussions);
@@ -148,8 +157,29 @@ public class ScrapService {
         List<Long> discussionIds = discussions.stream().map(Discussion::getId).toList();
         return discussionIds.stream()
                 .collect(Collectors.toMap(
-                    Function.identity(),
-                    discussionCommentRepository::countByDiscussionId
+                        Function.identity(),
+                        discussionCommentRepository::countByDiscussionId
                 ));
+    }
+
+    private DiscussionDetailResponse getDiscussionDetailResponse(final Discussion discussion) {
+        ProfileImage profileImage = profileImageRepository.findByUser(discussion.getAuthor()).orElse(null);
+        long likeCount = likeRepository.countByDiscussion(discussion);
+
+        if (discussion instanceof OfflineDiscussion offlineDiscussion) {
+            return DiscussionDetailResponse.fromOfflineDiscussion(
+                    offlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        } else if (discussion instanceof OnlineDiscussion onlineDiscussion) {
+            return DiscussionDetailResponse.fromOnlineDiscussion(
+                    onlineDiscussion,
+                    likeCount,
+                    profileImage
+            );
+        }
+
+        throw new DialogException(ErrorCode.BAD_REQUEST);
     }
 }

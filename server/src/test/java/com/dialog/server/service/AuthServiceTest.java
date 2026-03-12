@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import static org.mockito.Mockito.mock;
+
 import com.dialog.server.config.JpaConfig;
 import com.dialog.server.domain.Role;
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.auth.request.SignupRequest;
@@ -38,18 +41,25 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository);
+        authService = new AuthService(
+                userRepository,
+                mock(UserService.class),
+                mock(AppleTokenVerifier.class),
+                "https://default-profile.png"
+        );
 
         user = userRepository.save(
                 User.builder()
                         .oauthId("oauth123")
                         .nickname("testUser")
+                        .socialType(SocialType.GITHUB)
                         .role(Role.USER)
                         .build()
         );
         tempUser = userRepository.save(
                 User.builder()
                         .oauthId("oauth1234")
+                        .socialType(SocialType.GITHUB)
                         .build()
         );
     }
@@ -64,7 +74,7 @@ class AuthServiceTest {
         );
 
         // when
-        final Long id = authService.registerUser(signupRequest, tempUser.getOauthId());
+        final Long id = authService.registerUser(signupRequest, tempUser.getOauthId(), SocialType.GITHUB);
 
         // then
         final Optional<User> user = userRepository.findById(id);
@@ -85,7 +95,7 @@ class AuthServiceTest {
         );
 
         // when, then
-        assertThatThrownBy(() -> authService.registerUser(signupRequest, user.getOauthId()))
+        assertThatThrownBy(() -> authService.registerUser(signupRequest, user.getOauthId(), SocialType.GITHUB))
                 .isInstanceOf(DialogException.class);
     }
 
@@ -99,7 +109,7 @@ class AuthServiceTest {
         );
 
         // when, then
-        assertThatThrownBy(() -> authService.registerUser(signupRequest, newOAuthId))
+        assertThatThrownBy(() -> authService.registerUser(signupRequest, newOAuthId, SocialType.GITHUB))
                 .isInstanceOf(DialogException.class);
     }
 

@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
+import { Pencil, Trash2, Flag } from 'lucide-react';
+import clsx from 'clsx';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
+import Avatar from '../ui/Avatar/Avatar';
+import MoreMenu from '../ui/MoreMenu/MoreMenu';
+import ConfirmModal from '../ui/ConfirmModal/ConfirmModal';
+import ReportModal from '../ui/ReportModal/ReportModal';
 import { updateComment, deleteComment } from '../../api/discussion';
-import useMe from '../../hooks/useMe';
+import { reportComment } from '../../api/report';
+import { useAuth } from '../../context/AuthContext';
 import { formatCommentDate } from '../../utils/dateUtils';
-import './CommentItem.css';
+import { getProfileImageSrc } from '../../utils/profileImage';
+import styles from './CommentItem.module.css';
 
-const getAuthorProfileImageSrc = (author) => {
-  if (!author || !author.profileImage) return '/src/assets/dialog_icon.png';
-  const { basicImageUri, customImageUri } = author.profileImage;
-  if (customImageUri) {
-    return customImageUri;
-  }
-  if (basicImageUri) {
-    return basicImageUri;
-  }
-  return '/src/assets/dialog_icon.png';
-};
-
+const ICON_PENCIL = <Pencil size={16} />;
+const ICON_TRASH = <Trash2 size={16} />;
+const ICON_FLAG = <Flag size={16} />;
 
 const CommentItem = ({
   comment,
@@ -27,142 +26,130 @@ const CommentItem = ({
   depth = 0,
   discussionId
 }) => {
-  const { me } = useMe();
+  const { currentUser: me } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   const isAuthor = me && me.id === comment.author.authorId;
-  const hasReplies = comment.childComments && comment.childComments.length > 0;
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
+  const hasReplies = comment.childComments?.length > 0;
 
   const handleSaveEdit = async (content) => {
     setIsUpdating(true);
     try {
       await updateComment(comment.discussionCommentId, { content });
       setIsEditing(false);
-      onUpdate && onUpdate();
+      onUpdate?.();
     } catch (error) {
       console.error('Failed to update comment:', error);
-      alert(error.response?.data?.message || '댓글 수정에 실패했습니다.');
     }
     setIsUpdating(false);
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
-
     setIsDeleting(true);
     try {
       await deleteComment(comment.discussionCommentId);
-      onDelete && onDelete();
+      onDelete?.();
     } catch (error) {
       console.error('Failed to delete comment:', error);
-      alert(error.response?.data?.message || '댓글 삭제에 실패했습니다.');
     }
     setIsDeleting(false);
+    setShowDeleteModal(false);
   };
 
-  const handleReply = () => {
-    setIsReplying(true);
+  const handleReport = async (reason) => {
+    setReporting(true);
+    try {
+      await reportComment(discussionId, comment.discussionCommentId, reason);
+      alert('신고가 접수되었습니다.');
+    } catch (error) {
+      const msg = error.response?.data?.message;
+      alert(msg || '신고에 실패했습니다.');
+    } finally {
+      setReporting(false);
+      setShowReportModal(false);
+    }
   };
 
-  const handleCancelReply = () => {
-    setIsReplying(false);
+  const buildCommentMenuItems = () => {
+    if (isAuthor) {
+      return [
+        { icon: ICON_PENCIL, label: '수정하기', onClick: () => setIsEditing(true), disabled: isEditing || isUpdating },
+        { icon: ICON_TRASH, label: '삭제하기', variant: 'danger', onClick: () => setShowDeleteModal(true), disabled: isDeleting },
+      ];
+    }
+    return [
+      { icon: ICON_FLAG, label: '신고하기', variant: 'warning', onClick: () => setShowReportModal(true) },
+    ];
   };
 
   const handleSaveReply = async (content) => {
-    try {
-      await onReply(content, comment.discussionCommentId);
-      setIsReplying(false);
-    } catch (error) {
-      console.error('Failed to create reply:', error);
-      alert(error.response?.data?.message || '답글 작성에 실패했습니다.');
-    }
+    await onReply(content, comment.discussionCommentId);
+    setIsReplying(false);
   };
 
   return (
-    <div className={`comment-item ${depth > 0 ? 'comment-reply' : ''}`}>
-      <div className="comment-content">
-        <div className="comment-header">
-          <div className="comment-author">
-            <img
-              src={getAuthorProfileImageSrc(comment.author)}
+    <div
+      id={`comment-${comment.discussionCommentId}`}
+      className={clsx(styles.item, depth > 0 && styles.reply)}
+    >
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <div className={styles.authorInfo}>
+            <Avatar
+              src={getProfileImageSrc(comment.author?.profileImage)}
               alt={comment.author.nickname}
-              className="author-avatar"
+              size="sm"
             />
-            <span className="author-name">{comment.author.nickname}</span>
-            <span className="comment-date">{formatCommentDate(comment.createdAt)}</span>
+            <span className={styles.authorName}>{comment.author.nickname}</span>
+            <span className={styles.date}>{formatCommentDate(comment.createdAt)}</span>
             {comment.createdAt !== comment.modifiedAt && (
-              <span className="comment-modified">(수정됨)</span>
+              <span className={styles.modified}>(수정됨)</span>
             )}
           </div>
-          {isAuthor && (
-            <div className="comment-owner-actions">
-              <button
-                className="edit-button"
-                onClick={handleEdit}
-                disabled={isEditing || isUpdating}
-              >
-                수정
-              </button>
-              <span className="edit-button-separator">
-                |
-              </span>
-              <button
-                className="delete-button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </button>
-            </div>
+          {me && (
+            <MoreMenu items={buildCommentMenuItems()} />
           )}
         </div>
 
-        <div className="comment-body">
+        <div className={styles.body}>
           {isEditing ? (
             <CommentForm
               initialContent={comment.content}
               onSave={handleSaveEdit}
-              onCancel={handleCancelEdit}
+              onCancel={() => setIsEditing(false)}
               submitText={isUpdating ? '수정 중...' : '수정'}
               disabled={isUpdating}
             />
           ) : (
-            <div className="comment-text">
+            <div className={styles.text}>
               <MarkdownRender content={comment.content} />
             </div>
           )}
         </div>
 
-        {!isEditing && depth === 0 && (
-          <div className="comment-footer">
-            {me && (
-              <button
-                className="reply-button"
-                onClick={handleReply}
-                disabled={isReplying}
-              >
-                답글쓰기
-              </button>
-            )}
+        {!isEditing && depth === 0 && me && (
+          <div className={styles.footer}>
+            <button
+              className={styles.replyBtn}
+              onClick={() => setIsReplying(true)}
+              disabled={isReplying}
+            >
+              답글쓰기
+            </button>
           </div>
         )}
 
         {isReplying && (
-          <div className="reply-form">
+          <div className={styles.replyForm}>
             <CommentForm
               onSave={handleSaveReply}
-              onCancel={handleCancelReply}
+              onCancel={() => setIsReplying(false)}
               submitText="답글 등록"
               placeholder="답글을 작성해주세요..."
             />
@@ -171,7 +158,7 @@ const CommentItem = ({
       </div>
 
       {hasReplies && (
-        <div className="comment-replies">
+        <div className={styles.replies}>
           {comment.childComments.map(reply => (
             <CommentItem
               key={reply.discussionCommentId}
@@ -185,6 +172,21 @@ const CommentItem = ({
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="댓글 삭제"
+        message="댓글을 삭제하시겠습니까?"
+        onConfirm={handleDelete}
+        onClose={() => setShowDeleteModal(false)}
+      />
+
+      <ReportModal
+        isOpen={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        onConfirm={handleReport}
+        loading={reporting}
+      />
     </div>
   );
 };

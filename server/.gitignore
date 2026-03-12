@@ -181,4 +181,10 @@ gradle-app.setting
 ### Environment File ###
 .env.*
 
+### Docs ###
+/docs
+
+### Monitoring ###
+/monitoring
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,macos,java,gradle

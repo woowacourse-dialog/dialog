@@ -33,7 +33,7 @@ paths:
             type: integer
             format: int64
       responses:
-        '201':
+        '200':
           description: 북마크 추가 성공
           content:
             application/json:
@@ -41,10 +41,35 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: object
-                    nullable: true
+                    $ref: './components/schemas/discussion.yaml#/components/schemas/DiscussionDetailResponse'
               example:
-                data: null
+                data:
+                  id: 1
+                  discussionType: "OFFLINE"
+                  commonDiscussionInfo:
+                    title: "백엔드 아키텍처 토론"
+                    content: "마이크로서비스 아키텍처에 대해 논의합니다."
+                    summary: null
+                    category: "backend"
+                    createdAt: "2025-11-13T10:00:00"
+                    modifiedAt: "2025-11-14T15:30:00"
+                    likeCount: 15
+                    author:
+                      id: 123
+                      name: "홍길동"
+                      profileImage:
+                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                        customImageUri: null
+                  offlineDiscussionInfo:
+                    startAt: "2025-11-20 14:00"
+                    endAt: "2025-11-20 16:00"
+                    place: "강남역 스터디룸"
+                    participantCount: 7
+                    maxParticipantCount: 10
+                    participants:
+                      - id: 456
+                        name: "김철수"
+                  onlineDiscussionInfo: null
         'error-codes':
           description: "[1005, 5022]"
 
@@ -121,7 +146,7 @@ paths:
 
         **페이지네이션:**
         - 커서 기반 페이지네이션 사용
-        - 커서는 토론 ID (Long) 사용
+        - 커서는 스크랩 ID (Long) 사용
         - 기본 페이지 크기: 10
       operationId: getMyScrapsList
       security:
@@ -130,7 +155,7 @@ paths:
         - name: lastCursorId
           in: query
           required: false
-          description: 마지막으로 조회한 토론 ID (다음 페이지 조회 시 사용)
+          description: 마지막으로 조회한 스크랩 ID (다음 페이지 조회 시 사용)
           schema:
             type: integer
             format: int64
@@ -156,22 +181,24 @@ paths:
                 data:
                   content:
                     - id: 123
-                      title: "백엔드 아키텍처 토론"
-                      status: "ACTIVE"
-                      category: "BACKEND"
                       discussionType: "OFFLINE"
-                      likeCount: 15
-                      commentCount: 8
-                      scrapCount: 5
-                      viewCount: 120
-                      createdAt: "2025-11-13T10:00:00"
-                      author:
-                        id: 456
-                        nickname: "홍길동"
-                        track: "BACKEND"
-                      profileImage:
-                        customImageUri: "https://s3.amazonaws.com/dialog/profiles/user456.jpg"
-                        basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                      commonDiscussionInfo:
+                        title: "백엔드 아키텍처 토론"
+                        author: "홍길동"
+                        profileImage:
+                          customImageUri: "https://s3.amazonaws.com/dialog/profiles/user456.jpg"
+                          basicImageUri: "https://avatars.githubusercontent.com/u/12345"
+                        category: "backend"
+                        createdAt: "2025-11-13T10:00:00"
+                        modifiedAt: "2025-11-14T15:30:00"
+                        commentCount: 8
+                      offlineDiscussionInfo:
+                        startAt: "2025-11-20 14:00"
+                        endAt: "2025-11-20 16:00"
+                        place: "강남역 스터디룸"
+                        participantCount: 7
+                        maxParticipantCount: 10
+                      onlineDiscussionInfo: null
                   nextCursorId: 78
                   hasNext: true
                   size: 10

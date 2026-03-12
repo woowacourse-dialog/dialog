@@ -1,0 +1,153 @@
+.header {
+  padding: 24px;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.authorMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.authorName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.authorSuffix {
+  font-size: 14px;
+  color: var(--color-text-tertiary);
+}
+
+/* Info section (online/offline) */
+.infoSection {
+  margin-top: 20px;
+}
+
+/* Online info */
+.onlineInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.infoIcon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.infoLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 48px;
+}
+
+.infoValue {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+/* Offline meta grid */
+.metaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.metaValue {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+/* Participants */
+.participants {
+  margin-top: 16px;
+}
+
+.participantsTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px;
+}
+
+.participantCount {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+
+.participantsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.participantChip {
+  padding: 4px 12px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid var(--color-border-default);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background: var(--color-bg-card);
+}
+
+.joinBtn {
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

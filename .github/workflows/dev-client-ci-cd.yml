@@ -1,0 +1,90 @@
+name: Dev Client CI/CD
+
+on:
+  push:
+    branches: [ "develop" ]
+    paths:
+      - 'client/**'
+  workflow_dispatch:
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'client/.nvmrc'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client
+
+      - name: Create .env file
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_DEV_API_URL }}" >> .env
+          echo "VITE_GITHUB_AUTH_URL=${{ secrets.VITE_GITHUB_AUTH_URL }}" >> .env
+          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> .env
+          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> .env
+          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> .env
+          echo "VITE_FIREBASE_VAPID_KEY=${{ secrets.VITE_FIREBASE_VAPID_KEY }}" >> .env
+          echo "VITE_SLACK_CHANNEL_URL=${{ secrets.VITE_SLACK_CHANNEL_URL }}" >> .env
+          echo "VITE_DISCORD_CHANNEL_URL=${{ secrets.VITE_DISCORD_CHANNEL_URL }}" >> .env
+        working-directory: ./client
+
+      - name: Build React app
+        run: npm run build
+        working-directory: ./client
+
+      - name: Create compressed artifact
+        run: tar -czvf client-build.tar.gz -C client/dist .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-build-artifact
+          path: client-build.tar.gz
+
+  deploy-client:
+    needs: build-client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build-artifact
+
+      - name: Copy artifact to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_DEV_HOST }}
+          username: ${{ secrets.EC2_DEV_USERNAME }}
+          key: ${{ secrets.EC2_DEV_SSH_KEY }}
+          source: "client-build.tar.gz"
+          target: "/tmp"
+
+      - name: Deploy and set permissions
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_DEV_HOST }}
+          username: ${{ secrets.EC2_DEV_USERNAME }}
+          key: ${{ secrets.EC2_DEV_SSH_KEY }}
+          script: |
+            # Create directory if it doesn't exist
+            sudo mkdir -p /var/www/dialog-client
+            # Clean old files
+            sudo rm -rf /var/www/dialog-client/*
+            # Extract new files
+            sudo tar -xzvf /tmp/client-build.tar.gz -C /var/www/dialog-client
+            # Set ownership and permissions
+            sudo chown -R www-data:www-data /var/www/dialog-client
+            sudo find /var/www/dialog-client -type d -exec chmod 755 {} \;
+            sudo find /var/www/dialog-client -type f -exec chmod 644 {} \;
+            # Clean up the tarball
+            rm /tmp/client-build.tar.gz

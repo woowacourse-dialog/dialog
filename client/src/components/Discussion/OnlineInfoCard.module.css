@@ -1,0 +1,26 @@
+.card {
+  padding: 20px;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 48px;
+}
+
+.value {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}

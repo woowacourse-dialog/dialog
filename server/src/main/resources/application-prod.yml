@@ -16,6 +16,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
 
   security:
     oauth2:
@@ -39,6 +40,11 @@ spring:
           model: gpt-4o-mini
           temperature: 0.7
           max-tokens: 2000
+
+apple:
+  oauth2:
+    allowed-audiences: ${APPLE_ALLOWED_AUDIENCES}
+    default-profile-image-url: ${APPLE_DEFAULT_PROFILE_IMAGE_URL:/images/default-profile.png}
 
 app:
   frontend:
@@ -76,6 +82,8 @@ springdoc:
     urls:
       - name: Auth API
         url: /docs/api/auth-controller-openapi.yaml
+      - name: Mobile Auth API
+        url: /docs/api/mobile-auth-controller-openapi.yaml
       - name: Discussion API
         url: /docs/api/discussion-controller-openapi.yaml
       - name: Discussion Comment API

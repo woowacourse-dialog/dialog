@@ -2,13 +2,13 @@ package com.dialog.server.controller;
 
 import com.dialog.server.dto.auth.AuthenticatedUserId;
 import com.dialog.server.dto.request.ScrapCursorPageRequest;
+import com.dialog.server.dto.response.DiscussionDetailResponse;
 import com.dialog.server.dto.response.DiscussionPreviewResponse;
 import com.dialog.server.dto.response.ScrapCursorPageResponse;
 import com.dialog.server.dto.response.ScrapStatusResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
 import com.dialog.server.service.ScrapService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +26,10 @@ public class DiscussionScrapController {
     private final ScrapService scrapService;
 
     @PostMapping("/discussions/{discussionId}/scraps")
-    public ResponseEntity<Void> scrap(@PathVariable Long discussionId, @AuthenticatedUserId Long userId) {
-        scrapService.create(userId, discussionId);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .build();
+    public ResponseEntity<ApiSuccessResponse<DiscussionDetailResponse>> scrap(@PathVariable Long discussionId,
+                                                                              @AuthenticatedUserId Long userId) {
+        DiscussionDetailResponse discussionDetailResponse = scrapService.create(userId, discussionId);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(discussionDetailResponse));
     }
 
     @DeleteMapping("/discussions/{discussionId}/scraps")

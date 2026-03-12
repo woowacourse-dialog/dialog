@@ -1,8 +1,12 @@
 package com.dialog.server.service;
 
+import com.dialog.server.domain.CommentReplyRouteParams;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.DiscussionCommentRouteParams;
+import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.ProfileImage;
+import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.comment.response.DiscussionCommentCreateResponse;
@@ -32,6 +36,7 @@ public class DiscussionCommentService {
     private final DiscussionRepository discussionRepository;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public DiscussionCommentCreateResponse createComment(DiscussionCommentCreateRequest request, Long authorId) {
@@ -59,6 +64,30 @@ public class DiscussionCommentService {
                 .build();
 
         DiscussionComment savedComment = discussionCommentRepository.save(comment);
+
+        if (parentComment != null && parentComment.isNotAuthor(authorId)) {
+            RouteParams routeParams = new CommentReplyRouteParams(
+                    discussion.getId(),
+                    parentComment.getId(),
+                    savedComment.getId()
+            );
+            notificationService.createAndPropagateNotification(
+                    author,
+                    parentComment.getAuthor(),
+                    NotificationType.COMMENT_REPLY,
+                    routeParams
+            );
+        }
+
+        if (parentComment == null && discussion.isNotAuthor(authorId)) {
+            RouteParams routeParams = new DiscussionCommentRouteParams(discussion.getId(), savedComment.getId());
+            notificationService.createAndPropagateNotification(
+                    author,
+                    discussion.getAuthor(),
+                    NotificationType.DISCUSSION_COMMENT,
+                    routeParams
+            );
+        }
 
         return new DiscussionCommentCreateResponse(savedComment.getId());
     }

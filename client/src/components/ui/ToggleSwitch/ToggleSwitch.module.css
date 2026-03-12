@@ -1,0 +1,54 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--color-text-muted);
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  transition: background var(--transition-fast);
+}
+
+.track:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.checked {
+  background: var(--color-brand-primary);
+}
+
+.knob {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-text-inverse);
+  transition: transform var(--transition-fast);
+}
+
+.checked .knob {
+  transform: translateX(20px);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled .track {
+  cursor: not-allowed;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}

@@ -1,29 +1,21 @@
 spring:
   config:
     activate:
-      # 개발 환경
       on-profile: develop
 
   datasource:
-    url: ${DEVELOP_DB_URL}
-    username: ${DEVELOP_DB_USERNAME}
-    password: ${DEVELOP_DB_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: true
-
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data.sql
+    open-in-view: false
 
   security:
     oauth2:
@@ -48,10 +40,10 @@ spring:
           temperature: 0.7
           max-tokens: 2000
 
-server:
-  servlet:
-    session:
-      timeout: ${SESSION_TIMEOUT_MINUTE}
+apple:
+  oauth2:
+    allowed-audiences: ${APPLE_ALLOWED_AUDIENCES}
+    default-profile-image-url: ${APPLE_DEFAULT_PROFILE_IMAGE_URL:/images/default-profile.png}
 
 app:
   frontend:
@@ -69,6 +61,15 @@ firebase:
   config:
     path: ${FIREBASE_CONFIG_PATH}
 
+server:
+  forward-headers-strategy: native
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+
 springdoc:
   api-docs:
     enabled: true
@@ -79,6 +80,8 @@ springdoc:
     urls:
       - name: Auth API
         url: /docs/api/auth-controller-openapi.yaml
+      - name: Mobile Auth API
+        url: /docs/api/mobile-auth-controller-openapi.yaml
       - name: Discussion API
         url: /docs/api/discussion-controller-openapi.yaml
       - name: Discussion Comment API
@@ -93,4 +96,6 @@ springdoc:
         url: /docs/api/firebase-token-controller-openapi.yaml
       - name: User API
         url: /docs/api/user-controller-openapi.yaml
+      - name: Report API
+        url: /docs/api/report-controller-openapi.yaml
     urls-primary-name: Discussion API

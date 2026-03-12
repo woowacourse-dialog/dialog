@@ -7,11 +7,14 @@ public enum ErrorCode {
     /**
      * 1XXX - 인증, 보안 관련
      */
-    GITHUB_USER_ID_MISSING("1001", "GitHub에서 사용자 ID를 가져올 수 없습니다.", HttpStatus.BAD_GATEWAY),
+    OAUTH_USER_ID_MISSING("1001", "OAuth 제공자에서 사용자 ID를 가져올 수 없습니다.", HttpStatus.BAD_GATEWAY),
     INVALID_SIGNUP("1002", "유효하지 않은 회원가입입니다.", HttpStatus.UNAUTHORIZED),
     AUTHENTICATION_NOT_FOUND("1003", "인증 정보를 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
     INVALID_USER_ID_FORMAT("1004", "유효하지 않은 인증 정보입니다.", HttpStatus.BAD_REQUEST),
     LOGIN_REQUIRED("1005", "로그인 후 이용할 수 있습니다.", HttpStatus.UNAUTHORIZED),
+    WITHDRAW_USER("1006", "탈퇴한 사용자입니다.", HttpStatus.FORBIDDEN),
+    INVALID_IDENTITY_TOKEN("1007", "유효하지 않은 인증 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    APPLE_AUTH_SERVER_ERROR("1008", "인증에 실패했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.BAD_GATEWAY),
 
     /**
      * 5XXX - 비즈니스 로직 관련
@@ -65,8 +68,12 @@ public enum ErrorCode {
     INVALID_NICKNAME_LENGTH("5074", "닉네임은 2글자 이상 15자 이내여야 합니다.", HttpStatus.BAD_REQUEST),
 
     FAILED_LOAD_PROMPT("5080", "프롬프트 리소스 로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
-    ;
+    FAILED_AI_SUMMARY("5081", "AI 요약에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    NOTIFICATION_NOT_FOUND("5090", "해당 알림을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    ALREADY_REPORTED("5091", "이미 신고한 콘텐츠입니다.", HttpStatus.BAD_REQUEST),
+    CANNOT_REPORT_OWN_CONTENT("5092", "본인의 콘텐츠는 신고할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
     public final String code;
     public final String message;

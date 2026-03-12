@@ -5,10 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.domain.Category;
+import com.dialog.server.domain.CommentReplyRouteParams;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
+import com.dialog.server.domain.DiscussionCommentRouteParams;
+import com.dialog.server.domain.Notification;
+import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.OfflineDiscussion;
 import com.dialog.server.domain.ProfileImage;
+import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.comment.response.DiscussionCommentCreateResponse;
@@ -18,6 +23,7 @@ import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
+import com.dialog.server.repository.NotificationRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
 import java.time.LocalDate;
@@ -47,6 +53,8 @@ class DiscussionCommentServiceTest {
     private DiscussionCommentService discussionCommentService;
     @Autowired
     private ProfileImageRepository profileImageRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     private User author1;
     private User author2;
@@ -296,6 +304,114 @@ class DiscussionCommentServiceTest {
         assertThatThrownBy(() -> discussionCommentService.deleteComment(999L, author1.getId()))
                 .isInstanceOf(DialogException.class)
                 .hasMessageContaining(ErrorCode.COMMENT_NOT_FOUND.message);
+    }
+
+    @Test
+    void 댓글_생성_시_DISCUSSION_COMMENT_타입_알림에_올바른_RouteParams가_포함된다() {
+        // given
+        Discussion discussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "새로운 댓글",
+                discussion.getId(),
+                null
+        );
+
+        // when
+        DiscussionCommentCreateResponse response = discussionCommentService.createComment(request, author2.getId());
+
+        // then
+        Notification notification = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(author1, 0L)
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        assertAll(
+                () -> assertThat(notification.getType()).isEqualTo(NotificationType.DISCUSSION_COMMENT),
+                () -> assertThat(notification.getSender().getId()).isEqualTo(author2.getId()),
+                () -> assertThat(notification.getReceiver().getId()).isEqualTo(author1.getId()),
+                () -> assertThat(notification.getRouteParams()).isNotNull(),
+                () -> assertThat(notification.getRouteParams()).isInstanceOf(DiscussionCommentRouteParams.class)
+        );
+
+        DiscussionCommentRouteParams routeParams = (DiscussionCommentRouteParams) notification.getRouteParams();
+        assertAll(
+                () -> assertThat(routeParams.discussionId()).isEqualTo(discussion.getId()),
+                () -> assertThat(routeParams.discussionCommentId()).isEqualTo(response.id())
+        );
+    }
+
+    @Test
+    void 답글_생성_시_COMMENT_REPLY_타입_알림에_올바른_RouteParams가_포함된다() {
+        // given
+        Discussion discussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionComment parentComment = discussionCommentRepository.save(createComment(discussion, author1));
+
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "답글 내용",
+                discussion.getId(),
+                parentComment.getId()
+        );
+
+        // when
+        DiscussionCommentCreateResponse response = discussionCommentService.createComment(request, author2.getId());
+
+        // then
+        Notification notification = notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(author1, 0L)
+                .stream()
+                .findFirst()
+                .orElseThrow();
+
+        assertAll(
+                () -> assertThat(notification.getType()).isEqualTo(NotificationType.COMMENT_REPLY),
+                () -> assertThat(notification.getSender().getId()).isEqualTo(author2.getId()),
+                () -> assertThat(notification.getReceiver().getId()).isEqualTo(author1.getId()),
+                () -> assertThat(notification.getRouteParams()).isNotNull(),
+                () -> assertThat(notification.getRouteParams()).isInstanceOf(CommentReplyRouteParams.class)
+        );
+
+        CommentReplyRouteParams routeParams = (CommentReplyRouteParams) notification.getRouteParams();
+        assertAll(
+                () -> assertThat(routeParams.commentId()).isEqualTo(parentComment.getId()),
+                () -> assertThat(routeParams.replyId()).isEqualTo(response.id())
+        );
+    }
+
+    @Test
+    void 자신의_토론에_댓글을_작성하면_알림이_생성되지_않는다() {
+        // given
+        Discussion discussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "자신의 댓글",
+                discussion.getId(),
+                null
+        );
+
+        // when
+        discussionCommentService.createComment(request, author1.getId());
+
+        // then
+        assertThat(notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(author1, 0L))
+                .isEmpty();
+    }
+
+    @Test
+    void 자신의_댓글에_답글을_작성하면_알림이_생성되지_않는다() {
+        // given
+        Discussion discussion = discussionRepository.save(createDiscussion(author2));
+        DiscussionComment parentComment = discussionCommentRepository.save(createComment(discussion, author1));
+
+        DiscussionCommentCreateRequest request = new DiscussionCommentCreateRequest(
+                "자신의 답글",
+                discussion.getId(),
+                parentComment.getId()
+        );
+
+        // when
+        discussionCommentService.createComment(request, author1.getId());
+
+        // then
+        assertThat(notificationRepository.findAllByReceiverAndIdGreaterThanOrderByCreatedAtAsc(author1, 0L))
+                .isEmpty();
     }
 
     private User createUser() {

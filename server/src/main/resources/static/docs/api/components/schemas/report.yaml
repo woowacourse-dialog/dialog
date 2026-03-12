@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: Report Domain Schemas
+  description: 신고 도메인 스키마
+  version: 1.0.0
+
+components:
+  schemas:
+    ReportReason:
+      type: string
+      description: 신고 사유
+      enum:
+        - SPAM
+        - INAPPROPRIATE
+        - ABUSE
+        - OTHER
+      example: SPAM
+
+    ReportRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          $ref: '#/components/schemas/ReportReason'

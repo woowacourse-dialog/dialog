@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
+import Button from '../ui/Button/Button';
 import { getComments, createComment } from '../../api/discussion';
-import useMe from '../../hooks/useMe';
-import './CommentList.css';
+import { useAuth } from '../../context/AuthContext';
+import styles from './CommentList.module.css';
 
 const CommentList = ({ discussionId }) => {
-  const { me } = useMe();
+  const { currentUser: me } = useAuth();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const location = useLocation();
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -19,8 +23,8 @@ const CommentList = ({ discussionId }) => {
         setError(null);
         const commentsData = await getComments(discussionId);
         setComments(commentsData || []);
-      } catch (error) {
-        console.error('Failed to fetch comments:', error);
+      } catch (err) {
+        console.error('Failed to fetch comments:', err);
         setError('댓글을 불러오는데 실패했습니다.');
         setComments([]);
       } finally {
@@ -33,76 +37,94 @@ const CommentList = ({ discussionId }) => {
     }
   }, [discussionId, refreshTrigger]);
 
-  const handleRefresh = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+  useEffect(() => {
+    if (!loading && location.hash && scrolledRef.current !== location.hash) {
+      const elementId = location.hash.substring(1);
+
+      const scrollToElement = () => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.style.transition = 'background-color 0.5s ease';
+          element.style.backgroundColor = 'var(--color-accent-subtle, #e8f4ff)';
+          setTimeout(() => {
+            element.style.backgroundColor = '';
+          }, 2000);
+          scrolledRef.current = location.hash;
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollToElement()) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if (scrollToElement() || attempts >= 10) {
+            clearInterval(interval);
+          }
+        }, 200);
+      }
+    }
+  }, [loading, location.hash]);
+
+  const handleRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   const handleCreateComment = async (content, parentDiscussionCommentId = null) => {
     try {
       await createComment({
         content,
         discussionId: parseInt(discussionId),
-        parentDiscussionCommentId
+        parentDiscussionCommentId,
       });
       handleRefresh();
-    } catch (error) {
-      console.error('Failed to create comment:', error);
-      throw error;
+    } catch (err) {
+      console.error('Failed to create comment:', err);
+      throw err;
     }
   };
 
+  const commentCount = comments.reduce(
+    (total, c) => total + 1 + (c.childComments?.length || 0),
+    0
+  );
+
   if (loading) {
     return (
-      <div className="comments-section">
-        <div className="comments-header">
+      <div className={styles.section}>
+        <div className={styles.header}>
           <h3>댓글</h3>
         </div>
-        <div className="comments-loading">댓글을 불러오는 중...</div>
+        <div className={styles.loading}>댓글을 불러오는 중...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="comments-section">
-        <div className="comments-header">
+      <div className={styles.section}>
+        <div className={styles.header}>
           <h3>댓글</h3>
         </div>
-        <div className="comments-error">
+        <div className={styles.error}>
           {error}
-          <button onClick={handleRefresh} className="retry-button">
+          <Button variant="primary" size="sm" onClick={handleRefresh}>
             다시 시도
-          </button>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="comments-section">
-      <div className="comments-header">
-        <h3>댓글 {comments.reduce((total, comment) => total + 1 + ((comment.childComments && comment.childComments.length) || 0), 0)}개</h3>
+    <div className={styles.section}>
+      <div className={styles.header}>
+        <h3>댓글 {commentCount}개</h3>
       </div>
 
-      {me && (
-        <div className="comment-form-section">
-          <CommentForm
-            onSave={(content) => handleCreateComment(content)}
-            submitText="댓글 등록"
-            placeholder="댓글을 작성해주세요..."
-          />
-        </div>
-      )}
-
-      {!me && (
-        <div className="login-required">
-          댓글을 작성하려면 로그인이 필요합니다.
-        </div>
-      )}
-
-      <div className="comments-list">
+      <div className={styles.list}>
         {comments.length === 0 ? (
-          <div className="no-comments">
+          <div className={styles.empty}>
             아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
           </div>
         ) : (
@@ -118,6 +140,20 @@ const CommentList = ({ discussionId }) => {
           ))
         )}
       </div>
+
+      {me ? (
+        <div className={styles.formSection}>
+          <CommentForm
+            onSave={(content) => handleCreateComment(content)}
+            submitText="댓글 등록"
+            placeholder="댓글을 작성해주세요..."
+          />
+        </div>
+      ) : (
+        <div className={styles.loginRequired}>
+          댓글을 작성하려면 로그인이 필요합니다.
+        </div>
+      )}
     </div>
   );
 };

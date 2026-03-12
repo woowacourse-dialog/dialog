@@ -1,5 +1,6 @@
 package com.dialog.server.dto.auth.response;
 
+import com.dialog.server.domain.SocialType;
 import com.dialog.server.domain.Track;
 import com.dialog.server.domain.User;
 
@@ -8,7 +9,8 @@ public record UserInfoResponse(
         String nickname,
         String githubId,
         Track track,
-        boolean isNotificationEnabled
+        boolean isNotificationEnabled,
+        SocialType socialType
 ) {
     public static UserInfoResponse from(User user) {
         return new UserInfoResponse(
@@ -16,7 +18,8 @@ public record UserInfoResponse(
                 user.getNickname(),
                 user.getGithubId(),
                 user.getTrack(),
-                user.isWebPushNotification()
+                user.isWebPushNotification(),
+                user.getSocialType()
         );
     }
 }

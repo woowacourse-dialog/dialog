@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: Dialog Mobile Auth API
+  description: 모바일 인증을 위한 API (Apple 로그인)
+  version: 1.0.0
+  contact:
+    name: Dialog Team
+
+servers:
+  - url: https://api.dialog.com
+    description: 프로덕션 서버
+
+tags:
+  - name: Mobile Auth
+    description: 모바일 인증 (Apple 로그인)
+
+paths:
+  /api/auth/mobile/apple/login:
+    post:
+      tags:
+        - Mobile Auth
+      summary: Apple 로그인
+      description: |
+        Apple Identity Token을 검증하여 로그인을 진행합니다.
+
+        **Apple 로그인 프로세스:**
+        1. 클라이언트(iOS)에서 Apple Sign In을 통해 Identity Token을 발급받습니다
+        2. 서버로 Identity Token, 사용자 이름(선택)을 전송합니다
+        3. 서버는 Apple JWKS를 통해 토큰을 검증하고, issuer/audience를 확인합니다
+        4. 검증 성공 시 기존 회원 여부에 따라 다른 응답을 반환합니다
+
+        **응답 분기:**
+        - `isRegistered: true` → 이미 가입된 사용자. 세션이 생성되어 바로 서비스 이용 가능
+        - `isRegistered: false` → 미가입 사용자. 세션에 OAuth 정보가 임시 저장되며, `/api/signup`을 호출하여 회원가입을 완료해야 합니다
+
+        **참고:**
+        - `firstName`, `lastName`은 Apple에서 최초 로그인 시에만 제공됩니다. 이후 로그인에서는 전달되지 않습니다.
+        - 세션 기반 인증을 사용하며, 로그인 성공 시 `JSESSIONID` 쿠키가 발급됩니다.
+      operationId: appleLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/schemas/auth.yaml#/components/schemas/AppleLoginRequest'
+            example:
+              identityToken: "eyJraWQiOiJXNldjT0..."
+              firstName: "길동"
+              lastName: "홍"
+      responses:
+        '200':
+          description: Apple 로그인 처리 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: './components/schemas/auth.yaml#/components/schemas/OAuthLoginResponse'
+              examples:
+                registeredUser:
+                  summary: 이미 가입된 사용자 (바로 로그인)
+                  value:
+                    data:
+                      isRegistered: true
+                      userId: 123
+                      nickname: "홍길동"
+                unregisteredUser:
+                  summary: 미가입 사용자 (회원가입 필요)
+                  value:
+                    data:
+                      isRegistered: false
+                      userId: null
+                      nickname: null
+        'error-codes':
+          description: "[1007, 1008]"

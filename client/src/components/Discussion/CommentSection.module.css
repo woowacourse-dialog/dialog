@@ -1,0 +1,92 @@
+.section {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default, #e0e0e0);
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary, #303e4f);
+  margin: 0;
+}
+
+.formSection {
+  margin-bottom: 24px;
+}
+
+.loginRequired {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: var(--color-bg-subtle, #f8f9fa);
+  border-radius: var(--radius-lg, 8px);
+  color: var(--color-text-secondary, #6c757d);
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid var(--color-border-default, #e9ecef);
+}
+
+.list {
+  margin-top: 16px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary, #6c757d);
+  font-size: 14px;
+}
+
+.error {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-status-danger-text, #dc3545);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary, #6c757d);
+  font-size: 14px;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .section {
+    margin-top: 32px;
+    padding-top: 20px;
+  }
+
+  .header h3 {
+    font-size: 16px;
+  }
+
+  .formSection {
+    margin-bottom: 20px;
+  }
+
+  .empty {
+    padding: 32px 16px;
+    font-size: 13px;
+  }
+
+  .loading,
+  .error {
+    padding: 32px 16px;
+    font-size: 13px;
+  }
+
+  .loginRequired {
+    padding: 12px;
+    font-size: 13px;
+  }
+}

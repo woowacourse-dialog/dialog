@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -104,5 +105,9 @@ public abstract class Discussion extends BaseEntity {
 
     public boolean hasSummary() {
         return !(this.summary == null || this.summary.isBlank());
+    }
+
+    public boolean isNotAuthor(Long userId) {
+        return !Objects.equals(author.getId(), userId);
     }
 }

@@ -27,13 +27,13 @@ components:
         content:
           type: array
           items:
-            $ref: '../discussion.yaml#/components/schemas/DiscussionPreviewResponse'
+            $ref: './discussion.yaml#/components/schemas/DiscussionPreviewResponse'
           description: 북마크한 토론 목록
         nextCursorId:
           type: integer
           format: int64
           nullable: true
-          description: 다음 페이지 커서 (토론 ID, 없으면 null)
+          description: 다음 페이지 커서 (스크랩 ID, 없으면 null)
           example: 78
         hasNext:
           type: boolean

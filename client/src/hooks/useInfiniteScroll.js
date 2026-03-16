@@ -15,7 +15,7 @@ export default function useInfiniteScroll({ loadMore, hasMore, loading, isFetchi
     }, { threshold: 1 });
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [hasMore]);
+  }, [hasMore, loading]);
 
   return loaderRef;
 }

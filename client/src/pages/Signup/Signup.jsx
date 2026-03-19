@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Info } from 'lucide-react';
 import clsx from 'clsx';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button/Button';
 import Tooltip from '../../components/ui/Tooltip/Tooltip';
 import styles from './Signup.module.css';
@@ -11,6 +12,7 @@ const ENABLE_SLACK_GUIDE_PAGE = false;
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { checkLoginStatus } = useAuth();
 
   const [formData, setFormData] = useState({
     track: '',
@@ -46,6 +48,8 @@ const Signup = () => {
       }, {
         withCredentials: true,
       });
+
+      await checkLoginStatus();
 
       if (ENABLE_SLACK_GUIDE_PAGE) {
         navigate('/signup/complete');

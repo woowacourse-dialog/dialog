@@ -39,8 +39,14 @@
                 <maxHistory>30</maxHistory>
             </rollingPolicy>
         </appender>
+        <appender name="sentry-appender" class="io.sentry.logback.SentryAppender">
+            <minimumEventLevel>ERROR</minimumEventLevel>
+            <minimumBreadcrumbLevel>INFO</minimumBreadcrumbLevel>
+        </appender>
+
         <root level="INFO">
             <appender-ref ref="file-appender"/>
+            <appender-ref ref="sentry-appender"/>
         </root>
     </springProfile>
 </configuration>

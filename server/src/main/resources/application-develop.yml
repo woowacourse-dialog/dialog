@@ -70,6 +70,15 @@ management:
       exposure:
         include: "health,info,prometheus"
 
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: develop
+  send-default-pii: false
+  in-app-includes: com.dialog.server
+  traces-sample-rate: 0.2
+  logs:
+    enabled: true
+
 springdoc:
   api-docs:
     enabled: true

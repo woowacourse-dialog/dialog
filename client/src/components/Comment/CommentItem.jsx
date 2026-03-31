@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pencil, Trash2, Flag } from 'lucide-react';
+import React, { useState, useCallback, useRef } from 'react';
+import { Pencil, Trash2, Flag, SmilePlus } from 'lucide-react';
 import clsx from 'clsx';
 import MarkdownRender from '../Markdown/MarkdownRender';
 import CommentForm from './CommentForm';
@@ -9,7 +9,9 @@ import ConfirmModal from '../ui/ConfirmModal/ConfirmModal';
 import ReportModal from '../ui/ReportModal/ReportModal';
 import { updateComment, deleteComment } from '../../api/discussion';
 import { reportComment } from '../../api/report';
+import { likeComment, unlikeComment } from '../../api/commentLike';
 import { useAuth } from '../../context/AuthContext';
+import useClickOutside from '../../hooks/useClickOutside';
 import { formatCommentDate } from '../../utils/dateUtils';
 import { getProfileImageSrc } from '../../utils/profileImage';
 import styles from './CommentItem.module.css';
@@ -34,6 +36,11 @@ const CommentItem = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [isLiked, setIsLiked] = useState(comment.isLiked ?? false);
+  const [likeCount, setLikeCount] = useState(comment.likeCount ?? 0);
+  const [showPicker, setShowPicker] = useState(false);
+  const pickerRef = useRef(null);
+  useClickOutside(pickerRef, () => setShowPicker(false), showPicker);
 
   const isAuthor = me && me.id === comment.author.authorId;
   const hasReplies = comment.childComments?.length > 0;
@@ -88,6 +95,25 @@ const CommentItem = ({
     ];
   };
 
+  const handleLike = useCallback(async () => {
+    if (!me) return;
+    const prevLiked = isLiked;
+    const prevCount = likeCount;
+    setIsLiked(!prevLiked);
+    setLikeCount(prev => prevLiked ? Math.max(0, prev - 1) : prev + 1);
+    try {
+      if (prevLiked) {
+        await unlikeComment(comment.discussionCommentId);
+      } else {
+        await likeComment(comment.discussionCommentId);
+      }
+    } catch (error) {
+      setIsLiked(prevLiked);
+      setLikeCount(prevCount);
+      console.error('Failed to update comment like:', error);
+    }
+  }, [me, isLiked, likeCount, comment.discussionCommentId]);
+
   const handleSaveReply = async (content) => {
     await onReply(content, comment.discussionCommentId);
     setIsReplying(false);
@@ -133,15 +159,50 @@ const CommentItem = ({
           )}
         </div>
 
-        {!isEditing && depth === 0 && me && (
+        {!isEditing && (
           <div className={styles.footer}>
-            <button
-              className={styles.replyBtn}
-              onClick={() => setIsReplying(true)}
-              disabled={isReplying}
-            >
-              답글쓰기
-            </button>
+            {likeCount > 0 && (
+              <button
+                className={clsx(styles.likeBtn, isLiked && styles.likeBtnActive)}
+                onClick={handleLike}
+                disabled={!me}
+                title={!me ? '로그인 후 이용할 수 있습니다' : undefined}
+                aria-label={isLiked ? '따봉 취소' : '따봉'}
+              >
+                👍 <span className={styles.likeCount}>{likeCount}</span>
+              </button>
+            )}
+            {me && (
+              <div className={styles.pickerWrap} ref={pickerRef}>
+                <button
+                  className={styles.pickerTrigger}
+                  onClick={() => setShowPicker(prev => !prev)}
+                  aria-label="이모티콘 추가"
+                >
+                  <SmilePlus size={14} />
+                </button>
+                {showPicker && (
+                  <div className={styles.pickerPopover}>
+                    <button
+                      className={clsx(styles.emojiOption, isLiked && styles.emojiOptionActive)}
+                      onClick={() => { handleLike(); setShowPicker(false); }}
+                      aria-label="따봉"
+                    >
+                      👍
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {depth === 0 && me && (
+              <button
+                className={styles.replyBtn}
+                onClick={() => setIsReplying(true)}
+                disabled={isReplying}
+              >
+                답글쓰기
+              </button>
+            )}
           </div>
         )}
 

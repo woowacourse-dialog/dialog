@@ -62,7 +62,120 @@
 }
 
 .footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 8px;
+}
+
+.likeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+  font-family: var(--font-family-default);
+  cursor: pointer;
+  line-height: 1.6;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.likeBtn:hover:not(:disabled) {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.likeBtn:disabled {
+  cursor: default;
+}
+
+.likeBtnActive {
+  background: var(--color-accent-orange-light);
+  border-color: var(--color-accent-orange);
+  color: var(--color-accent-orange-dark);
+}
+
+.likeBtnActive:hover:not(:disabled) {
+  background: var(--color-accent-orange-light);
+  border-color: var(--color-accent-orange-dark);
+}
+
+.likeCount {
+  font-weight: 600;
+}
+
+.pickerWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.pickerTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pickerTrigger:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-default);
+  color: var(--color-text-tertiary);
+}
+
+.pickerPopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--color-bg-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.emojiOption {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+  line-height: 1;
+}
+
+.emojiOption:hover {
+  background: var(--color-bg-card-hover);
+  border-color: var(--color-border-default);
+}
+
+.emojiOptionActive {
+  background: var(--color-accent-orange-light);
+  border-color: var(--color-accent-orange);
+}
+
+.emojiOptionActive:hover {
+  background: var(--color-accent-orange-light);
+  border-color: var(--color-accent-orange-dark);
 }
 
 .replyBtn {
@@ -113,6 +226,7 @@
     font-size: 11px;
   }
 
+  .likeBtn,
   .replyBtn {
     font-size: 11px;
   }

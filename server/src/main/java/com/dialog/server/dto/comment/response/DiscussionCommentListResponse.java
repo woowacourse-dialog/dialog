@@ -20,39 +20,52 @@ public record DiscussionCommentListResponse(
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
             LocalDateTime createdAt,
             @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-            LocalDateTime modifiedAt
+            LocalDateTime modifiedAt,
+            long likeCount,
+            boolean isLiked
     ) {
         public static DiscussionCommentResponse withChildren(
                 DiscussionComment parentComment,
                 List<DiscussionComment> childComments,
-                Map<User, ProfileImage> profileImagesByUserId) {
+                Map<User, ProfileImage> profileImagesByUserId,
+                Map<Long, Long> likeCountByCommentId,
+                java.util.Set<Long> likedCommentIds) {
 
             List<DiscussionCommentResponse> childResponses = childComments.stream()
                     .map(childComment -> DiscussionCommentResponse.from(
                             childComment,
-                            profileImagesByUserId.get(childComment.getAuthor())
+                            profileImagesByUserId.get(childComment.getAuthor()),
+                            likeCountByCommentId,
+                            likedCommentIds
                     ))
                     .toList();
 
             return DiscussionCommentResponse.from(
                     parentComment,
                     profileImagesByUserId.get(parentComment.getAuthor()),
-                    childResponses
+                    childResponses,
+                    likeCountByCommentId,
+                    likedCommentIds
             );
         }
 
-        private static DiscussionCommentResponse from(DiscussionComment comment, ProfileImage profileImage) {
-            return from(comment, profileImage, List.of());
+        private static DiscussionCommentResponse from(DiscussionComment comment, ProfileImage profileImage,
+                Map<Long, Long> likeCountByCommentId, java.util.Set<Long> likedCommentIds) {
+            return from(comment, profileImage, List.of(), likeCountByCommentId, likedCommentIds);
         }
 
-        private static DiscussionCommentResponse from(DiscussionComment comment, ProfileImage profileImage, List<DiscussionCommentResponse> childComments) {
+        private static DiscussionCommentResponse from(DiscussionComment comment, ProfileImage profileImage,
+                List<DiscussionCommentResponse> childComments,
+                Map<Long, Long> likeCountByCommentId, java.util.Set<Long> likedCommentIds) {
             return new DiscussionCommentResponse(
                     comment.getId(),
                     comment.getContent(),
                     AuthorResponse.from(comment.getAuthor(), profileImage),
                     childComments,
                     comment.getCreatedAt(),
-                    comment.getModifiedAt()
+                    comment.getModifiedAt(),
+                    likeCountByCommentId.getOrDefault(comment.getId(), 0L),
+                    likedCommentIds.contains(comment.getId())
             );
         }
 

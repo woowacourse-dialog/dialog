@@ -71,6 +71,8 @@ components:
         - childComments
         - createdAt
         - modifiedAt
+        - likeCount
+        - isLiked
       properties:
         discussionCommentId:
           type: integer
@@ -98,6 +100,15 @@ components:
           format: date-time
           description: 수정 일시
           example: "2025-11-14T11:00:00"
+        likeCount:
+          type: integer
+          format: int64
+          description: 댓글 좋아요 수
+          example: 5
+        isLiked:
+          type: boolean
+          description: 현재 로그인한 사용자의 좋아요 여부 (비로그인 시 항상 false)
+          example: true
 
     DiscussionComment_AuthorResponse:
       type: object

@@ -61,6 +61,8 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("5060", "댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     REPLY_DEPTH_EXCEEDED("5061", "답글에 답글을 달 수 없습니다.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED_ACCESS("5062", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    ALREADY_COMMENT_LIKED("5063", "이미 좋아요를 눌렀습니다.", HttpStatus.BAD_REQUEST),
+    NOT_COMMENT_LIKED_YET("5064", "좋아요를 누르지 않았습니다.", HttpStatus.BAD_REQUEST),
 
     NOT_OFFLINE_DISCUSSION("5071", "오프라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),
     NOT_ONLINE_DISCUSSION("5072", "온라인 토론이 아닙니다.", HttpStatus.BAD_REQUEST),

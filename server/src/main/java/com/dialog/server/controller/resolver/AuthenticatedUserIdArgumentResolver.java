@@ -27,13 +27,22 @@ public class AuthenticatedUserIdArgumentResolver implements HandlerMethodArgumen
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
+        AuthenticatedUserId annotation = parameter.getParameterAnnotation(AuthenticatedUserId.class);
+        boolean required = annotation == null || annotation.required();
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null) {
+            if (!required) {
+                return null;
+            }
             throw new DialogException(ErrorCode.AUTHENTICATION_NOT_FOUND);
         }
 
         if (authentication instanceof AnonymousAuthenticationToken) {
+            if (!required) {
+                return null;
+            }
             throw new DialogException(ErrorCode.LOGIN_REQUIRED);
         }
 

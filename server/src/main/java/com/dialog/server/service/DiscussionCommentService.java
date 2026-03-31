@@ -8,18 +8,22 @@ import com.dialog.server.domain.NotificationType;
 import com.dialog.server.domain.ProfileImage;
 import com.dialog.server.domain.RouteParams;
 import com.dialog.server.domain.User;
+import com.dialog.server.dto.comment.CommentLikeCountDto;
 import com.dialog.server.dto.comment.request.DiscussionCommentCreateRequest;
 import com.dialog.server.dto.comment.response.DiscussionCommentCreateResponse;
 import com.dialog.server.dto.comment.response.DiscussionCommentListResponse;
 import com.dialog.server.dto.comment.response.DiscussionCommentListResponse.DiscussionCommentResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.repository.CommentLikeRepository;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.ProfileImageRepository;
 import com.dialog.server.repository.UserRepository;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,7 @@ public class DiscussionCommentService {
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final NotificationService notificationService;
+    private final CommentLikeRepository commentLikeRepository;
 
     @Transactional
     public DiscussionCommentCreateResponse createComment(DiscussionCommentCreateRequest request, Long authorId) {
@@ -93,7 +98,7 @@ public class DiscussionCommentService {
     }
 
     @Transactional(readOnly = true)
-    public DiscussionCommentListResponse getCommentsByDiscussionId(Long discussionId) {
+    public DiscussionCommentListResponse getCommentsByDiscussionId(Long discussionId, Long userId) {
         Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(() -> new DialogException(ErrorCode.NOT_FOUND_DISCUSSION));
 
@@ -105,11 +110,26 @@ public class DiscussionCommentService {
 
         final Map<User, ProfileImage> authorProfileImages = getAuthorProfileImages(discussionComments);
 
+        List<Long> commentIds = discussionComments.stream().map(DiscussionComment::getId).toList();
+        Map<Long, Long> likeCountByCommentId = commentLikeRepository.countByCommentIdIn(commentIds).stream()
+                .collect(Collectors.toMap(CommentLikeCountDto::commentId, CommentLikeCountDto::likeCount));
+
+        Set<Long> likedCommentIds;
+        if (userId != null) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new DialogException(ErrorCode.USER_NOT_FOUND));
+            likedCommentIds = Set.copyOf(commentLikeRepository.findLikedCommentIdsByUserAndCommentIdIn(user, commentIds));
+        } else {
+            likedCommentIds = Collections.emptySet();
+        }
+
         List<DiscussionCommentResponse> parentCommentResponses = parentComments.stream()
                 .map(parentComment -> DiscussionCommentResponse.withChildren(
                         parentComment,
                         childCommentsByParentId.getOrDefault(parentComment.getId(), List.of()),
-                        authorProfileImages
+                        authorProfileImages,
+                        likeCountByCommentId,
+                        likedCommentIds
                 ))
                 .toList();
         return new DiscussionCommentListResponse(parentCommentResponses);

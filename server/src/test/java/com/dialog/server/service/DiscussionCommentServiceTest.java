@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.dialog.server.domain.Category;
+import com.dialog.server.domain.CommentLike;
 import com.dialog.server.domain.CommentReplyRouteParams;
 import com.dialog.server.domain.Discussion;
 import com.dialog.server.domain.DiscussionComment;
@@ -21,6 +22,7 @@ import com.dialog.server.dto.comment.response.DiscussionCommentListResponse;
 import com.dialog.server.dto.comment.response.DiscussionCommentListResponse.DiscussionCommentResponse;
 import com.dialog.server.exception.DialogException;
 import com.dialog.server.exception.ErrorCode;
+import com.dialog.server.repository.CommentLikeRepository;
 import com.dialog.server.repository.DiscussionCommentRepository;
 import com.dialog.server.repository.DiscussionRepository;
 import com.dialog.server.repository.NotificationRepository;
@@ -55,6 +57,8 @@ class DiscussionCommentServiceTest {
     private ProfileImageRepository profileImageRepository;
     @Autowired
     private NotificationRepository notificationRepository;
+    @Autowired
+    private CommentLikeRepository commentLikeRepository;
 
     private User author1;
     private User author2;
@@ -189,7 +193,7 @@ class DiscussionCommentServiceTest {
         discussionCommentRepository.save(createReplyComment(discussion, author2, parentComment2, "세 번째 답글"));
 
         // when
-        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussion.getId());
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussion.getId(), null);
 
         // then
         DiscussionCommentResponse firstParent = response.discussionComments().get(0);
@@ -210,7 +214,7 @@ class DiscussionCommentServiceTest {
         Discussion discussion = discussionRepository.save(createDiscussion(author1));
 
         // when
-        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussion.getId());
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussion.getId(), null);
 
         // then
         assertThat(response.discussionComments()).isEmpty();
@@ -219,7 +223,7 @@ class DiscussionCommentServiceTest {
     @Test
     void 존재하지_않는_토론글의_댓글_목록을_조회할_수_없다() {
         // when & then
-        assertThatThrownBy(() -> discussionCommentService.getCommentsByDiscussionId(999L))
+        assertThatThrownBy(() -> discussionCommentService.getCommentsByDiscussionId(999L, null))
                 .isInstanceOf(DialogException.class)
                 .hasMessageContaining(ErrorCode.NOT_FOUND_DISCUSSION.message);
     }
@@ -395,6 +399,70 @@ class DiscussionCommentServiceTest {
     }
 
     @Test
+    void 댓글_목록_조회_시_좋아요_수가_포함된다() {
+        // given
+        Discussion newDiscussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionComment parentComment = discussionCommentRepository.save(createComment(newDiscussion, author1, "부모댓글"));
+        DiscussionComment childComment = discussionCommentRepository.save(createReplyComment(newDiscussion, author2, parentComment, "답글"));
+
+        commentLikeRepository.save(createCommentLike(author1, parentComment));
+        commentLikeRepository.save(createCommentLike(author2, parentComment));
+        commentLikeRepository.save(createCommentLike(author1, childComment));
+
+        // when
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(newDiscussion.getId(), null);
+
+        // then
+        DiscussionCommentResponse parentResponse = response.discussionComments().get(0);
+        DiscussionCommentResponse childResponse = parentResponse.childComments().get(0);
+
+        assertAll(
+                () -> assertThat(parentResponse.likeCount()).isEqualTo(2),
+                () -> assertThat(childResponse.likeCount()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    void 댓글_목록_조회_시_로그인한_사용자의_좋아요_여부가_포함된다() {
+        // given
+        Discussion newDiscussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionComment likedComment = discussionCommentRepository.save(createComment(newDiscussion, author1, "좋아요한 댓글"));
+        DiscussionComment notLikedComment = discussionCommentRepository.save(createComment(newDiscussion, author2, "좋아요 안 한 댓글"));
+
+        commentLikeRepository.save(createCommentLike(author2, likedComment));
+
+        // when
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(newDiscussion.getId(), author2.getId());
+
+        // then
+        DiscussionCommentResponse likedResponse = response.discussionComments().stream()
+                .filter(r -> r.discussionCommentId().equals(likedComment.getId()))
+                .findFirst().orElseThrow();
+        DiscussionCommentResponse notLikedResponse = response.discussionComments().stream()
+                .filter(r -> r.discussionCommentId().equals(notLikedComment.getId()))
+                .findFirst().orElseThrow();
+
+        assertAll(
+                () -> assertThat(likedResponse.isLiked()).isTrue(),
+                () -> assertThat(notLikedResponse.isLiked()).isFalse()
+        );
+    }
+
+    @Test
+    void 댓글_목록_조회_시_비로그인이면_isLiked가_false다() {
+        // given
+        Discussion newDiscussion = discussionRepository.save(createDiscussion(author1));
+        DiscussionComment commentWithLike = discussionCommentRepository.save(createComment(newDiscussion, author1, "좋아요 있는 댓글"));
+        commentLikeRepository.save(createCommentLike(author2, commentWithLike));
+
+        // when
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(newDiscussion.getId(), null);
+
+        // then
+        assertThat(response.discussionComments().get(0).isLiked()).isFalse();
+    }
+
+    @Test
     void 자신의_댓글에_답글을_작성하면_알림이_생성되지_않는다() {
         // given
         Discussion discussion = discussionRepository.save(createDiscussion(author2));
@@ -468,6 +536,13 @@ class DiscussionCommentServiceTest {
                 .discussion(discussion)
                 .author(author)
                 .parentDiscussionComment(parentComment)
+                .build();
+    }
+
+    private CommentLike createCommentLike(User user, DiscussionComment comment) {
+        return CommentLike.builder()
+                .user(user)
+                .comment(comment)
                 .build();
     }
 

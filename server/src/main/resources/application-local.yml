@@ -87,7 +87,7 @@ aws:
 
 
 sentry:
-  dsn: ${SENTRY_DSN}
+  dsn: ${SENTRY_DSN:}
   environment: production
   send-default-pii: false
   in-app-includes: com.dialog.server

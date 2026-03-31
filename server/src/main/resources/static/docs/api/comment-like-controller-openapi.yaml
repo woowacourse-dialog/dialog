@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: Dialog Discussion Like API
-  description: 토론 좋아요 기능 관리를 위한 API
+  title: Dialog Comment Like API
+  description: 댓글 좋아요 기능 관리를 위한 API
   version: 1.0.0
   contact:
     name: Dialog Team
@@ -11,24 +11,24 @@ servers:
     description: 프로덕션 서버
 
 tags:
-  - name: Discussion Like
-    description: 토론 좋아요 관리
+  - name: Comment Like
+    description: 댓글 좋아요 관리
 
 paths:
-  /api/discussions/{discussionsId}/likes:
+  /api/discussions/comments/{commentId}/likes:
     post:
       tags:
-        - Discussion Like
-      summary: 좋아요 추가
-      description: 특정 토론에 좋아요를 추가합니다. 이미 좋아요가 되어있으면 중복되지 않습니다.
-      operationId: addLike
+        - Comment Like
+      summary: 댓글 좋아요 추가
+      description: 특정 댓글에 좋아요를 추가합니다.
+      operationId: addCommentLike
       security:
-        - sessionAuth: [ ]
+        - sessionAuth: []
       parameters:
-        - name: discussionsId
+        - name: commentId
           in: path
           required: true
-          description: 토론 ID
+          description: 좋아요를 추가할 댓글 ID
           schema:
             type: integer
             format: int64
@@ -46,21 +46,21 @@ paths:
               example:
                 data: null
         'error-codes':
-          description: "[1005, 5022]"
+          description: "[1005, 5060, 5063]"
 
     delete:
       tags:
-        - Discussion Like
-      summary: 좋아요 취소
-      description: 특정 토론의 좋아요를 취소합니다.
-      operationId: removeLike
+        - Comment Like
+      summary: 댓글 좋아요 취소
+      description: 특정 댓글의 좋아요를 취소합니다.
+      operationId: removeCommentLike
       security:
-        - sessionAuth: [ ]
+        - sessionAuth: []
       parameters:
-        - name: discussionsId
+        - name: commentId
           in: path
           required: true
-          description: 토론 ID
+          description: 좋아요를 취소할 댓글 ID
           schema:
             type: integer
             format: int64
@@ -68,7 +68,7 @@ paths:
         '204':
           description: 좋아요 취소 성공 (응답 본문 없음)
         'error-codes':
-          description: "[1005, 5022]"
+          description: "[1005, 5060, 5064]"
 
 components:
   securitySchemes:

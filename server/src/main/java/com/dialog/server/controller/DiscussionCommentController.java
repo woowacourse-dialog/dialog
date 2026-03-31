@@ -6,6 +6,7 @@ import com.dialog.server.dto.comment.request.DiscussionCommentUpdateRequest;
 import com.dialog.server.dto.comment.response.DiscussionCommentCreateResponse;
 import com.dialog.server.dto.comment.response.DiscussionCommentListResponse;
 import com.dialog.server.exception.ApiSuccessResponse;
+import com.dialog.server.service.CommentLikeService;
 import com.dialog.server.service.DiscussionCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class DiscussionCommentController {
 
     private final DiscussionCommentService discussionCommentService;
+    private final CommentLikeService commentLikeService;
 
     @PostMapping("/comments")
     public ResponseEntity<ApiSuccessResponse<DiscussionCommentCreateResponse>> createComment(
@@ -56,9 +58,28 @@ public class DiscussionCommentController {
 
     @GetMapping("/{discussionId}/comments")
     public ResponseEntity<ApiSuccessResponse<DiscussionCommentListResponse>> getComments(
-            @PathVariable Long discussionId
+            @PathVariable Long discussionId,
+            @AuthenticatedUserId(required = false) Long userId
     ) {
-        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussionId);
+        DiscussionCommentListResponse response = discussionCommentService.getCommentsByDiscussionId(discussionId, userId);
         return ResponseEntity.ok(new ApiSuccessResponse<>(response));
+    }
+
+    @PostMapping("/comments/{commentId}/likes")
+    public ResponseEntity<ApiSuccessResponse<Void>> likeComment(
+            @PathVariable Long commentId,
+            @AuthenticatedUserId Long userId) {
+
+        commentLikeService.create(userId, commentId);
+        return ResponseEntity.ok(new ApiSuccessResponse<>(null));
+    }
+
+    @DeleteMapping("/comments/{commentId}/likes")
+    public ResponseEntity<ApiSuccessResponse<Void>> unlikeComment(
+            @PathVariable Long commentId,
+            @AuthenticatedUserId Long userId) {
+
+        commentLikeService.delete(userId, commentId);
+        return ResponseEntity.noContent().build();
     }
 }
